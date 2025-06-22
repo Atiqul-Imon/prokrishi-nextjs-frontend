@@ -1,8 +1,10 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { handlePaymentCancel } from "../../utils/api";
+import { XCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function PaymentCancel() {

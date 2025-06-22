@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { handlePaymentFail } from "../../utils/api";
+import { XCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function PaymentFail() {
