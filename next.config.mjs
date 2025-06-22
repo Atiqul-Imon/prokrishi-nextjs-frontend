@@ -9,12 +9,13 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+    unoptimized: true,
   },
   env: {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
   // Enable static exports if needed
-  output: 'standalone',
+  output: 'export',
   // Security headers
   async headers() {
     return [
