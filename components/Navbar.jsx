@@ -367,35 +367,11 @@ function Navbar() {
             </div>
 
             {/* Drawer menu items */}
-            <nav className="flex flex-col space-y-4">
-              <Link
-                href="/"
-                className="text-gray-700 hover:text-green-600"
-                onClick={() => setDrawerOpen(false)}
-              >
-                Home
-              </Link>
-              <Link
-                href="/products"
-                className="text-gray-700 hover:text-green-600"
-                onClick={() => setDrawerOpen(false)}
-              >
-                Products
-              </Link>
-              <Link
-                href="/about"
-                className="text-gray-700 hover:text-green-600"
-                onClick={() => setDrawerOpen(false)}
-              >
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="text-gray-700 hover:text-green-600"
-                onClick={() => setDrawerOpen(false)}
-              >
-                Contact
-              </Link>
+            <nav className="flex flex-col space-y-6 px-4">
+              <Link href="/" className="text-lg text-gray-700 hover:text-green-600" onClick={() => setDrawerOpen(false)}>Home</Link>
+              <Link href="/products" className="text-lg text-gray-700 hover:text-green-600" onClick={() => setDrawerOpen(false)}>Products</Link>
+              <Link href="/about" className="text-lg text-gray-700 hover:text-green-600" onClick={() => setDrawerOpen(false)}>About</Link>
+              <Link href="/contact" className="text-lg text-gray-700 hover:text-green-600" onClick={() => setDrawerOpen(false)}>Contact</Link>
 
               {/* Dashboard Link (Admin Only) */}
               {isAdmin && (
