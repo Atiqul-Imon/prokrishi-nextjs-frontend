@@ -1,7 +1,12 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchProfile, loginUser, registerUser, logoutUser } from '../utils/api';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import {
+  fetchProfile,
+  loginUser,
+  registerUser,
+  logoutUser,
+} from "../utils/api";
 
 const AuthContext = createContext();
 
@@ -16,7 +21,10 @@ export function AuthProvider({ children }) {
       setLoading(true);
       try {
         // Only try if accessToken exists in localStorage
-        if (typeof window !== 'undefined' && localStorage.getItem('accessToken')) {
+        if (
+          typeof window !== "undefined" &&
+          localStorage.getItem("accessToken")
+        ) {
           const data = await fetchProfile();
           setUser(data.user);
         } else {
@@ -92,7 +100,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider
       value={{
-        user,      // { ...user, role }
+        user, // { ...user, role }
         loading,
         error,
         login,
@@ -100,7 +108,7 @@ export function AuthProvider({ children }) {
         logout,
         setError,
         refreshUser,
-        isAdmin: user && (user.role === 'admin' || user.role === 'super_admin'),
+        isAdmin: user && (user.role === "admin" || user.role === "super_admin"),
       }}
     >
       {children}

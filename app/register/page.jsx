@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { registerUser } from '../utils/api';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { registerUser } from "../utils/api";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   function handleChange(e) {
     setForm((f) => ({
@@ -25,10 +25,10 @@ export default function RegisterPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     try {
       await registerUser(form);
-      router.push('/dashboard'); // Redirect to dashboard after registration & auto-login
+      router.push("/dashboard"); // Redirect to dashboard after registration & auto-login
     } catch (err) {
       setError(err.message);
     } finally {
@@ -91,10 +91,10 @@ export default function RegisterPage() {
           disabled={loading}
           className="w-full bg-green-600 text-white rounded py-2 font-semibold hover:bg-green-700 transition"
         >
-          {loading ? 'Registering...' : 'Register'}
+          {loading ? "Registering..." : "Register"}
         </button>
         <p className="text-center text-sm mt-2">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <a href="/login" className="text-green-700 hover:underline">
             Login
           </a>

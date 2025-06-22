@@ -1,229 +1,444 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import AddressForm from '../account/AddressForm';
-import { useCart } from '@/app/context/CartContext';
-import { fetchProfile, updateUserAddresses, placeOrder } from '../utils/api';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ArrowLeft,
+  MapPin,
+  CreditCard,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Plus,
+  ShoppingCart,
+  Shield,
+} from "lucide-react";
+import AddressForm from "../account/AddressForm";
+import { useCart } from "@/app/context/CartContext";
+import { useAuth } from "@/app/context/AuthContext";
+import { placeOrder, addAddress, createPaymentSession } from "../utils/api";
+import CheckoutProgress from "@/components/CheckoutProgress";
+import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
-  const { cart, clearCart } = useCart();
-  const [addresses, setAddresses] = useState([]);
+  const {
+    cart,
+    cartTotal,
+    cartCount,
+    loading: cartLoading,
+    clearCart,
+  } = useCart();
+  const {
+    user,
+    loading: authLoading,
+    error: authError,
+    refreshUser,
+  } = useAuth();
+  const router = useRouter();
+
+  const [checkoutStep, setCheckoutStep] = useState("shipping");
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [openAddressForm, setOpenAddressForm] = useState(false);
-  const [editAddress, setEditAddress] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('cod');
-  const [instructions, setInstructions] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [placingOrder, setPlacingOrder] = useState(false);
-  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cod");
 
-  // Fetch addresses on mount, and after add/edit/delete
- const fetchAndSetAddresses = async () => {
-  setLoading(true);
-  setError('');
-  try {
-    const data = await fetchProfile();
-    setAddresses(data.user.addresses ?? []);
-    setSelectedAddress(data.user.addresses?.[0]?._id ?? null);
-  } catch (err) {
-    setError(err.message || 'Failed to load addresses');
-  }
-  setLoading(false);
-};
+  const addresses = user?.addresses || [];
+
+  // Payment methods
+  const paymentMethods = [
+    {
+      id: "cod",
+      name: "Cash on Delivery",
+      description: "Pay when you receive your order",
+      icon: "💵",
+      color: "border-green-500 bg-green-50",
+      textColor: "text-green-700",
+    },
+    {
+      id: "sslcommerz",
+      name: "Online Payment",
+      description:
+        "Pay securely with cards, mobile banking, or internet banking",
+      icon: "💳",
+      color: "border-blue-500 bg-blue-50",
+      textColor: "text-blue-700",
+    },
+  ];
+
+  // Pre-select the first address if available
+  useEffect(() => {
+    if (addresses.length > 0 && !selectedAddress) {
+      const defaultAddress = addresses[0];
+      setSelectedAddress(defaultAddress);
+    }
+  }, [addresses, selectedAddress]);
 
   useEffect(() => {
-    fetchAndSetAddresses();
-    // eslint-disable-next-line
-  }, []);
+    if (selectedAddress) {
+      setCheckoutStep("payment");
+    } else {
+      setCheckoutStep("shipping");
+    }
+  }, [selectedAddress]);
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  // Add or edit address
-  async function handleAddAddress(addr) {
+  const handleAddressSave = async (addressData) => {
+    const toastId = toast.loading("Adding new address...");
     try {
-      let updatedAddresses;
-      if (editAddress && addr._id) {
-        updatedAddresses = addresses.map(a => a._id === addr._id ? addr : a);
-      } else {
-        updatedAddresses = [...addresses, addr];
-      }
-      await updateUserAddresses(updatedAddresses);
+      const newAddress = await addAddress(addressData);
+      await refreshUser();
       setOpenAddressForm(false);
-      setEditAddress(null);
-      // Refetch addresses to get newly assigned _id from backend
-      await fetchAndSetAddresses();
+      setSelectedAddress(newAddress);
+      toast.success("Address added successfully!", { id: toastId });
     } catch (err) {
-      alert(err.message || 'Failed to save address');
+      toast.error(err.message || "Failed to add address.", { id: toastId });
     }
-  }
+  };
 
-  // Edit address handler
-  function handleEditAddress(addr) {
-    setEditAddress(addr);
-    setOpenAddressForm(true);
-  }
-
-  // Delete address
-  async function handleDeleteAddress(_id) {
-    try {
-      const updatedAddresses = addresses.filter(a => a._id !== _id);
-      await updateUserAddresses(updatedAddresses);
-      // Refetch addresses after delete
-      await fetchAndSetAddresses();
-    } catch (err) {
-      alert(err.message || 'Failed to delete address');
-    }
-  }
-
-  // Place order
-  async function handlePlaceOrder(e) {
-    e.preventDefault();
-    if (!selectedAddress) {
-      alert('Please select a shipping address.');
+  const handlePlaceOrder = async () => {
+    if (cart.length === 0) {
+      toast.error("Your cart is empty.");
       return;
     }
-    setPlacingOrder(true);
-    try {
-      await placeOrder({
-        addressId: selectedAddress,
-        paymentMethod,
-        instructions,
-        cart,
-      });
-      clearCart();
-      alert('Order placed!');
-      // Optionally redirect, e.g. router.push('/orders')
-    } catch (err) {
-      alert(err.message || 'Failed to place order');
+    if (!selectedAddress) {
+      toast.error("Please select a shipping address.");
+      return;
     }
-    setPlacingOrder(false);
+    if (!selectedPaymentMethod) {
+      toast.error("Please select a payment method.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const toastId = toast.loading("Placing your order...");
+
+    const orderData = {
+      orderItems: cart.map((item) => ({
+        product: item.id || item._id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      shippingAddress: {
+        address: selectedAddress.address,
+        district: selectedAddress.district,
+        upazila: selectedAddress.upazila,
+        postalCode: selectedAddress.postalCode,
+      },
+      paymentMethod:
+        selectedPaymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
+      totalPrice: cartTotal,
+      totalAmount: cartTotal,
+    };
+
+    try {
+      const newOrder = await placeOrder(orderData);
+      toast.dismiss(toastId);
+
+      if (selectedPaymentMethod === "sslcommerz") {
+        // Create payment session for online payment
+        const paymentResult = await createPaymentSession({
+          orderId: newOrder._id,
+          paymentMethod: "SSL Commerz",
+        });
+
+        if (paymentResult.success) {
+          // Redirect to SSL Commerz payment page
+          window.location.href = paymentResult.paymentUrl;
+        } else {
+          toast.error("Failed to create payment session. Please try again.");
+        }
+      } else {
+        // Cash on Delivery - proceed to success page
+        toast.success("Order placed successfully!");
+        clearCart();
+        router.push(`/order/success?orderId=${newOrder._id}`);
+      }
+    } catch (error) {
+      toast.dismiss(toastId);
+      console.error("Failed to create order:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "There was an issue placing your order.";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const loading = authLoading || cartLoading;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+      </div>
+    );
   }
 
-  if (loading) return <div className="p-8 text-center">Loading addresses...</div>;
-  if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
+  if (!user && !loading) {
+    router.push("/login?redirect=/checkout");
+    return null;
+  }
+
+  if (cart.length === 0 && !cartLoading) {
+    return (
+      <div className="text-center min-h-[60vh] flex flex-col items-center justify-center bg-gray-50 px-4">
+        <ShoppingCart className="w-16 h-16 text-gray-300 mb-6" />
+        <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+          Your Cart is Empty
+        </h2>
+        <p className="text-gray-500 mb-6 max-w-sm">
+          Looks like you haven't added anything to your cart yet. Start
+          exploring our products to find something you like!
+        </p>
+        <Link
+          href="/products"
+          className="bg-primary-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-transform duration-300 ease-in-out hover:scale-105 shadow-sm"
+        >
+          Continue Shopping
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
-      <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Shipping Address */}
-        <div>
-          <h2 className="font-semibold mb-4">Shipping Address</h2>
-          {addresses.length === 0 ? (
-            <div>
-              <p className="text-gray-600 mb-2">No address saved.</p>
-              <button
-                type="button"
-                onClick={() => { setEditAddress(null); setOpenAddressForm(true); }}
-                className="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Add Address
-              </button>
-            </div>
-          ) : (
-            <ul className="space-y-3">
-              {addresses.map(addr => (
-                <li key={addr._id} className={`border rounded p-4 flex gap-2 items-center ${selectedAddress === addr._id ? 'border-green-600' : 'border-gray-200'}`}>
-                  <input
-                    type="radio"
-                    name="address"
-                    checked={selectedAddress === addr._id}
-                    onChange={() => setSelectedAddress(addr._id)}
-                  />
-                  <div className="flex-1">
-                    <div className="font-semibold">{addr.name}</div>
-                    <div className="text-xs">{addr.address}, {addr.upazila}, {addr.district}, {addr.division}</div>
-                    <div className="text-xs">Phone: {addr.phone}</div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button type="button" className="text-blue-600" onClick={() => handleEditAddress(addr)}>Edit</button>
-                    <button type="button" className="text-red-600" onClick={() => handleDeleteAddress(addr._id)}>Delete</button>
-                  </div>
-                </li>
-              ))}
-              <li>
-                <button
-                  type="button"
-                  onClick={() => { setEditAddress(null); setOpenAddressForm(true); }}
-                  className="text-green-600 hover:underline text-sm"
-                >
-                  + Add new address
-                </button>
-              </li>
-            </ul>
-          )}
-        </div>
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        <CheckoutProgress currentStep={checkoutStep} />
 
-        {/* Order Summary */}
-        <div>
-          <h2 className="font-semibold mb-4">Order Summary</h2>
-          <ul className="divide-y rounded bg-white shadow mb-4">
-            {cart.map(item => (
-              <li key={item.id || item._id} className="flex items-center gap-3 py-3 px-2">
-                <img src={item.image} alt={item.name} className="w-12 h-12 object-contain rounded border" />
-                <div className="flex-1">
-                  <div className="font-semibold">{item.name}</div>
-                  <div className="text-sm text-gray-500">x{item.quantity}</div>
+        <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8 xl:gap-12">
+          {/* Left Side: Address & Payment */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Shipping Address */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="bg-white p-6 md:p-8 rounded-2xl shadow-lg"
+            >
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4">
+                Shipping Address
+              </h2>
+              <AnimatePresence>
+                {openAddressForm ? (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <AddressForm
+                      onSave={handleAddressSave}
+                      onCancel={() => setOpenAddressForm(false)}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <div className="space-y-4">
+                      {addresses.length > 0 ? (
+                        addresses.map((addr) => (
+                          <div
+                            key={addr._id}
+                            onClick={() => setSelectedAddress(addr)}
+                            className={`p-5 border rounded-xl cursor-pointer transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${
+                              selectedAddress?._id === addr._id
+                                ? "border-primary-500 bg-primary-50 ring-2 ring-primary-400 shadow-md"
+                                : "border-gray-200 hover:border-primary-300 hover:shadow-sm"
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex items-center gap-3">
+                                <MapPin
+                                  className={`w-6 h-6 ${selectedAddress?._id === addr._id ? "text-primary-600" : "text-gray-400"}`}
+                                />
+                                <div className="font-semibold text-gray-800">
+                                  {addr.addressType || "Saved Address"}
+                                </div>
+                              </div>
+                              {selectedAddress?._id === addr._id && (
+                                <CheckCircle className="w-6 h-6 text-primary-600 animate-pulse" />
+                              )}
+                            </div>
+                            <p className="text-gray-600 mt-2 pl-9">
+                              {addr.address}, {addr.upazila}, {addr.district} -{" "}
+                              {addr.postalCode}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 border-2 border-dashed rounded-lg bg-gray-50">
+                          <p className="text-gray-600 font-medium">
+                            No saved addresses found.
+                          </p>
+                          <p className="text-gray-500 text-sm mt-2">
+                            Please add an address to proceed.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setOpenAddressForm(true)}
+                      className="mt-6 flex items-center gap-2 text-primary-600 font-bold hover:text-primary-700 transition-colors group"
+                    >
+                      <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
+                      <span>Add New Address</span>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* Payment Method */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="bg-white p-6 md:p-8 rounded-2xl shadow-lg"
+            >
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4">
+                Payment Method
+              </h2>
+              <div className="space-y-4">
+                {paymentMethods.map((method) => (
+                  <div
+                    key={method.id}
+                    onClick={() => setSelectedPaymentMethod(method.id)}
+                    className={`p-5 border-2 rounded-xl cursor-pointer transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${
+                      selectedPaymentMethod === method.id
+                        ? `${method.color} ring-2 ring-blue-400 shadow-md`
+                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="text-2xl">{method.icon}</div>
+                        <div>
+                          <h3
+                            className={`font-semibold ${selectedPaymentMethod === method.id ? method.textColor : "text-gray-800"}`}
+                          >
+                            {method.name}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {method.description}
+                          </p>
+                        </div>
+                      </div>
+                      {selectedPaymentMethod === method.id && (
+                        <CheckCircle className="w-6 h-6 text-blue-600 animate-pulse" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {selectedPaymentMethod === "sslcommerz" && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-blue-800 font-medium">
+                        Secure Payment
+                      </p>
+                      <p className="text-xs text-blue-700 mt-1">
+                        Your payment information is encrypted and secure. We use
+                        SSL Commerz, a trusted payment gateway in Bangladesh.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="font-semibold">৳{item.price * item.quantity}</div>
-              </li>
-            ))}
-          </ul>
-          <div className="flex justify-between font-bold text-lg mb-2">
-            <span>Total</span>
-            <span>৳{total}</span>
+              )}
+            </motion.div>
           </div>
 
-          {/* Payment Method */}
-          <h3 className="font-semibold mb-2 mt-4">Payment</h3>
-          <div className="flex flex-col gap-2">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="payment"
-                value="cod"
-                checked={paymentMethod === 'cod'}
-                onChange={() => setPaymentMethod('cod')}
-              />
-              <span className="ml-2">Cash on Delivery</span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="payment"
-                value="bkash"
-                checked={paymentMethod === 'bkash'}
-                onChange={() => setPaymentMethod('bkash')}
-              />
-              <span className="ml-2">bKash/Nagad (Coming Soon)</span>
-            </label>
+          {/* Right Side: Order Summary */}
+          <div className="lg:col-span-1">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="bg-white p-6 md:p-8 rounded-2xl shadow-lg sticky top-24"
+            >
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4">
+                Order Summary
+              </h2>
+              <div className="space-y-3">
+                {cart.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-center text-gray-600"
+                  >
+                    <span className="font-medium text-gray-800">
+                      {item.name}{" "}
+                      <span className="text-sm text-gray-500">
+                        x {item.quantity}
+                      </span>
+                    </span>
+                    <span className="font-semibold">
+                      ৳{(item.price * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 border-t-2 border-dashed pt-4 space-y-3">
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal</span>
+                  <span className="font-medium">৳{cartTotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Shipping</span>
+                  <span className="font-bold text-green-600">FREE</span>
+                </div>
+                <div className="flex justify-between text-xl font-bold text-gray-900 mt-3 border-t border-gray-200 pt-3">
+                  <span>Total</span>
+                  <span>৳{cartTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <button
+                  onClick={handlePlaceOrder}
+                  disabled={
+                    cart.length === 0 ||
+                    !selectedAddress ||
+                    !selectedPaymentMethod ||
+                    isSubmitting
+                  }
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-green-500/50 transform hover:scale-105"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-6 h-6 mr-2 animate-spin" />
+                      <span>Processing...</span>
+                    </>
+                  ) : selectedPaymentMethod === "cod" ? (
+                    "Place Order (Cash on Delivery)"
+                  ) : (
+                    "Proceed to Payment"
+                  )}
+                </button>
+              </div>
+
+              {selectedPaymentMethod === "cod" && (
+                <p className="text-xs text-gray-500 mt-4 text-center">
+                  You will pay when you receive your order.
+                </p>
+              )}
+
+              {selectedPaymentMethod === "sslcommerz" && (
+                <p className="text-xs text-gray-500 mt-4 text-center">
+                  You will be redirected to a secure payment page.
+                </p>
+              )}
+            </motion.div>
           </div>
-          <textarea
-            className="w-full border rounded mt-4 p-2"
-            placeholder="Add delivery instructions (optional)"
-            value={instructions}
-            onChange={e => setInstructions(e.target.value)}
-            rows={2}
-          />
-          <button
-            className="w-full bg-green-600 text-white py-3 rounded mt-6 font-semibold hover:bg-green-700 transition"
-            type="submit"
-            disabled={placingOrder}
-          >
-            {placingOrder ? "Placing Order..." : "Place Order"}
-          </button>
         </div>
-      </form>
-
-      {/* AddressForm modal rendered OUTSIDE the main form to avoid nested forms */}
-      {openAddressForm && (
-        <AddressForm
-          initial={editAddress}
-          onClose={() => { setOpenAddressForm(false); setEditAddress(null); }}
-          onSave={handleAddAddress}
-        />
-      )}
+      </div>
     </div>
   );
 }

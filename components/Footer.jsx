@@ -1,5 +1,5 @@
-import React from 'react';
-import { Facebook, Instagram, Mail, Phone } from 'lucide-react';
+import React from "react";
+import { Facebook, Instagram, Mail, Phone } from "lucide-react";
 
 function Footer() {
   return (
@@ -9,7 +9,8 @@ function Footer() {
         <div>
           <h3 className="text-2xl font-bold mb-4">Prokrishi</h3>
           <p className="text-sm text-gray-200">
-            Pure & organic food directly from local farmers. Eat clean, live healthy.
+            Pure & organic food directly from local farmers. Eat clean, live
+            healthy.
           </p>
         </div>
 
@@ -17,10 +18,26 @@ function Footer() {
         <div>
           <h4 className="text-lg font-semibold mb-3">Useful Links</h4>
           <ul className="space-y-2 text-sm text-gray-200">
-            <li><a href="/" className="hover:underline">Home</a></li>
-            <li><a href="/about" className="hover:underline">About Us</a></li>
-            <li><a href="/shop" className="hover:underline">Shop</a></li>
-            <li><a href="/contact" className="hover:underline">Contact</a></li>
+            <li>
+              <a href="/" className="hover:underline">
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="/about" className="hover:underline">
+                About Us
+              </a>
+            </li>
+            <li>
+              <a href="/shop" className="hover:underline">
+                Shop
+              </a>
+            </li>
+            <li>
+              <a href="/contact" className="hover:underline">
+                Contact
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -28,8 +45,12 @@ function Footer() {
         <div>
           <h4 className="text-lg font-semibold mb-3">Contact Us</h4>
           <ul className="space-y-2 text-sm text-gray-200">
-            <li className="flex items-center"><Phone size={16} className="mr-2" /> +880 123 456 789</li>
-            <li className="flex items-center"><Mail size={16} className="mr-2" /> support@prokrishi.com</li>
+            <li className="flex items-center">
+              <Phone size={16} className="mr-2" /> +880 123 456 789
+            </li>
+            <li className="flex items-center">
+              <Mail size={16} className="mr-2" /> support@prokrishi.com
+            </li>
           </ul>
         </div>
 

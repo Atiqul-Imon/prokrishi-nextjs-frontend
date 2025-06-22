@@ -1,67 +1,52 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { createResource } from '@/app/utils/api';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import CategoryForm from "../CategoryForm";
+import { createCategory } from "@/app/utils/api";
+import toast from "react-hot-toast";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function AddCategoryPage() {
   const router = useRouter();
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-  });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError('');
+  async function handleSave(data) {
     setLoading(true);
+    toast.loading("Creating category...");
+
     try {
-      await createResource('category/create', form);
-      router.push('/dashboard/categories');
+      const newCategory = await createCategory(data);
+      toast.dismiss();
+      toast.success(
+        `Category "${newCategory.category.name}" created successfully!`,
+      );
+      router.push("/dashboard/categories");
     } catch (err) {
-      setError(err.message || 'Error creating category');
+      toast.dismiss();
+      toast.error(err.message || "Error creating category");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow">
-      <h1 className="text-2xl font-bold mb-6">Add Category</h1>
-      {error && <div className="text-red-600 mb-4">{error}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Category Name"
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Description"
-          className="w-full border px-3 py-2 rounded"
-          rows={3}
-        />
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 transition"
-            disabled={loading}
-          >
-            {loading ? "Adding..." : "Add Category"}
-          </button>
-        </div>
-      </form>
+    <div>
+      <div className="mb-6">
+        <Link
+          href="/dashboard/categories"
+          className="flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
+        >
+          <ArrowLeft size={16} className="mr-1" />
+          Back to Categories
+        </Link>
+        <h1 className="text-2xl font-bold">Add New Category</h1>
+        <p className="text-gray-500">
+          Fill in the details below to add a new category to your store.
+        </p>
+      </div>
+      <CategoryForm onSave={handleSave} loading={loading} />
     </div>
   );
 }

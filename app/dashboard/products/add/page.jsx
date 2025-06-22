@@ -1,33 +1,42 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import ProductForm from '../ProductForm';
-import { createProduct } from '@/app/utils/api'; // adjust path as needed
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import ProductForm from "../ProductForm";
+import { createProduct } from "@/app/utils/api";
+import toast from "react-hot-toast";
 
 export default function AddProductPage() {
   const router = useRouter();
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleSave(product) {
-    setError('');
+  async function handleSave(data) {
     setLoading(true);
+    toast.loading("Creating product...");
+
     try {
-      await createProduct(product);
-      router.push('/dashboard/products');
+      const newProduct = await createProduct(data);
+      toast.dismiss();
+      toast.success(
+        `Product "${newProduct.product.name}" created successfully!`,
+      );
+      router.push("/dashboard/products");
     } catch (err) {
-      setError(err.message || 'Error creating product');
+      toast.dismiss();
+      toast.error(err.message || "Error creating product");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Add Product</h1>
-      {error && (
-        <div className="text-red-600 text-center mb-4">{error}</div>
-      )}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Add New Product</h1>
+        <p className="text-gray-600">
+          Fill in the details below to add a new product to your store.
+        </p>
+      </div>
       <ProductForm onSave={handleSave} loading={loading} />
     </div>
   );

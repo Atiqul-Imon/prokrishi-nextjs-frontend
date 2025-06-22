@@ -1,32 +1,36 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { getResourceList, updateResource } from '@/app/utils/api';
+import React, { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { getResourceList, updateResource } from "@/app/utils/api";
 
 export default function EditCategoryPage() {
   const router = useRouter();
   const { id } = useParams();
   const [form, setForm] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function fetchCategory() {
       setLoading(true);
-      setError('');
+      setError("");
       try {
         // Fetch all and find by id (since no direct by id endpoint)
-        const data = await getResourceList('category');
-        const category = (data.categories || data).find(c => c._id === id);
-        if (category) setForm({ name: category.name, description: category.description || '' });
-        else setError('Category not found');
+        const data = await getResourceList("category");
+        const category = (data.categories || data).find((c) => c._id === id);
+        if (category)
+          setForm({
+            name: category.name,
+            description: category.description || "",
+          });
+        else setError("Category not found");
       } catch (err) {
-        setError(err.message || 'Error loading category');
+        setError(err.message || "Error loading category");
       }
       setLoading(false);
     }
@@ -35,24 +39,26 @@ export default function EditCategoryPage() {
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
+    setForm((f) => ({ ...f, [name]: value }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
+    setError("");
     setSaving(true);
     try {
-      await updateResource('category/update', id, form);
-      router.push('/dashboard/categories');
+      await updateResource("category/update", id, form);
+      router.push("/dashboard/categories");
     } catch (err) {
-      setError(err.message || 'Error updating category');
+      setError(err.message || "Error updating category");
     }
     setSaving(false);
   }
 
-  if (loading) return <div className="text-center py-16 text-gray-500">Loading...</div>;
-  if (error) return <div className="text-center text-red-600 py-16">{error}</div>;
+  if (loading)
+    return <div className="text-center py-16 text-gray-500">Loading...</div>;
+  if (error)
+    return <div className="text-center text-red-600 py-16">{error}</div>;
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow">

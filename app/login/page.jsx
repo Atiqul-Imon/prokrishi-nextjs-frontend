@@ -1,53 +1,53 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, loading, error, user } = useAuth();
 
   const [form, setForm] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
 
   function handleChange(e) {
     setForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
-    setFormError('');
+    setFormError("");
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setFormError('');
+    setFormError("");
     const { email, password } = form;
     if (!email || !password) {
-      setFormError('Email and password are required.');
+      setFormError("Email and password are required.");
       return;
     }
     const res = await login(form);
     if (res.success) {
       // Redirect based on role
-      if (user?.role === 'admin' || user?.role === 'super_admin') {
-        router.replace('/dashboard');
+      if (user?.role === "admin" || user?.role === "super_admin") {
+        router.replace("/dashboard");
       } else {
-        router.replace('/');
+        router.replace("/");
       }
     }
   }
 
   // If already authenticated, redirect
   if (user) {
-    if (user.role === 'admin' || user.role === 'super_admin') {
-      router.replace('/dashboard');
+    if (user.role === "admin" || user.role === "super_admin") {
+      router.replace("/dashboard");
     } else {
-      router.replace('/');
+      router.replace("/");
     }
     return null;
   }
@@ -80,21 +80,25 @@ export default function LoginPage() {
           autoComplete="current-password"
         />
         {(formError || error) && (
-          <div className="text-red-600 text-sm text-center">{formError || error}</div>
+          <div className="text-red-600 text-sm text-center">
+            {formError || error}
+          </div>
         )}
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-green-600 text-white rounded py-2 font-semibold hover:bg-green-700 transition"
         >
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? "Logging in..." : "Login"}
         </button>
-        <p className="text-center text-sm mt-2">
-          Don't have an account?{' '}
+        <div className="text-center text-sm mt-4 flex justify-between items-center">
           <a href="/register" className="text-green-700 hover:underline">
-            Register
+            Don't have an account?
           </a>
-        </p>
+          <a href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+            Forgot Password?
+          </a>
+        </div>
       </form>
     </div>
   );

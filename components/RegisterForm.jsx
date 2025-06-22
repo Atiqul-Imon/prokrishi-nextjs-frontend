@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 export default function RegisterForm({ onSubmit }) {
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
+    name: "",
+    email: "",
+    password: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,10 @@ export default function RegisterForm({ onSubmit }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow max-w-md w-full mx-auto space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-8 rounded shadow max-w-md w-full mx-auto space-y-4"
+    >
       <h2 className="text-2xl font-bold mb-2 text-center">Register</h2>
       <input
         name="name"
@@ -61,7 +64,7 @@ export default function RegisterForm({ onSubmit }) {
         disabled={loading}
         className="w-full bg-green-600 text-white rounded py-2 font-semibold hover:bg-green-700 transition"
       >
-        {loading ? 'Registering...' : 'Register'}
+        {loading ? "Registering..." : "Register"}
       </button>
     </form>
   );

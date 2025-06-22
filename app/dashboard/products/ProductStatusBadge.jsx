@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function ProductStatusBadge({ status }) {
   let color = "bg-gray-200 text-gray-700";
@@ -7,7 +7,11 @@ export default function ProductStatusBadge({ status }) {
   if (status === "out_of_stock") color = "bg-red-100 text-red-700";
   return (
     <span className={`px-2 py-1 rounded text-xs font-semibold ${color}`}>
-      {status === "active" ? "Active" : status === "inactive" ? "Inactive" : "Out of Stock"}
+      {status === "active"
+        ? "Active"
+        : status === "inactive"
+          ? "Inactive"
+          : "Out of Stock"}
     </span>
   );
 }

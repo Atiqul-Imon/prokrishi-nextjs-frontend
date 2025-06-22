@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import ProductCard from '../ProductCard';
-import { getAllProducts } from '@/app/utils/api';
+import React, { useEffect, useState } from "react";
+import ProductCard from "../ProductCard";
+import { getAllProducts } from "@/app/utils/api";
 
 function ProductGrid() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
-      setError('');
+      setError("");
       try {
         const data = await getAllProducts();
         setProducts(data);
       } catch (err) {
-        setError(err.message || 'Failed to load products');
+        setError(err.message || "Failed to load products");
       }
       setLoading(false);
     }
@@ -33,7 +33,7 @@ function ProductGrid() {
         <div className="text-center text-red-600 py-16">{error}</div>
       ) : (
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
-          {products.map(product => (
+          {products.map((product) => (
             <ProductCard
               key={product._id}
               id={product._id}

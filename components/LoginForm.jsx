@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 export default function LoginForm({ onSubmit }) {
   const [form, setForm] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -23,7 +23,10 @@ export default function LoginForm({ onSubmit }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow max-w-md w-full mx-auto space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-8 rounded shadow max-w-md w-full mx-auto space-y-4"
+    >
       <h2 className="text-2xl font-bold mb-2 text-center">Login</h2>
       <input
         name="email"
@@ -50,7 +53,7 @@ export default function LoginForm({ onSubmit }) {
         disabled={loading}
         className="w-full bg-green-600 text-white rounded py-2 font-semibold hover:bg-green-700 transition"
       >
-        {loading ? 'Logging in...' : 'Login'}
+        {loading ? "Logging in..." : "Login"}
       </button>
     </form>
   );

@@ -1,0 +1,78 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { getFeaturedCategories } from "@/app/utils/api";
+
+const CategoryCard = ({ category }) => (
+  <Link
+    href={`/products/category/${category.slug}`}
+    className="group block text-center"
+  >
+    <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-full border-4 border-transparent group-hover:border-primary transition-all duration-300 transform group-hover:scale-105">
+      <img
+        src={category.image || "/placeholder.svg"}
+        alt={category.name}
+        className="w-full h-full object-cover"
+      />
+    </div>
+    <h3 className="text-lg font-semibold text-gray-800 group-hover:text-primary transition-colors duration-300 capitalize">
+      {category.name}
+    </h3>
+  </Link>
+);
+
+const FeaturedCategories = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        setLoading(true);
+        const data = await getFeaturedCategories();
+        setCategories(data.categories || []);
+      } catch (err) {
+        setError("Failed to load featured categories.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadCategories();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-center py-12 text-red-500">{error}</div>;
+  }
+
+  if (categories.length === 0) {
+    return null; // Don't render the section if there are no featured categories
+  }
+
+  return (
+    <section className="py-16 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-12">
+          Shop by Category
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 justify-center">
+          {categories.map((category) => (
+            <CategoryCard key={category._id} category={category} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default FeaturedCategories;
