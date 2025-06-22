@@ -1,25 +1,11 @@
 "use client";
-export const dynamic = "force-dynamic";
 
 import React from "react";
-import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
 
 const OrderSuccessPage = () => {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const orderId = searchParams.get("orderId");
-
-  if (!orderId) {
-    // Maybe redirect to home if no orderId is present
-    if (typeof window !== "undefined") {
-      router.push("/");
-    }
-    return null;
-  }
-
   return (
     <div className="bg-gray-50 min-h-[80vh] flex items-center justify-center">
       <motion.div
@@ -36,8 +22,7 @@ const OrderSuccessPage = () => {
           Your order has been placed successfully.
         </p>
         <p className="text-gray-600 mb-8">
-          Your Order ID is:{" "}
-          <span className="font-semibold text-primary-600">{orderId}</span>
+          You will receive a confirmation email shortly.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -60,10 +45,4 @@ const OrderSuccessPage = () => {
   );
 };
 
-const SuspenseWrapper = () => (
-  <React.Suspense fallback={<div>Loading...</div>}>
-    <OrderSuccessPage />
-  </React.Suspense>
-);
-
-export default SuspenseWrapper;
+export default OrderSuccessPage;
