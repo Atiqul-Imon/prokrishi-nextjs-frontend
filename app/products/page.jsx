@@ -255,7 +255,7 @@ export default function ProductsPage() {
           {/* Products Grid */}
           <div className="flex-1">
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div
                     key={i}
@@ -276,7 +276,7 @@ export default function ProductsPage() {
                 <p className="text-gray-600">No products found.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product._id} product={product} />
                 ))}

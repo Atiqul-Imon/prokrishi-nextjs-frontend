@@ -77,7 +77,7 @@ export default function ProductCard({ product }) {
           <img
             src={image || "/img/placeholder.png"}
             alt={name}
-            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500"
           />
 
           {/* Stock Status Overlay */}
@@ -105,14 +105,14 @@ export default function ProductCard({ product }) {
       </Link>
 
       {/* Content */}
-      <div className="p-5">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 hover:text-primary transition-colors">
+      <div className="p-2">
+        <h3 className="text-sm font-semibold text-gray-800 mb-2 line-clamp-2 hover:text-primary transition-colors">
           <Link href={`/products/${_id}`}>{name}</Link>
         </h3>
 
         {/* Description */}
         {description && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+          <p className="text-xs text-gray-600 mb-3 line-clamp-2">
             {description}
           </p>
         )}
@@ -133,10 +133,10 @@ export default function ProductCard({ product }) {
         {/* Price and Stock */}
         <div className="flex justify-between items-center mb-4">
           <div>
-            <p className="text-2xl font-bold text-primary">
+            <p className="text-base font-bold text-primary">
               ৳{price}
               {unit !== "pcs" && (
-                <span className="text-base font-normal text-gray-600">
+                <span className="text-sm font-normal text-gray-600">
                   {" "}
                   / {measurement}
                   {unit === "l" ? "L" : unit}
@@ -167,7 +167,7 @@ export default function ProductCard({ product }) {
         <motion.button
           onClick={handleAddToCart}
           disabled={!inStock}
-          className="w-full bg-slate-800 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition-all duration-300 ease-in-out transform hover:bg-primary hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none"
+          className="w-full bg-slate-800 text-white font-semibold py-1.5 px-4 rounded-lg flex items-center justify-center transition-all duration-300 ease-in-out transform hover:bg-primary hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none"
           whileHover={inStock ? { scale: 1.02 } : {}}
           whileTap={inStock ? { scale: 0.98 } : {}}
         >
