@@ -70,7 +70,7 @@ export default function Home() {
       <FeaturedCategories />
 
       <Section title="Featured Products" href="/products">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {featuredProducts.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
@@ -78,7 +78,7 @@ export default function Home() {
       </Section>
 
       <Section title="Popular Products" href="/products">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {popularProducts.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}

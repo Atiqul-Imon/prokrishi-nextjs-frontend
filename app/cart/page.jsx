@@ -97,9 +97,9 @@ function CartPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen py-8">
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-4 sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
           <div className="flex items-center space-x-4">
             <Link
               href="/"
@@ -120,12 +120,12 @@ function CartPage() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-sm border">
-              <div className="p-6 border-b border-gray-200">
-                <h1 className="text-2xl font-bold text-gray-900">
+              <div className="p-4 sm:p-6 border-b border-gray-200">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                   Shopping Cart
                 </h1>
                 <p className="text-gray-600 mt-1">
@@ -142,11 +142,11 @@ function CartPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
                       transition={{ duration: 0.3 }}
-                      className="p-6"
+                      className="p-4 sm:p-6"
                     >
-                      <div className="flex items-center space-x-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
                         {/* Product Image */}
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 w-full sm:w-auto">
                           <img
                             src={item.image || "/img/placeholder.png"}
                             alt={item.name}
@@ -158,7 +158,7 @@ function CartPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="text-lg font-semibold text-gray-900 truncate">
+                              <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                                 {item.name}
                               </h3>
                               <p className="text-gray-600 text-sm mt-1">
@@ -174,7 +174,7 @@ function CartPage() {
                           </div>
 
                           {/* Price and Quantity */}
-                          <div className="flex items-center justify-between mt-4">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-4 gap-4">
                             <div className="flex items-center space-x-4">
                               <div className="flex items-center border border-gray-300 rounded-lg">
                                 <button
@@ -209,8 +209,8 @@ function CartPage() {
                                 {item.stock} available
                               </span>
                             </div>
-                            <div className="text-right">
-                              <p className="text-lg font-bold text-primary">
+                            <div className="text-left sm:text-right">
+                              <p className="text-base sm:text-lg font-bold text-primary">
                                 ৳{(item.price * item.quantity).toFixed(2)}
                               </p>
                               <p className="text-sm text-gray-500">
