@@ -1,9 +1,23 @@
 services:
-  - type: static_site
+  - type: web
     name: prokrishi-frontend
-    env: static
-    buildCommand: npm run build
-    staticPublishPath: out
+    env: node
+    plan: free
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm start"
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_BASE_URL
+        fromService:
+          type: web
+          name: prokrishi-server # This must match your backend service name
+          envVarKey: URL
+      - key: NEXT_PUBLIC_FACEBOOK_APP_ID
+        sync: false # Set this value manually in the Render dashboard
+      - key: PORT # Not required by Next.js by default but good practice
+        value: 3000
     headers:
       - path: "/*"
         name: "X-Frame-Options"
@@ -18,10 +32,12 @@ services:
       - type: rewrite
         source: "/"
         destination: "/index.html"
+      - type: rewrite
+        source: "/:path*"
+        destination: "/:path*.html"
+      - type: rewrite
+        source: "/"
+        destination: "/index.html"
     envVars:
-      - key: NEXT_PUBLIC_API_BASE_URL
-        sync: false # Set this in the Render dashboard
-      - key: NEXT_PUBLIC_FACEBOOK_APP_ID
-        sync: false # Set this in the Render dashboard
       - key: GENERATE_SOURCEMAP
         value: false 
