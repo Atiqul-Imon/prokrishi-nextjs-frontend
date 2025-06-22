@@ -48,7 +48,7 @@ export default function ProductCard({ product }) {
           <img
             src={image || "/img/placeholder.png"}
             alt={name}
-            className="w-full h-32 sm:h-40 object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-32 sm:h-40 md:h-56 object-cover group-hover:scale-110 transition-transform duration-500"
           />
           {!inStock && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

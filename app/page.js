@@ -8,16 +8,16 @@ import { ArrowRight } from "lucide-react";
 import FeaturedCategories from "@/components/FeaturedCategories";
 
 const Section = ({ title, children, href }) => (
-  <section className="py-12 bg-gray-50">
+  <section className="py-8 bg-gray-50">
     <div className="container mx-auto px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-800">{title}</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-gray-800">{title}</h2>
         {href && (
           <Link
             href={href}
-            className="text-primary font-semibold hover:text-primary-dark flex items-center"
+            className="text-sm text-primary font-semibold hover:text-primary-dark flex items-center"
           >
-            View All <ArrowRight className="w-4 h-4 ml-2" />
+            View All <ArrowRight className="w-4 h-4 ml-1" />
           </Link>
         )}
       </div>
