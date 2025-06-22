@@ -14,6 +14,7 @@ function ResetPasswordOTPForm() {
 
     const [otp, setOtp] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -86,6 +87,19 @@ function ResetPasswordOTPForm() {
                             {showPassword ? <EyeOff className="w-5 h-5 text-gray-500"/> : <Eye className="w-5 h-5 text-gray-500"/>}
                         </button>
                     </div>
+                    <div className="relative">
+                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <Lock className="w-5 h-5 text-gray-400" />
+                         </span>
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirm New Password"
+                            required
+                            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                    </div>
                     <button
                         type="submit"
                         disabled={loading || !phone}
@@ -99,10 +113,16 @@ function ResetPasswordOTPForm() {
     );
 }
 
-// Use Suspense to handle the initial render while searchParams are not available
 export default function ResetPasswordOTPPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={
+            <div className="flex justify-center items-center min-h-screen bg-gray-50">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading...</p>
+                </div>
+            </div>
+        }>
             <ResetPasswordOTPForm />
         </Suspense>
     );
