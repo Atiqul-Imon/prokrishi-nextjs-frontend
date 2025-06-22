@@ -12,6 +12,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 10000, // 10 second timeout
 });
 
 // Request interceptor: Attach JWT (if any) from localStorage
@@ -40,6 +41,7 @@ api.interceptors.response.use(
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         // Optionally redirect to login page
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);

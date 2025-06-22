@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "export": "next export",
+    "test-build": "node scripts/test-build.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -41,5 +43,8 @@
     "eslint-config-next": "15.3.3",
     "prettier": "^3.5.3",
     "tailwindcss": "^4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

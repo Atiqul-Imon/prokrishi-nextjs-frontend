@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { handlePaymentSuccess } from "../../utils/api";
+import { CheckCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function PaymentSuccess() {

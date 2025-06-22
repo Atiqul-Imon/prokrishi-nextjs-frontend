@@ -10,7 +10,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import { mockPaymentSuccess, mockPaymentFail } from "../../utils/api";
+import { mockPaymentSuccess, mockPaymentFail } from "../utils/api";
 import toast from "react-hot-toast";
 
 export default function MockPaymentPage() {
