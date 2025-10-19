@@ -8,9 +8,21 @@ body {
   font-family: "Inter", system-ui, sans-serif;
 }
 
-/* Custom scrollbar for organic feel */
+/* NO ANIMATIONS - Maximum performance */
+html {
+  scroll-behavior: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Minimal scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -19,17 +31,10 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Smooth transitions */
-* {
-  transition: all 0.2s ease-in-out;
-}
+/* NO ANIMATIONS - ALL REMOVED FOR MAXIMUM PERFORMANCE */
+/* NO TRANSITIONS - Instant state changes */
 
 /* Focus styles for accessibility */
 button:focus,
@@ -38,4 +43,35 @@ select:focus,
 textarea:focus {
   outline: 2px solid #059669;
   outline-offset: 2px;
+}
+
+/* Optimize images */
+img {
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* Performance: Use content-visibility for off-screen product cards */
+.product-grid > * {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+}
+
+/* Optimize text rendering - prioritize speed */
+body {
+  text-rendering: optimizeSpeed;
+}
+
+/* Disable all animations globally */
+*,
+*::before,
+*::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+/* Fast font loading */
+@font-face {
+  font-display: swap;
 }
