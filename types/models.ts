@@ -3,8 +3,8 @@
 export interface User {
   _id: string;
   name: string;
-  email: string;
-  phone?: string;
+  email?: string; // Email is now OPTIONAL
+  phone: string; // Phone is now REQUIRED
   role: 'user' | 'admin' | 'super_admin';
   addresses?: Address[];
   orders?: Order[];

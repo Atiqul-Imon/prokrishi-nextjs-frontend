@@ -241,47 +241,21 @@ function CartPage() {
                     <span>Subtotal ({cartCount} items)</span>
                     <span>৳{cartTotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Shipping</span>
-                    <span className="text-green-600">Free</span>
-                  </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Tax</span>
-                    <span>৳{(cartTotal * 0.05).toFixed(2)}</span>
-                  </div>
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between text-lg font-bold text-gray-900">
                       <span>Total</span>
-                      <span>৳{(cartTotal * 1.05).toFixed(2)}</span>
+                      <span>৳{cartTotal.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
 
                 <button
                   onClick={handleCheckout}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-green-500/50 transform hover:scale-105"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Proceed to Checkout
                 </button>
-
-                <div className="mt-6 p-4 bg-green-50 rounded-lg">
-                  <div className="flex items-center text-green-800">
-                    <Truck className="w-5 h-5 mr-2" />
-                    <span className="text-sm font-medium">
-                      Free delivery on orders over ৳500
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex items-center text-blue-800">
-                    <Package className="w-5 h-5 mr-2" />
-                    <span className="text-sm font-medium">
-                      Secure checkout with SSL encryption
-                    </span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

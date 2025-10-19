@@ -24,9 +24,9 @@ export interface LoginResponse {
 
 export interface RegisterRequest {
   name: string;
-  email: string;
+  email?: string; // Email is now OPTIONAL
+  phone: string; // Phone is now REQUIRED
   password: string;
-  phone?: string;
 }
 
 export interface RegisterResponse {
