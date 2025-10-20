@@ -11,6 +11,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
+import { getProductImageUrl } from "@/utils/imageOptimizer";
 
 function ProductCard({ product }: { product: any }) {
   const { addToCart } = useCart();
@@ -39,9 +40,11 @@ function ProductCard({ product }: { product: any }) {
       <Link href={`/products/${_id}`} className="block">
         <div className="relative overflow-hidden">
           <img
-            src={image || "/img/placeholder.png"}
+            src={getProductImageUrl(image, 'card')}
             alt={name}
             loading="lazy"
+            width={400}
+            height={400}
             className="w-full h-32 sm:h-40 md:h-56 object-cover"
           />
           {!inStock && (

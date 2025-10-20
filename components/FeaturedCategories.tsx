@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { getFeaturedCategories } from "@/app/utils/api";
+import { getCategoryImageUrl } from "@/utils/imageOptimizer";
 
 const CategoryCard = ({ category }) => (
   <Link
@@ -11,8 +12,11 @@ const CategoryCard = ({ category }) => (
   >
     <div className="relative w-24 h-24 mx-auto mb-4 overflow-hidden rounded-full border-4 border-transparent group-hover:border-primary">
       <img
-        src={category.image || "/placeholder.svg"}
+        src={getCategoryImageUrl(category.image)}
         alt={category.name}
+        loading="lazy"
+        width={200}
+        height={200}
         className="w-full h-full object-cover"
       />
     </div>

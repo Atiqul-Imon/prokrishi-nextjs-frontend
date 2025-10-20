@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Leaf, Truck, Shield } from "lucide-react";
+import { getHeroImageUrl } from "@/utils/imageOptimizer";
 
 function HeroSection() {
   return (
@@ -10,14 +11,9 @@ function HeroSection() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23059b69%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%224%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
       </div>
 
-      {/* Background image */}
-      <div className="absolute inset-0">
-        <img
-          src="/testp.webp"
-          alt="Organic food"
-          className="w-full h-full object-cover opacity-20"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-green-900/20 to-transparent" />
+      {/* Background image - Removed for better scroll performance */}
+      <div className="absolute inset-0 bg-green-50">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-900/10 to-transparent" />
       </div>
 
       {/* Content */}
@@ -83,20 +79,17 @@ function HeroSection() {
             </div>
           </div>
 
-          {/* Right Content - Compact Image */}
+          {/* Right Content - Removed image for better performance */}
           <div className="relative hidden lg:block">
-            <div className="relative bg-white rounded-2xl p-4">
-              <img
-                src="/testp.webp"
-                alt="Fresh organic vegetables"
-                className="w-full h-48 object-cover rounded-xl"
-                loading="lazy"
-              />
-              <div className="mt-3 text-center">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            <div className="relative bg-white rounded-2xl p-6 border-2 border-green-200">
+              <div className="text-center py-8">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Leaf className="w-10 h-10 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   Fresh Daily
                 </h3>
-                <p className="text-gray-600 text-sm">Handpicked from local farms</p>
+                <p className="text-gray-600">Handpicked from local farms every morning</p>
               </div>
             </div>
           </div>
