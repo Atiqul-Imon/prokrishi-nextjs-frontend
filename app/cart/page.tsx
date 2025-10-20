@@ -110,7 +110,7 @@ function CartPage() {
           <div className="flex items-center space-x-4">
             <Link
               href="/"
-              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Continue Shopping
@@ -119,7 +119,7 @@ function CartPage() {
           <div className="flex items-center space-x-4">
             <button
               onClick={handleClearCart}
-              className="flex items-center text-red-600 hover:text-red-700 transition-colors"
+              className="flex items-center text-red-600 hover:text-red-700"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Clear Cart
@@ -169,7 +169,7 @@ function CartPage() {
                             </div>
                             <button
                               onClick={() => removeFromCart(item.id || item._id)}
-                              className="text-red-500 hover:text-red-700 transition-colors p-1"
+                              className="text-red-500 hover:text-red-700 p-1"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -186,7 +186,7 @@ function CartPage() {
                                       item.quantity - 1,
                                     )
                                   }
-                                  className="p-2 hover:bg-gray-100 transition-colors"
+                                  className="p-2 hover:bg-gray-100"
                                   disabled={item.quantity <= 1}
                                 >
                                   <Minus className="w-4 h-4" />
@@ -201,7 +201,7 @@ function CartPage() {
                                       item.quantity + 1,
                                     )
                                   }
-                                  className="p-2 hover:bg-gray-100 transition-colors"
+                                  className="p-2 hover:bg-gray-100"
                                   disabled={item.quantity >= item.stock}
                                 >
                                   <Plus className="w-4 h-4" />
@@ -231,7 +231,7 @@ function CartPage() {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <div className="bg-white rounded-xl shadow-lg border p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">
                   Order Summary
                 </h2>

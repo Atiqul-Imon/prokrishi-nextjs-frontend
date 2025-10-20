@@ -61,7 +61,7 @@ body {
   text-rendering: optimizeSpeed;
 }
 
-/* Disable all animations globally */
+/* CRITICAL: Disable ALL animations and transitions globally */
 *,
 *::before,
 *::after {
@@ -69,9 +69,55 @@ body {
   animation-delay: 0s !important;
   transition-duration: 0s !important;
   transition-delay: 0s !important;
+  transition-property: none !important;
+}
+
+/* CRITICAL: Disable expensive shadow rendering during scroll */
+.shadow-sm,
+.shadow,
+.shadow-md,
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl {
+  box-shadow: none !important;
+}
+
+/* Use simple borders instead of shadows */
+.shadow-sm { border: 1px solid #e5e7eb !important; }
+.shadow-md { border: 1px solid #d1d5db !important; }
+.shadow-lg { border: 1px solid #d1d5db !important; }
+.shadow-xl { border: 1px solid #d1d5db !important; }
+.shadow-2xl { border: 1px solid #d1d5db !important; }
+
+/* Optimize scroll performance - disable expensive operations */
+* {
+  will-change: auto !important;
+  contain: layout !important;
+}
+
+/* Override contain for specific elements that need it */
+body, html, main, header, footer, nav {
+  contain: none !important;
+}
+
+/* Force hardware acceleration only where needed */
+.sticky {
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+/* Prevent layout shifts */
+img, video {
+  max-width: 100%;
+  height: auto;
 }
 
 /* Fast font loading */
 @font-face {
   font-display: swap;
+}
+
+/* Optimize hover states - no transforms */
+*:hover {
+  transform: none !important;
 }
