@@ -13,7 +13,6 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
-  output: 'standalone',
   // Security headers
   async headers() {
     return [
@@ -36,6 +35,10 @@ const nextConfig = {
       },
     ];
   },
+  // Optimize for production
+  poweredByHeader: false,
+  compress: true,
+  productionBrowserSourceMaps: false,
 };
 
 export default nextConfig;
