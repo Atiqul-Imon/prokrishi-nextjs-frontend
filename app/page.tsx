@@ -76,7 +76,7 @@ export default function Home() {
 
       <Section title="Featured Products" href="/products">
         {featuredProducts.length > 0 ? (
-          <div className="product-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="product-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
             {featuredProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
@@ -91,7 +91,7 @@ export default function Home() {
 
       <Section title="Popular Products" href="/products">
         {popularProducts.length > 0 ? (
-          <div className="product-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="product-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
             {popularProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
