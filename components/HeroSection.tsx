@@ -37,7 +37,7 @@ function HeroSection() {
                 <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
                     <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl sm:text-2xl">🥬</span>
+                      <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Vegetables">🥬</span>
                     </div>
                     <div className="mt-2">
                       <h3 className="text-white font-bold text-xs sm:text-sm">Fresh Vegetables</h3>
@@ -47,7 +47,7 @@ function HeroSection() {
                   
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
                     <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl sm:text-2xl">🍎</span>
+                      <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Fruits">🍎</span>
                     </div>
                     <div className="mt-2">
                       <h3 className="text-white font-bold text-xs sm:text-sm">Fresh Fruits</h3>
@@ -57,7 +57,7 @@ function HeroSection() {
                   
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
                     <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl sm:text-2xl">🌾</span>
+                      <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Grains">🌾</span>
                     </div>
                     <div className="mt-2">
                       <h3 className="text-white font-bold text-xs sm:text-sm">Grains & Rice</h3>
@@ -67,7 +67,7 @@ function HeroSection() {
                   
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
                     <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl sm:text-2xl">🌿</span>
+                      <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Spices">🌿</span>
                     </div>
                     <div className="mt-2">
                       <h3 className="text-white font-bold text-xs sm:text-sm">Spices & Herbs</h3>
@@ -84,7 +84,7 @@ function HeroSection() {
                   <div className="relative group">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20 transform hover:scale-105 transition-all duration-300">
                       <div className="w-full h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
-                        <span className="text-white text-2xl">🥬</span>
+                        <span className="text-white text-2xl" role="img" aria-label="Vegetables">🥬</span>
                       </div>
                       <div className="mt-2">
                         <h3 className="text-white font-bold text-sm">Fresh Vegetables</h3>
@@ -97,7 +97,7 @@ function HeroSection() {
                   <div className="relative group">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20 transform hover:scale-105 transition-all duration-300">
                       <div className="w-full h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-md">
-                        <span className="text-white text-2xl">🍎</span>
+                        <span className="text-white text-2xl" role="img" aria-label="Fruits">🍎</span>
                       </div>
                       <div className="mt-2">
                         <h3 className="text-white font-bold text-sm">Fresh Fruits</h3>
@@ -110,7 +110,7 @@ function HeroSection() {
                   <div className="relative group">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20 transform hover:scale-105 transition-all duration-300">
                       <div className="w-full h-20 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center shadow-md">
-                        <span className="text-white text-2xl">🌾</span>
+                        <span className="text-white text-2xl" role="img" aria-label="Grains">🌾</span>
                       </div>
                       <div className="mt-2">
                         <h3 className="text-white font-bold text-sm">Grains & Rice</h3>
@@ -123,7 +123,7 @@ function HeroSection() {
                   <div className="relative group">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20 transform hover:scale-105 transition-all duration-300">
                       <div className="w-full h-20 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center shadow-md">
-                        <span className="text-white text-2xl">🌿</span>
+                        <span className="text-white text-2xl" role="img" aria-label="Spices">🌿</span>
                       </div>
                       <div className="mt-2">
                         <h3 className="text-white font-bold text-sm">Spices & Herbs</h3>

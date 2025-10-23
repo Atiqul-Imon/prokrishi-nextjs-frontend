@@ -1,11 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Image optimization with ImageKit
+  // Image optimization
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "ik.imagekit.io",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
         port: "",
         pathname: "/**",
       },
@@ -22,9 +28,6 @@ const nextConfig = {
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // ImageKit optimization
-    loader: 'custom',
-    loaderFile: './app/utils/imagekit-loader.js',
   },
   
   // Environment variables
