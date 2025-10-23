@@ -76,28 +76,30 @@ export default function Home() {
 
       <Section title="Featured Products" href="/products">
         {featuredProducts.length > 0 ? (
-          <div className="product-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="product-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {featuredProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <p>Loading featured products...</p>
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <p className="text-gray-500 mt-4">Loading featured products...</p>
           </div>
         )}
       </Section>
 
       <Section title="Popular Products" href="/products">
         {popularProducts.length > 0 ? (
-          <div className="product-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="product-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {popularProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <p>Loading popular products...</p>
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <p className="text-gray-500 mt-4">Loading popular products...</p>
           </div>
         )}
       </Section>

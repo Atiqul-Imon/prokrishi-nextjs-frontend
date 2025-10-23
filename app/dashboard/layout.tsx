@@ -49,8 +49,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    // Dashboard layout - full width, breaks out of parent container
-    <div className="flex h-screen bg-gray-100 w-screen absolute left-0">
+    // Dashboard layout - full viewport, breaks out of parent container
+    <div className="fixed inset-0 flex bg-gray-100 z-50">
       <Sidebar current="" />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Topbar />

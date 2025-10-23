@@ -11,48 +11,6 @@ import {
   MapPin,
 } from "lucide-react";
 
-// Mock order data - replace with real API calls
-const mockOrders = [
-  {
-    id: "ORD-001",
-    date: "2024-06-15",
-    status: "delivered",
-    total: 1250,
-    items: [
-      { name: "Organic Tomatoes", quantity: 2, price: 300 },
-      { name: "Fresh Spinach", quantity: 1, price: 150 },
-      { name: "Organic Carrots", quantity: 1, price: 200 },
-    ],
-    address: "Home - Dhanmondi, Dhaka",
-    deliveryDate: "2024-06-16",
-  },
-  {
-    id: "ORD-002",
-    date: "2024-06-10",
-    status: "shipped",
-    total: 800,
-    items: [
-      { name: "Organic Bananas", quantity: 3, price: 180 },
-      { name: "Fresh Lettuce", quantity: 1, price: 120 },
-    ],
-    address: "Office - Gulshan, Dhaka",
-    deliveryDate: "2024-06-12",
-  },
-  {
-    id: "ORD-003",
-    date: "2024-06-05",
-    status: "processing",
-    total: 1500,
-    items: [
-      { name: "Organic Potatoes", quantity: 2, price: 400 },
-      { name: "Fresh Onions", quantity: 1, price: 150 },
-      { name: "Organic Garlic", quantity: 1, price: 200 },
-    ],
-    address: "Home - Dhanmondi, Dhaka",
-    deliveryDate: "2024-06-08",
-  },
-];
-
 const statusConfig = {
   processing: {
     icon: Clock,
@@ -85,6 +43,8 @@ const statusConfig = {
 };
 
 export default function Orders() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {
@@ -110,7 +70,7 @@ export default function Orders() {
       </div>
 
       {/* Orders List */}
-      {mockOrders.length === 0 ? (
+      {orders.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Package className="w-8 h-8 text-gray-400" />
@@ -127,7 +87,7 @@ export default function Orders() {
         </div>
       ) : (
         <div className="space-y-4">
-          {mockOrders.map((order, index) => {
+          {orders.map((order, index) => {
             const status = getStatusConfig(order.status);
             const StatusIcon = status.icon;
 
@@ -256,20 +216,20 @@ export default function Orders() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t">
         <div className="text-center p-4 bg-blue-50 rounded-lg">
           <div className="text-2xl font-bold text-blue-600">
-            {mockOrders.length}
+            {orders.length}
           </div>
           <div className="text-sm text-blue-700">Total Orders</div>
         </div>
         <div className="text-center p-4 bg-green-50 rounded-lg">
           <div className="text-2xl font-bold text-green-600">
-            {mockOrders.filter((o) => o.status === "delivered").length}
+            {orders.filter((o) => o.status === "delivered").length}
           </div>
           <div className="text-sm text-green-700">Delivered</div>
         </div>
         <div className="text-center p-4 bg-yellow-50 rounded-lg">
           <div className="text-2xl font-bold text-yellow-600">
             {
-              mockOrders.filter(
+              orders.filter(
                 (o) => o.status === "processing" || o.status === "shipped",
               ).length
             }

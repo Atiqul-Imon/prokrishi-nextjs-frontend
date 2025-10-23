@@ -16,6 +16,7 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -31,24 +32,65 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
     
-    // Validation
+    // Client-side validation
+    if (!form.name || form.name.trim().length < 2) {
+      setError("Name must be at least 2 characters long");
+      setLoading(false);
+      return;
+    }
+    
     if (!form.phone || form.phone.length < 10) {
-      setError("Please enter a valid phone number");
+      setError("Please enter a valid phone number (at least 10 digits)");
+      setLoading(false);
+      return;
+    }
+    
+    if (form.email && !form.email.includes("@")) {
+      setError("Please enter a valid email address");
       setLoading(false);
       return;
     }
     
     if (form.password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError("Password must be at least 6 characters long");
+      setLoading(false);
+      return;
+    }
+    
+    if (form.password.length > 50) {
+      setError("Password must be less than 50 characters");
       setLoading(false);
       return;
     }
     
     try {
-      await registerUser(form);
-      router.push("/");
+      const result = await registerUser(form);
+      if (result.success) {
+        setSuccess(true);
+        setError("");
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+      } else {
+        setError("Registration failed");
+      }
     } catch (err: any) {
-      setError(err.message || "Registration failed");
+      // Handle specific error messages from API
+      let errorMessage = "Registration failed";
+      
+      if (err.message) {
+        if (err.message.includes("already exists")) {
+          errorMessage = "An account with this phone number already exists";
+        } else if (err.message.includes("email")) {
+          errorMessage = "An account with this email already exists";
+        } else if (err.message.includes("validation")) {
+          errorMessage = "Please check your information and try again";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -188,11 +230,25 @@ export default function RegisterPage() {
               )}
             </div>
 
+            {/* Success Message */}
+            {success && (
+              <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-green-800">Registration Successful!</p>
+                  <p className="text-sm text-green-600 mt-1">Account created successfully. Redirecting to homepage...</p>
+                </div>
+              </div>
+            )}
+
             {/* Error Message */}
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-red-800">Registration Failed</p>
+                  <p className="text-sm text-red-600 mt-1">{error}</p>
+                </div>
               </div>
             )}
 

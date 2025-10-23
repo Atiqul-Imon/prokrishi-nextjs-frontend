@@ -11,16 +11,21 @@ import {
 import { Plus, Edit, Trash2, Star } from "lucide-react";
 import toast from "react-hot-toast";
 
-// A simple toggle switch component
-const ToggleSwitch = ({ checked, onChange }) => (
-  <label className="relative inline-flex items-center cursor-pointer">
+// Enhanced toggle switch component
+const ToggleSwitch = ({ checked, onChange, disabled = false }) => (
+  <label className={`relative inline-flex items-center ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
     <input
       type="checkbox"
       checked={checked}
       onChange={onChange}
+      disabled={disabled}
       className="sr-only peer"
     />
-    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-green-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+    <div className={`w-11 h-6 rounded-full transition-all duration-200 peer peer-focus:ring-4 peer-focus:ring-green-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
+      checked 
+        ? 'bg-green-600 shadow-lg shadow-green-200' 
+        : 'bg-gray-200 hover:bg-gray-300'
+    } ${disabled ? 'opacity-50' : ''}`}></div>
   </label>
 );
 
@@ -28,6 +33,7 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [togglingCategories, setTogglingCategories] = useState<Set<string>>(new Set());
 
   async function fetchCategories() {
     setLoading(true);
@@ -50,15 +56,43 @@ export default function CategoriesPage() {
     const toastId = toast.loading(
       `${newStatus ? "Featuring" : "Unfeaturing"} "${category.name}"...`,
     );
+    
+    // Add to toggling set
+    setTogglingCategories(prev => new Set(prev).add(category._id));
+    
     try {
+      // Optimistic update - update UI immediately
+      setCategories(prevCategories => 
+        prevCategories.map(cat => 
+          cat._id === category._id 
+            ? { ...cat, isFeatured: newStatus }
+            : cat
+        )
+      );
+
       await updateCategory(category._id, { isFeatured: newStatus });
       toast.success(
         `Category "${category.name}" is now ${newStatus ? "featured" : "not featured"}.`,
         { id: toastId },
       );
-      fetchCategories(); // Refresh list
     } catch (err) {
-      toast.error(`Failed to update "${category.name}".`, { id: toastId });
+      // Revert optimistic update on error
+      setCategories(prevCategories => 
+        prevCategories.map(cat => 
+          cat._id === category._id 
+            ? { ...cat, isFeatured: !newStatus }
+            : cat
+        )
+      );
+      
+      toast.error(`Failed to update "${category.name}". ${err.message || ''}`, { id: toastId });
+    } finally {
+      // Remove from toggling set
+      setTogglingCategories(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(category._id);
+        return newSet;
+      });
     }
   }
 
@@ -127,8 +161,14 @@ export default function CategoriesPage() {
             <ToggleSwitch
               checked={category.isFeatured}
               onChange={() => handleToggleFeatured(category)}
+              disabled={togglingCategories.has(category._id)}
             />
-            <span className="text-sm text-gray-600">Featured</span>
+            <span className="text-sm text-gray-600">
+              Featured
+              {togglingCategories.has(category._id) && (
+                <span className="ml-2 text-xs text-gray-400">Updating...</span>
+              )}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Link

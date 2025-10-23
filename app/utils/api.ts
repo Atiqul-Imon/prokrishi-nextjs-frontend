@@ -190,7 +190,9 @@ export function getUserById(id: string): Promise<UserProfileResponse> {
 }
 
 export function getProductById(id: string): Promise<ProductResponse> {
-  return apiRequest<ProductResponse>(`/product/${id}`);
+  // Add cache busting parameter to ensure fresh data
+  const timestamp = Date.now();
+  return apiRequest<ProductResponse>(`/product/${id}?t=${timestamp}`);
 }
 
 export async function getCategoryById(id: string): Promise<CategoryResponse> {
@@ -257,7 +259,9 @@ export async function updateProduct(id: string, productData: any): Promise<Produ
  */
 export async function getAllProducts(): Promise<Product[]> {
   try {
-    const res = await api.get<ProductsResponse>("/product");
+    // Add cache busting parameter to ensure fresh data
+    const timestamp = Date.now();
+    const res = await api.get<ProductsResponse>(`/product?t=${timestamp}`);
     return res.data.products;
   } catch (err: any) {
     throw new Error(
@@ -330,27 +334,48 @@ export async function createCategory(category: any): Promise<CategoryResponse> {
 }
 
 export async function updateCategory(id: string, category: any): Promise<CategoryResponse> {
-  const formData = new FormData();
+  // Check if we're doing a simple update (no file upload)
+  const hasFile = category.image && category.image instanceof File;
+  const hasOnlySimpleFields = !hasFile && Object.keys(category).every(key => 
+    typeof category[key] !== 'object' || category[key] === null
+  );
 
-  Object.keys(category).forEach((key) => {
-    if (key !== "image") {
-      formData.append(key, category[key]);
+  if (hasOnlySimpleFields) {
+    // Use JSON for simple updates (like featured toggle) - use PATCH
+    try {
+      const res = await api.patch<CategoryResponse>(`/category/update/${id}`, category, {
+        headers: { "Content-Type": "application/json" },
+      });
+      return res.data;
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message || err.message || "Failed to update category";
+      throw new Error(msg);
     }
-  });
+  } else {
+    // Use FormData for updates with file uploads
+    const formData = new FormData();
 
-  if (category.image && category.image instanceof File) {
-    formData.append("image", category.image);
-  }
-
-  try {
-    const res = await api.put<CategoryResponse>(`/category/update/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    Object.keys(category).forEach((key) => {
+      if (key !== "image") {
+        formData.append(key, category[key]);
+      }
     });
-    return res.data;
-  } catch (err: any) {
-    const msg =
-      err.response?.data?.message || err.message || "Failed to update category";
-    throw new Error(msg);
+
+    if (category.image && category.image instanceof File) {
+      formData.append("image", category.image);
+    }
+
+    try {
+      const res = await api.put<CategoryResponse>(`/category/update/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return res.data;
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message || err.message || "Failed to update category";
+      throw new Error(msg);
+    }
   }
 }
 
@@ -367,6 +392,114 @@ export async function addAddress(addressData: Address): Promise<UserProfileRespo
   return apiRequest<UserProfileResponse>("/user/profile/addresses", {
     method: "POST",
     data: addressData,
+  });
+}
+
+// ========== ADMIN ORDER MANAGEMENT ==========
+
+export interface AdminOrderFilters {
+  page?: number;
+  limit?: number;
+  status?: string;
+  paymentStatus?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface AdminOrderStats {
+  totalOrders: number;
+  totalRevenue: number;
+  periodRevenue: number;
+  statusBreakdown: {
+    pending: number;
+    processing: number;
+    shipped: number;
+    delivered: number;
+    cancelled: number;
+  };
+  recentOrders: any[];
+  dailySales: any[];
+}
+
+export interface AdminOrderResponse {
+  success: boolean;
+  orders: any[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalOrders: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    limit: number;
+  };
+}
+
+export interface AdminOrderStatsResponse {
+  success: boolean;
+  stats: AdminOrderStats;
+}
+
+/**
+ * Get all orders with pagination and filtering (Admin)
+ */
+export async function getAdminOrders(filters: AdminOrderFilters = {}): Promise<AdminOrderResponse> {
+  const params = new URLSearchParams();
+  
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.append(key, value.toString());
+    }
+  });
+
+  const queryString = params.toString();
+  const url = `/admin/orders${queryString ? `?${queryString}` : ''}`;
+  
+  return apiRequest<AdminOrderResponse>(url);
+}
+
+/**
+ * Get order statistics (Admin)
+ */
+export async function getAdminOrderStats(period: number = 30): Promise<AdminOrderStatsResponse> {
+  return apiRequest<AdminOrderStatsResponse>(`/admin/orders/stats?period=${period}`);
+}
+
+/**
+ * Get single order details (Admin)
+ */
+export async function getAdminOrderById(id: string): Promise<{ success: boolean; order: any }> {
+  return apiRequest<{ success: boolean; order: any }>(`/admin/orders/${id}`);
+}
+
+/**
+ * Update order status (Admin)
+ */
+export async function updateAdminOrderStatus(id: string, status: string, notes?: string): Promise<ApiResponse> {
+  return apiRequest<ApiResponse>(`/admin/orders/${id}/status`, {
+    method: "PUT",
+    data: { status, notes },
+  });
+}
+
+/**
+ * Update payment status (Admin)
+ */
+export async function updateAdminPaymentStatus(id: string, paymentStatus: string, transactionId?: string, notes?: string): Promise<ApiResponse> {
+  return apiRequest<ApiResponse>(`/admin/orders/${id}/payment`, {
+    method: "PUT",
+    data: { paymentStatus, transactionId, notes },
+  });
+}
+
+/**
+ * Delete order (Admin)
+ */
+export async function deleteAdminOrder(id: string): Promise<ApiResponse> {
+  return apiRequest<ApiResponse>(`/admin/orders/${id}`, {
+    method: "DELETE",
   });
 }
 

@@ -17,23 +17,49 @@ export default function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    email: "",
+    password: ""
+  });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
     setFormError("");
+    
+    // Clear field-specific errors when user starts typing
+    if (fieldErrors[name as keyof typeof fieldErrors]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError("");
     const { email, password } = form;
+    
+    // Client-side validation
     if (!email || !password) {
       setFormError("Email and password are required.");
       return;
     }
+    
+    if (!email.includes("@") && !email.startsWith("+")) {
+      setFormError("Please enter a valid email address or phone number.");
+      return;
+    }
+    
+    if (password.length < 6) {
+      setFormError("Password must be at least 6 characters long.");
+      return;
+    }
+    
     const res = await login(form);
     if (res.success) {
       if (user?.role === "admin" || user?.role === "super_admin") {
@@ -41,6 +67,9 @@ export default function LoginPage() {
       } else {
         router.replace("/");
       }
+    } else {
+      // Show specific error message from API
+      setFormError(res.message || "Login failed. Please check your credentials.");
     }
   }
 
@@ -85,6 +114,9 @@ export default function LoginPage() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">You can sign in with email or phone number</p>
+              {fieldErrors.email && (
+                <p className="text-xs text-red-600 mt-1">{fieldErrors.email}</p>
+              )}
             </div>
 
             {/* Password Input */}
@@ -113,13 +145,19 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              {fieldErrors.password && (
+                <p className="text-xs text-red-600 mt-1">{fieldErrors.password}</p>
+              )}
             </div>
 
             {/* Error Message */}
             {(formError || error) && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                <p className="text-sm text-red-600">{formError || error}</p>
+              <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-red-800">Login Failed</p>
+                  <p className="text-sm text-red-600 mt-1">{formError || error}</p>
+                </div>
               </div>
             )}
 
