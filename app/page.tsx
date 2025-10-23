@@ -15,16 +15,16 @@ interface SectionProps {
 }
 
 const Section = ({ title, children, href }: SectionProps) => (
-  <section className="py-8 bg-gray-50">
-    <div className="container mx-auto px-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+  <section className="py-6 sm:py-8 lg:py-12 bg-gray-50">
+    <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">{title}</h2>
         {href && (
           <Link
             href={href}
-            className="text-sm text-primary font-semibold hover:text-primary-dark flex items-center"
+            className="text-xs sm:text-sm text-primary font-semibold hover:text-primary-dark flex items-center self-start sm:self-auto"
           >
-            View All <ArrowRight className="w-4 h-4 ml-1" />
+            View All <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
           </Link>
         )}
       </div>
@@ -76,30 +76,30 @@ export default function Home() {
 
       <Section title="Featured Products" href="/products">
         {featuredProducts.length > 0 ? (
-          <div className="product-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+          <div className="product-grid grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
             {featuredProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-            <p className="text-gray-500 mt-4">Loading featured products...</p>
+          <div className="text-center py-8 sm:py-12">
+            <div className="inline-block animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-green-600"></div>
+            <p className="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base">Loading featured products...</p>
           </div>
         )}
       </Section>
 
       <Section title="Popular Products" href="/products">
         {popularProducts.length > 0 ? (
-          <div className="product-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+          <div className="product-grid grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
             {popularProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-            <p className="text-gray-500 mt-4">Loading popular products...</p>
+          <div className="text-center py-8 sm:py-12">
+            <div className="inline-block animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-green-600"></div>
+            <p className="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base">Loading popular products...</p>
           </div>
         )}
       </Section>
