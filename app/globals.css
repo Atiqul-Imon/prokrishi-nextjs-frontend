@@ -5,7 +5,27 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Inter", var(--font-noto-sans-bengali), system-ui, sans-serif;
+}
+
+/* Bangla Typography Support */
+.bangla-text {
+  font-family: var(--font-noto-sans-bengali), "Noto Sans Bengali", "Kalpurush", "SolaimanLipi", system-ui, sans-serif;
+  font-feature-settings: "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+}
+
+.bangla-title {
+  font-family: var(--font-noto-sans-bengali), "Noto Sans Bengali", "Kalpurush", "SolaimanLipi", system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+
+.bangla-body {
+  font-family: var(--font-noto-sans-bengali), "Noto Sans Bengali", "Kalpurush", "SolaimanLipi", system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
 }
 
 /* NO ANIMATIONS - Maximum performance */

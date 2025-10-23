@@ -24,7 +24,7 @@ function HeroSection() {
             <div className="text-center lg:text-left">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
                 <span className="block">Prokrishi</span>
-                <span className="block bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent mt-1 sm:mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
+                <span className="block bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent mt-1 sm:mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bangla-title">
                   আপনার বিশ্বস্ত কৃষি পণ্যের প্ল্যাটফর্ম
                 </span>
               </h1>
@@ -40,8 +40,8 @@ function HeroSection() {
                       <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Vegetables">🥬</span>
                     </div>
                     <div className="mt-2">
-                      <h3 className="text-white font-bold text-xs sm:text-sm">Fresh Vegetables</h3>
-                      <p className="text-gray-300 text-xs">Organic & Natural</p>
+                      <h3 className="text-white font-bold text-xs sm:text-sm bangla-title">তাজা সবজি</h3>
+                      <p className="text-gray-300 text-xs bangla-body">জৈব ও প্রাকৃতিক</p>
                     </div>
                   </div>
                   
@@ -50,8 +50,8 @@ function HeroSection() {
                       <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Fruits">🍎</span>
                     </div>
                     <div className="mt-2">
-                      <h3 className="text-white font-bold text-xs sm:text-sm">Fresh Fruits</h3>
-                      <p className="text-gray-300 text-xs">Seasonal & Sweet</p>
+                      <h3 className="text-white font-bold text-xs sm:text-sm bangla-title">তাজা ফল</h3>
+                      <p className="text-gray-300 text-xs bangla-body">মৌসুমি ও মিষ্টি</p>
                     </div>
                   </div>
                   
@@ -60,8 +60,8 @@ function HeroSection() {
                       <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Grains">🌾</span>
                     </div>
                     <div className="mt-2">
-                      <h3 className="text-white font-bold text-xs sm:text-sm">Grains & Rice</h3>
-                      <p className="text-gray-300 text-xs">Premium Quality</p>
+                      <h3 className="text-white font-bold text-xs sm:text-sm bangla-title">ধান ও চাল</h3>
+                      <p className="text-gray-300 text-xs bangla-body">প্রিমিয়াম মান</p>
                     </div>
                   </div>
                   
@@ -70,8 +70,8 @@ function HeroSection() {
                       <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Spices">🌿</span>
                     </div>
                     <div className="mt-2">
-                      <h3 className="text-white font-bold text-xs sm:text-sm">Spices & Herbs</h3>
-                      <p className="text-gray-300 text-xs">Aromatic & Pure</p>
+                      <h3 className="text-white font-bold text-xs sm:text-sm bangla-title">মসলা ও ভেষজ</h3>
+                      <p className="text-gray-300 text-xs bangla-body">সুগন্ধি ও বিশুদ্ধ</p>
                     </div>
                   </div>
                 </div>
@@ -87,8 +87,8 @@ function HeroSection() {
                         <span className="text-white text-2xl" role="img" aria-label="Vegetables">🥬</span>
                       </div>
                       <div className="mt-2">
-                        <h3 className="text-white font-bold text-sm">Fresh Vegetables</h3>
-                        <p className="text-gray-300 text-xs">Organic & Natural</p>
+                        <h3 className="text-white font-bold text-sm bangla-title">তাজা সবজি</h3>
+                        <p className="text-gray-300 text-xs bangla-body">জৈব ও প্রাকৃতিক</p>
                       </div>
                     </div>
                   </div>
@@ -100,8 +100,8 @@ function HeroSection() {
                         <span className="text-white text-2xl" role="img" aria-label="Fruits">🍎</span>
                       </div>
                       <div className="mt-2">
-                        <h3 className="text-white font-bold text-sm">Fresh Fruits</h3>
-                        <p className="text-gray-300 text-xs">Seasonal & Sweet</p>
+                        <h3 className="text-white font-bold text-sm bangla-title">তাজা ফল</h3>
+                        <p className="text-gray-300 text-xs bangla-body">মৌসুমি ও মিষ্টি</p>
                       </div>
                     </div>
                   </div>
@@ -113,8 +113,8 @@ function HeroSection() {
                         <span className="text-white text-2xl" role="img" aria-label="Grains">🌾</span>
                       </div>
                       <div className="mt-2">
-                        <h3 className="text-white font-bold text-sm">Grains & Rice</h3>
-                        <p className="text-gray-300 text-xs">Premium Quality</p>
+                        <h3 className="text-white font-bold text-sm bangla-title">ধান ও চাল</h3>
+                        <p className="text-gray-300 text-xs bangla-body">প্রিমিয়াম মান</p>
                       </div>
                     </div>
                   </div>
@@ -126,8 +126,8 @@ function HeroSection() {
                         <span className="text-white text-2xl" role="img" aria-label="Spices">🌿</span>
                       </div>
                       <div className="mt-2">
-                        <h3 className="text-white font-bold text-sm">Spices & Herbs</h3>
-                        <p className="text-gray-300 text-xs">Aromatic & Pure</p>
+                        <h3 className="text-white font-bold text-sm bangla-title">মসলা ও ভেষজ</h3>
+                        <p className="text-gray-300 text-xs bangla-body">সুগন্ধি ও বিশুদ্ধ</p>
                       </div>
                     </div>
                   </div>

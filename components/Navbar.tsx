@@ -151,7 +151,7 @@ function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
         {/* Container with max-width matching content area */}
         <div className="w-full mx-auto flex items-center justify-between py-2 px-6 max-w-full lg:max-w-[50vw]">
         {/* Left: Logo and Mobile Menu Icon */}

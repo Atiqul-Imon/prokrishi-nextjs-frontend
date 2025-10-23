@@ -1,4 +1,4 @@
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
@@ -12,6 +12,11 @@ import ContentContainer from "@/components/ContentContainer";
 import { ReactNode } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
+const notoSansBengali = Noto_Sans_Bengali({ 
+  subsets: ["bengali"],
+  variable: "--font-noto-sans-bengali",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"]
+});
 
 export const metadata = {
   title: "Prokrishi - Your Trusted Agricultural Marketplace",
@@ -35,7 +40,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
+    <html lang="en" dir="ltr">
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
@@ -64,7 +69,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
       </head>
-      <body className={`${inter.className} min-h-screen flex flex-col bg-gray-100`}>
+      <body className={`${inter.className} ${notoSansBengali.variable} min-h-screen flex flex-col bg-gray-100`}>
         <SWRProvider>
           <AuthProvider>
             <CartProvider>

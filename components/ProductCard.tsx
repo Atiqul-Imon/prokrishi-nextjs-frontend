@@ -59,13 +59,13 @@ function ProductCard({ product }: { product: any }) {
 
       {/* Content */}
       <div className="p-2 sm:p-3">
-        <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-1 line-clamp-2 hover:text-primary transition-colors">
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-1 line-clamp-2 hover:text-primary transition-colors bangla-title">
           <Link href={`/products/${_id}`}>{name}</Link>
         </h3>
 
         {/* Description (Hidden on mobile) */}
         {description && (
-          <p className="text-xs text-gray-500 mb-1 line-clamp-1 hidden sm:block">
+          <p className="text-xs text-gray-500 mb-1 line-clamp-1 hidden sm:block bangla-body">
             {description}
           </p>
         )}
