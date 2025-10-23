@@ -28,7 +28,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000, // 10 second timeout
+  timeout: 20000, // 20 second timeout for better reliability
 });
 
 // Request interceptor: Attach JWT (if any) from localStorage
@@ -78,7 +78,18 @@ export async function apiRequest<T = any>(
     });
     return res.data as T;
   } catch (err: any) {
-    const msg = err.response?.data?.message || err.message || "API Error";
+    let msg = err.response?.data?.message || err.message || "API Error";
+    
+    // Handle timeout errors specifically
+    if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+      msg = "Request timeout - please try again";
+    }
+    
+    // Handle network errors
+    if (err.code === 'ERR_NETWORK' || !err.response) {
+      msg = "Network error - please check your connection";
+    }
+    
     throw new Error(msg);
   }
 }

@@ -50,12 +50,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     // Dashboard layout - full viewport, breaks out of parent container
-    <div className="fixed inset-0 flex bg-gray-100 z-50">
+    <div className="fixed inset-0 flex bg-gray-50 z-50">
       <Sidebar current="" />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Topbar />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-8">
-          {children}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-gray-50 to-gray-100 p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

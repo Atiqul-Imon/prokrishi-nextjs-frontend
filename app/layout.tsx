@@ -19,13 +19,13 @@ export const metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/logo/prokrishihublogo.png', sizes: '32x32', type: 'image/png' },
-      { url: '/logo/prokrishihublogo.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/favicon.ico', sizes: '16x16', type: 'image/x-icon' },
     ],
     apple: [
       { url: '/logo/prokrishihublogo.png', sizes: '180x180', type: 'image/png' },
     ],
-    shortcut: '/logo/prokrishihublogo.png',
+    shortcut: '/favicon.ico',
   },
 };
 
@@ -38,8 +38,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en">
       <head>
         {/* Favicon */}
-        <link rel="icon" href="/logo/prokrishihublogo.png" type="image/png" />
-        <link rel="shortcut icon" href="/logo/prokrishihublogo.png" type="image/png" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" />
         
         {/* Facebook SDK for Messenger integration */}

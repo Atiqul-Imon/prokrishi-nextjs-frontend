@@ -13,8 +13,16 @@ const fetcher = async (url: string) => {
   try {
     const data = await apiRequest(url);
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('SWR Fetch Error:', error);
+    
+    // Handle specific error types
+    if (error.message?.includes('timeout')) {
+      console.warn('Request timeout, will retry automatically');
+    } else if (error.message?.includes('Network error')) {
+      console.warn('Network error, will retry automatically');
+    }
+    
     throw error;
   }
 };
@@ -39,12 +47,12 @@ export default function SWRProvider({ children }: SWRProviderProps) {
         focusThrottleInterval: 20000,
         
         // Error handling
-        errorRetryCount: 2, // Retry failed requests twice
-        errorRetryInterval: 3000, // Wait 3 seconds between retries
+        errorRetryCount: 3, // Retry failed requests three times
+        errorRetryInterval: 2000, // Wait 2 seconds between retries
         shouldRetryOnError: true,
         
-        // Loading timeout
-        loadingTimeout: 3000,
+        // Loading timeout - increased for better reliability
+        loadingTimeout: 15000, // 15 seconds timeout
         
         // Cache provider - use Map for better performance
         provider: () => new Map(),
