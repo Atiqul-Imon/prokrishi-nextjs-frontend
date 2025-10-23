@@ -90,6 +90,11 @@ export async function apiRequest<T = any>(
       msg = "Network error - please check your connection";
     }
     
+    // Handle 404 errors specifically
+    if (err.response?.status === 404) {
+      msg = "Product not found - it may have been deleted";
+    }
+    
     throw new Error(msg);
   }
 }
