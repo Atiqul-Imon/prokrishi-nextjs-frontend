@@ -16,6 +16,17 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "Prokrishi - Your Trusted Agricultural Marketplace",
   description: "Buy and sell agricultural products, seeds, fertilizers, and farming equipment in Bangladesh.",
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/logo/prokrishihublogo.png', sizes: '32x32', type: 'image/png' },
+      { url: '/logo/prokrishihublogo.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/logo/prokrishihublogo.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/logo/prokrishihublogo.png',
+  },
 };
 
 interface RootLayoutProps {
@@ -26,6 +37,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <head>
+        {/* Favicon */}
+        <link rel="icon" href="/logo/prokrishihublogo.png" type="image/png" />
+        <link rel="shortcut icon" href="/logo/prokrishihublogo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" />
+        
         {/* Facebook SDK for Messenger integration */}
         <script
           async

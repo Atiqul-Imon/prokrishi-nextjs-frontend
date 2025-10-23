@@ -1,0 +1,23 @@
+{
+  "name": "Prokrishi - Agricultural Marketplace",
+  "short_name": "Prokrishi",
+  "description": "Buy and sell agricultural products, seeds, fertilizers, and farming equipment in Bangladesh.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "icons": [
+    {
+      "src": "/logo/prokrishihublogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo/prokrishihublogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

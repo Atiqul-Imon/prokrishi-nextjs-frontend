@@ -80,7 +80,7 @@ export default function OptimizedImage({
     }
 
     // Convert to ImageKit URL with optimizations
-    const baseUrl = 'https://ik.imagekit.io/6omjsz850';
+    const baseUrl = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/6omjsz850';
     const params = new URLSearchParams();
     
     if (width) params.append('w', width.toString());
@@ -181,14 +181,16 @@ export const useResponsiveImage = (src: string, breakpoints: number[] = [320, 64
   useEffect(() => {
     if (!src) return;
 
+    const baseUrl = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/6omjsz850';
+
     const generateSrcSet = () => {
       return breakpoints
-        .map(w => `https://ik.imagekit.io/6omjsz850${src}?w=${w}&f=auto&q=75 ${w}w`)
+        .map(w => `${baseUrl}${src}?w=${w}&f=auto&q=75 ${w}w`)
         .join(', ');
     };
 
     setSrcSet(generateSrcSet());
-    setCurrentSrc(`https://ik.imagekit.io/6omjsz850${src}?w=800&f=auto&q=75`);
+    setCurrentSrc(`${baseUrl}${src}?w=800&f=auto&q=75`);
   }, [src, breakpoints]);
 
   return { src: currentSrc, srcSet };
@@ -217,7 +219,7 @@ export const generateImageKitUrl = (
     focus = 'auto'
   } = options;
 
-  const baseUrl = 'https://ik.imagekit.io/6omjsz850';
+  const baseUrl = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/6omjsz850';
   const params = new URLSearchParams();
   
   if (width) params.append('w', width.toString());

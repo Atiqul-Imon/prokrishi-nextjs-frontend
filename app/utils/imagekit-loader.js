@@ -3,7 +3,7 @@
  * Provides automatic format selection, responsive sizing, and quality optimization
  */
 
-const IMAGEKIT_URL_ENDPOINT = 'https://ik.imagekit.io/6omjsz850';
+const IMAGEKIT_URL_ENDPOINT = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/6omjsz850';
 
 export default function imagekitLoader({ src, width, quality = 75 }) {
   // If it's already an ImageKit URL, return as is

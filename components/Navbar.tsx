@@ -153,24 +153,28 @@ function Navbar() {
     <>
       <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
         {/* Container with max-width matching content area */}
-        <div className="w-full mx-auto flex items-center justify-between py-4 px-6 max-w-full lg:max-w-[50vw]">
+        <div className="w-full mx-auto flex items-center justify-between py-2 px-6 max-w-full lg:max-w-[50vw]">
         {/* Left: Logo and Mobile Menu Icon */}
         <div className="flex items-center space-x-4 flex-1 basis-0 min-w-0">
           {/* Mobile Menu Icon */}
           <button
-            className="md:hidden text-gray-600 hover:text-green-600"
+            className="md:hidden text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-green-50 transition-all duration-200"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open Menu"
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
 
           {/* Logo */}
           <Link
             href="/"
-            className="text-xl font-bold text-green-600 whitespace-nowrap"
+            className="flex items-center whitespace-nowrap"
           >
-            Prokrishi
+            <img 
+              src="/logo/prokrishihublogo.png" 
+              alt="Prokrishi Logo" 
+              className="h-5 w-auto object-cover object-center"
+            />
           </Link>
         </div>
 
@@ -198,35 +202,38 @@ function Navbar() {
           </nav>
         </div>
 
-        {/* Right: Search Bar (hidden on small screens) & Icons */}
+        {/* Right: Search Bar (conditional) & Icons */}
         <div className="flex items-center flex-1 basis-0 min-w-0 justify-end space-x-6">
-          {/* Search Bar with Dropdown */}
-          <div
-            className="hidden md:block relative max-w-md w-full mr-4"
-            ref={searchRef}
-          >
+          {/* Search Bar with Dropdown - Hidden for Admin */}
+          {!isAdmin && (
+            <div
+              className="hidden md:block relative max-w-md w-full mr-4"
+              ref={searchRef}
+            >
             <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Search for products..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <button
-                type="submit"
-                className="absolute right-0 top-0 bg-green-600 text-white px-4 py-2 rounded-r-md hover:bg-green-700 transition-colors"
-              >
-                <Search size={18} />
-              </button>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search for products..."
+                  className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition-all duration-200"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-600 text-white p-1.5 rounded-md hover:bg-green-700 transition-colors duration-200"
+                >
+                  <Search size={16} />
+                </button>
+              </div>
             </form>
 
             {/* Search Dropdown */}
             {showDropdown && (
               <div
                 ref={dropdownRef}
-                className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-b-md shadow-lg z-50 max-h-96 overflow-y-auto"
+                className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto mt-1"
               >
                 {loading ? (
                   <div className="p-4 text-center text-gray-500">
@@ -238,7 +245,7 @@ function Navbar() {
                       <div
                         key={product._id}
                         onClick={() => handleResultClick(product)}
-                        className={`p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                        className={`p-4 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-150 ${
                           index === selectedIndex ? "bg-green-50" : ""
                         }`}
                       >
@@ -246,7 +253,7 @@ function Navbar() {
                           <img
                             src={product.image || "/img/placeholder.png"}
                             alt={product.name}
-                            className="w-12 h-12 object-cover rounded"
+                            className="w-12 h-12 object-cover rounded-lg shadow-sm"
                           />
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-medium text-gray-900 truncate">
@@ -265,36 +272,39 @@ function Navbar() {
                         </div>
                       </div>
                     ))}
-                    <div className="p-3 border-t border-gray-200 bg-gray-50">
+                    <div className="p-3 border-t border-gray-200 bg-green-50">
                       <button
                         onClick={handleSearch}
-                        className="w-full text-sm text-green-600 hover:text-green-700 font-medium"
+                        className="w-full text-sm text-green-600 hover:text-green-700 font-medium py-2 px-3 rounded-md hover:bg-green-100 transition-colors duration-150"
                       >
                         View all results for "{searchQuery}"
                       </button>
                     </div>
                   </>
                 ) : searchQuery.trim().length >= 2 ? (
-                  <div className="p-4 text-center text-gray-500">
-                    <Search size={24} className="mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm">No products found</p>
+                  <div className="p-6 text-center text-gray-500">
+                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Search size={20} className="text-gray-400" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">No products found</p>
                     <p className="text-xs text-gray-400">
-                      Try different keywords
+                      Try different keywords or check spelling
                     </p>
                   </div>
                 ) : null}
               </div>
             )}
-          </div>
+            </div>
+          )}
 
           {/* Dashboard Button (Admin Only) */}
           {isAdmin && (
             <Link
               href="/dashboard"
-              className="hidden md:flex items-center space-x-1 bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors"
+              className="hidden md:flex items-center space-x-2 bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 transition-all duration-200 shadow-sm hover:shadow-md"
             >
               <Settings size={16} />
-              <span>Dashboard</span>
+              <span className="font-medium">Dashboard</span>
             </Link>
           )}
 
@@ -303,14 +313,14 @@ function Navbar() {
             <div className="flex items-center space-x-4">
               <Link
                 href="/account"
-                className="flex items-center space-x-1 text-gray-600 hover:text-green-600"
+                className="flex items-center space-x-2 text-gray-600 hover:text-green-600 px-3 py-2 rounded-lg hover:bg-green-50 transition-all duration-200"
               >
-                <User size={20} />
-                <span className="hidden md:inline">{user.name}</span>
+                <User size={18} />
+                <span className="hidden md:inline font-medium">{user.name}</span>
               </Link>
               <button
                 onClick={logout}
-                className="text-gray-600 hover:text-red-600 text-sm"
+                className="text-gray-600 hover:text-red-600 text-sm px-3 py-2 rounded-lg hover:bg-red-50 transition-all duration-200"
               >
                 Logout
               </button>
@@ -318,20 +328,20 @@ function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center space-x-1 text-gray-600 hover:text-green-600"
+              className="flex items-center space-x-2 text-gray-600 hover:text-green-600 px-3 py-2 rounded-lg hover:bg-green-50 transition-all duration-200"
             >
-              <User size={20} />
-              <span className="hidden md:inline">Login</span>
+              <User size={18} />
+              <span className="hidden md:inline font-medium">Login</span>
             </Link>
           )}
 
           <Link
             href="/cart"
-            className="relative text-gray-600 hover:text-green-600"
+            className="relative text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-green-50 transition-all duration-200"
           >
             <ShoppingCart size={20} />
             {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full px-1.5 py-0.5 flex items-center justify-center min-w-[20px]">
+              <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full px-2 py-1 flex items-center justify-center min-w-[20px] font-medium shadow-sm">
                 {cartCount}
               </span>
             )}
