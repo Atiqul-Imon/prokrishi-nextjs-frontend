@@ -1,98 +1,78 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Leaf, Truck, Shield } from "lucide-react";
-import { getHeroImageUrl } from "@/utils/imageOptimizer";
+import { ArrowRight, Leaf, Truck, Shield, Sparkles } from "lucide-react";
 
 function HeroSection() {
   return (
-    <section className="relative bg-gradient-to-br from-green-50 to-emerald-100 overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23059b69%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%224%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
-      </div>
-
-      {/* Background image - Removed for better scroll performance */}
-      <div className="absolute inset-0 bg-green-50">
-        <div className="absolute inset-0 bg-gradient-to-r from-green-900/10 to-transparent" />
-      </div>
+    <section className="relative bg-white overflow-hidden">
+      {/* Clean gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-emerald-50" />
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-10 lg:py-16">
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
-          {/* Left Content */}
-          <div className="text-center lg:text-left">
-            <div className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-xs font-medium mb-4">
-              <Leaf className="w-3 h-3 mr-1.5" />
-              Fresh from Farm to Table
+      <div className="relative z-10 container mx-auto px-4 py-16 lg:py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          
+          {/* Bangla tagline badge */}
+          <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium mb-6">
+            <Sparkles className="w-4 h-4 mr-2" />
+            প্রাকৃতিক ও টাটকা খাবার
+          </div>
+
+          {/* Main heading */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <span className="block text-gray-800">প্রকৃশি হাব</span>
+            <span className="block text-green-600 mt-2">আপনার বিশ্বস্ত কৃষি পণ্যের প্ল্যাটফর্ম</span>
+          </h1>
+
+          {/* Clean description */}
+          <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+            সরাসরি কৃষকের কাছ থেকে তাজা ও প্রাকৃতিক কৃষি পণ্য সংগ্রহ করুন। 
+            গুণগত মান নিশ্চিত করে স্বাস্থ্যকর জীবনযাপনের সুযোগ নিন।
+          </p>
+
+          {/* CTA buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Link href="/products">
+              <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-4 rounded-lg text-lg flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl">
+                পণ্য দেখুন
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </button>
+            </Link>
+
+            <Link href="/about">
+              <button className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-200">
+                আমাদের সম্পর্কে
+              </button>
+            </Link>
+          </div>
+
+          {/* Key features - Clean grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+            <div className="text-center p-6 bg-white rounded-xl border border-green-100 hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Truck className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">দ্রুত ডেলিভারি</h3>
+              <p className="text-gray-600 text-sm">সকালে অর্ডার, বিকেলে পণ্য</p>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-              Pure & Organic
-              <span className="block text-green-600">Food for You</span>
-            </h1>
-
-            <p className="text-base md:text-lg text-gray-600 mb-6 max-w-2xl">
-              Get fresh and natural food directly from trusted sources. Stay
-              healthy, eat clean, and support local farmers.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <Link href="/products">
-                <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg text-base flex items-center justify-center">
-                  Shop Now
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </button>
-              </Link>
-
-              <Link href="/about">
-                <button className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-semibold px-6 py-3 rounded-lg text-base">
-                  Learn More
-                </button>
-              </Link>
+            <div className="text-center p-6 bg-white rounded-xl border border-green-100 hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Leaf className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">১০০% প্রাকৃতিক</h3>
+              <p className="text-gray-600 text-sm">কেমিক্যাল মুক্ত গুণগত পণ্য</p>
             </div>
 
-            {/* Features - Compact */}
-            <div className="grid grid-cols-3 gap-4 mt-6">
-              <div className="text-center">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Truck className="w-5 h-5 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 text-sm">Fast Delivery</h3>
-                <p className="text-xs text-gray-600">Same day</p>
+            <div className="text-center p-6 bg-white rounded-xl border border-green-100 hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-8 h-8 text-green-600" />
               </div>
-
-              <div className="text-center">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Leaf className="w-5 h-5 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 text-sm">100% Organic</h3>
-                <p className="text-xs text-gray-600">Certified</p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Shield className="w-5 h-5 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 text-sm">Quality</h3>
-                <p className="text-xs text-gray-600">Best guarantee</p>
-              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">গুণগত নিশ্চয়তা</h3>
+              <p className="text-gray-600 text-sm">সর্বোচ্চ মানের প্রতিশ্রুতি</p>
             </div>
           </div>
 
-          {/* Right Content - Removed image for better performance */}
-          <div className="relative hidden lg:block">
-            <div className="relative bg-white rounded-2xl p-6 border-2 border-green-200">
-              <div className="text-center py-8">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Leaf className="w-10 h-10 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Fresh Daily
-                </h3>
-                <p className="text-gray-600">Handpicked from local farms every morning</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
