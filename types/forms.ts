@@ -38,8 +38,12 @@ export const productSchema = z.object({
   price: z.number().min(0, 'Price must be positive'),
   stock: z.number().min(0, 'Stock must be positive'),
   category: z.string().min(1, 'Category is required'),
-  measurement: z.number().min(0, 'Measurement must be positive'),
-  unit: z.string().min(1, 'Unit is required'),
+  measurement: z.number().min(0.01, 'Measurement must be at least 0.01'),
+  unit: z.enum(['pcs', 'kg', 'g', 'l', 'ml'], {
+    errorMap: () => ({ message: 'Unit must be one of: pcs, kg, g, l, ml' })
+  }),
+  minOrderQuantity: z.number().min(0.01, 'Minimum order quantity must be at least 0.01').optional(),
+  measurementIncrement: z.number().min(0.01, 'Measurement increment must be at least 0.01').optional(),
   status: z.enum(['active', 'inactive', 'out_of_stock']).optional(),
   image: z.string().optional(),
 });

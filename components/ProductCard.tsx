@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
 import { getProductImageUrl } from "@/utils/imageOptimizer";
+import { formatMeasurement, formatPricePerUnit } from "@/app/utils/measurement";
 
 function ProductCard({ product }: { product: any }) {
   const { addToCart } = useCart();
@@ -34,6 +35,16 @@ function ProductCard({ product }: { product: any }) {
   }, [product, _id, addToCart]);
 
   const inStock = useMemo(() => stock > 0, [stock]);
+  
+  // Format measurement for display
+  const measurementDisplay = useMemo(() => {
+    return formatMeasurement(measurement, unit);
+  }, [measurement, unit]);
+  
+  // Format price per unit
+  const pricePerUnitDisplay = useMemo(() => {
+    return formatPricePerUnit(price, measurement, unit);
+  }, [price, measurement, unit]);
 
   return (
     <div className="product-card group relative border rounded-lg overflow-hidden bg-white shadow-sm">
@@ -89,10 +100,15 @@ function ProductCard({ product }: { product: any }) {
             ৳{price}
             {unit !== "pcs" && (
               <span className="text-xs font-normal text-gray-600">
-                {" "}/ {measurement}{unit}
+                {" "}/ {measurementDisplay.displayText}
               </span>
             )}
           </p>
+          {unit !== "pcs" && (
+            <p className="text-xs text-gray-500">
+              {pricePerUnitDisplay}
+            </p>
+          )}
         </div>
 
         {/* Add to Cart Button */}

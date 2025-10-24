@@ -25,6 +25,10 @@ export interface Product {
   sku: string;
   measurement: number;
   unit: string;
+  minOrderQuantity?: number;
+  measurementIncrement?: number;
+  displayMeasurement?: string; // Virtual field from backend
+  pricePerUnit?: number; // Virtual field from backend
   status: 'active' | 'inactive' | 'out_of_stock';
   createdAt: string;
   updatedAt: string;
