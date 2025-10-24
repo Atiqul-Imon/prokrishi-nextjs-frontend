@@ -28,6 +28,163 @@ body {
   line-height: 1.6;
 }
 
+/* Mobile-optimized Bangla Typography */
+@media (max-width: 640px) {
+  .bangla-title {
+    font-size: 1.1em;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+  }
+  
+  .bangla-body {
+    font-size: 0.95em;
+    line-height: 1.7;
+  }
+  
+  .bangla-text {
+    font-size: 0.95em;
+    line-height: 1.6;
+  }
+}
+
+/* Enhanced mobile typography for better readability */
+@media (max-width: 480px) {
+  .bangla-title {
+    font-size: 1.15em;
+    line-height: 1.6;
+  }
+  
+  .bangla-body {
+    font-size: 1em;
+    line-height: 1.8;
+  }
+}
+
+/* Product Card Responsive Design - Prevent Shrinking */
+.product-card {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Product Card Image - Ensure proper fit */
+.product-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Product Grid - Ensure consistent card sizing */
+.product-grid {
+  display: grid;
+  gap: 1rem;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Ensure consistent card sizing across all breakpoints */
+@media (max-width: 640px) {
+  .product-card {
+    min-width: 150px;
+    max-width: 200px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .product-card {
+    min-width: 180px;
+    max-width: 220px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .product-card {
+    min-width: 200px;
+    max-width: 250px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(3, minmax(200px, 1fr));
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .product-card {
+    min-width: 220px;
+    max-width: 280px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(4, minmax(220px, 1fr));
+  }
+}
+
+@media (min-width: 1281px) {
+  .product-card {
+    min-width: 240px;
+    max-width: 300px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+/* Full Viewport Responsive Design */
+.container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
 /* NO ANIMATIONS - Maximum performance */
 html {
   scroll-behavior: auto;

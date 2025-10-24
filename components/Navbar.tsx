@@ -152,8 +152,8 @@ function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-        {/* Container with max-width matching content area */}
-        <div className="w-full mx-auto flex items-center justify-between py-2 px-6 max-w-full lg:max-w-[50vw]">
+        {/* Container with full responsive width */}
+        <div className="w-full mx-auto flex items-center justify-between py-3 px-4 sm:px-6 max-w-full">
         {/* Left: Logo and Mobile Menu Icon */}
         <div className="flex items-center space-x-4 flex-1 basis-0 min-w-0">
           {/* Mobile Menu Icon */}
@@ -173,7 +173,7 @@ function Navbar() {
             <img 
               src="/logo/prokrishihublogo.png" 
               alt="Prokrishi Logo" 
-              className="h-5 w-auto object-cover object-center"
+              className="h-6 sm:h-7 w-auto object-cover object-center"
             />
           </Link>
         </div>
@@ -310,17 +310,17 @@ function Navbar() {
 
           {/* Icons */}
           {user ? (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Link
                 href="/account"
-                className="flex items-center space-x-2 text-gray-600 hover:text-green-600 px-3 py-2 rounded-lg hover:bg-green-50 transition-all duration-200"
+                className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-green-600 px-2 sm:px-3 py-2 rounded-lg hover:bg-green-50 transition-all duration-200"
               >
                 <User size={18} />
-                <span className="hidden md:inline font-medium">{user.name}</span>
+                <span className="hidden sm:inline font-medium text-sm">{user.name}</span>
               </Link>
               <button
                 onClick={logout}
-                className="text-gray-600 hover:text-red-600 text-sm px-3 py-2 rounded-lg hover:bg-red-50 transition-all duration-200"
+                className="text-gray-600 hover:text-red-600 text-xs sm:text-sm px-2 sm:px-3 py-2 rounded-lg hover:bg-red-50 transition-all duration-200"
               >
                 Logout
               </button>
@@ -328,16 +328,16 @@ function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center space-x-2 text-gray-600 hover:text-green-600 px-3 py-2 rounded-lg hover:bg-green-50 transition-all duration-200"
+              className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-green-600 px-2 sm:px-3 py-2 rounded-lg hover:bg-green-50 transition-all duration-200"
             >
               <User size={18} />
-              <span className="hidden md:inline font-medium">Login</span>
+              <span className="hidden sm:inline font-medium text-sm">Login</span>
             </Link>
           )}
 
           <Link
             href="/cart"
-            className="relative text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-green-50 transition-all duration-200"
+            className="relative text-gray-600 hover:text-green-600 p-2 sm:p-3 rounded-lg hover:bg-green-50 transition-all duration-200"
           >
             <ShoppingCart size={20} />
             {cartCount > 0 && (
@@ -357,7 +357,7 @@ function Navbar() {
           onClick={() => setDrawerOpen(false)}
         >
           <div
-            className="bg-white w-64 h-full p-6"
+            className="bg-white w-72 sm:w-80 h-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -377,23 +377,23 @@ function Navbar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500 text-base"
                 />
                 <button
                   onClick={handleMobileSearch}
-                  className="bg-green-600 text-white px-3 py-2 rounded-r-md hover:bg-green-700 transition-colors"
+                  className="bg-green-600 text-white px-4 py-3 rounded-r-md hover:bg-green-700 transition-colors"
                 >
-                  <Search size={18} />
+                  <Search size={20} />
                 </button>
               </div>
             </div>
 
             {/* Drawer menu items */}
-            <nav className="flex flex-col space-y-6 px-4">
-              <Link href="/" className="text-lg text-gray-700 hover:text-green-600" onClick={() => setDrawerOpen(false)}>Home</Link>
-              <Link href="/products" className="text-lg text-gray-700 hover:text-green-600" onClick={() => setDrawerOpen(false)}>Products</Link>
-              <Link href="/about" className="text-lg text-gray-700 hover:text-green-600" onClick={() => setDrawerOpen(false)}>About</Link>
-              <Link href="/contact" className="text-lg text-gray-700 hover:text-green-600" onClick={() => setDrawerOpen(false)}>Contact</Link>
+            <nav className="flex flex-col space-y-4 px-2">
+              <Link href="/" className="text-lg text-gray-700 hover:text-green-600 py-2 px-3 rounded-lg hover:bg-green-50 transition-colors" onClick={() => setDrawerOpen(false)}>Home</Link>
+              <Link href="/products" className="text-lg text-gray-700 hover:text-green-600 py-2 px-3 rounded-lg hover:bg-green-50 transition-colors" onClick={() => setDrawerOpen(false)}>Products</Link>
+              <Link href="/about" className="text-lg text-gray-700 hover:text-green-600 py-2 px-3 rounded-lg hover:bg-green-50 transition-colors" onClick={() => setDrawerOpen(false)}>About</Link>
+              <Link href="/contact" className="text-lg text-gray-700 hover:text-green-600 py-2 px-3 rounded-lg hover:bg-green-50 transition-colors" onClick={() => setDrawerOpen(false)}>Contact</Link>
 
               {/* Dashboard Link (Admin Only) */}
               {isAdmin && (

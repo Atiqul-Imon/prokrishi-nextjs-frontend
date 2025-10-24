@@ -47,10 +47,10 @@ export default function Home() {
       <FeaturedCategories />
 
       {/* Featured Products Section - Titleless */}
-      <section className="py-6 sm:py-8 lg:py-12 bg-gray-50">
-        <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+      <section className="py-6 sm:py-8 lg:py-12 bg-gray-50 w-full">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 w-full">
           {featuredProducts.length > 0 ? (
-            <div className="product-grid grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
+            <div className="product-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 md:gap-4 lg:gap-6 items-stretch">
               {featuredProducts.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))}

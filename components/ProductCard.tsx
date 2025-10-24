@@ -47,9 +47,9 @@ function ProductCard({ product }: { product: any }) {
   }, [price, measurement, unit]);
 
   return (
-    <div className="product-card group relative border rounded-lg overflow-hidden bg-white shadow-sm h-full flex flex-col">
+    <div className="product-card group relative border rounded-lg overflow-hidden bg-white shadow-sm h-full flex flex-col min-w-0 w-full">
       <Link href={`/products/${_id}`} className="block flex-shrink-0">
-        <div className="relative overflow-hidden h-56 sm:h-56 md:h-64 lg:h-52">
+        <div className="relative overflow-hidden aspect-square w-full">
           <img
             src={getProductImageUrl(image, 'card')}
             alt={name}
@@ -70,30 +70,30 @@ function ProductCard({ product }: { product: any }) {
 
       {/* Content */}
       <div className="p-2 sm:p-3 flex flex-col flex-grow">
-        <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-1 line-clamp-2 hover:text-primary transition-colors bangla-title">
+        <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-2 line-clamp-2 hover:text-primary transition-colors bangla-title">
           <Link href={`/products/${_id}`}>{name}</Link>
         </h3>
 
-        {/* Description (Hidden on mobile) */}
+        {/* Description - Show on mobile with larger text */}
         {(shortDescription || description) && (
-          <p className="text-xs text-gray-500 mb-1 line-clamp-1 hidden sm:block bangla-body">
+          <p className="text-xs sm:text-sm text-gray-500 mb-2 line-clamp-1 bangla-body">
             {shortDescription || (description && description.length > 100 ? description.substring(0, 100) + '...' : description)}
           </p>
         )}
         
 
         {/* Price */}
-        <div className="mb-2">
-          <p className="text-sm sm:text-base font-bold text-primary">
+        <div className="mb-3">
+          <p className="text-base sm:text-lg font-bold text-primary">
             ৳{price}
             {unit !== "pcs" && (
-              <span className="text-xs font-normal text-gray-600">
+              <span className="text-sm font-normal text-gray-600">
                 {" "}/ {measurementDisplay.displayText}
               </span>
             )}
           </p>
           {unit !== "pcs" && (
-            <p className="text-xs text-gray-500">
+            <p className="text-sm text-gray-500">
               {pricePerUnitDisplay}
             </p>
           )}
@@ -104,10 +104,10 @@ function ProductCard({ product }: { product: any }) {
           <button
             onClick={handleAddToCart}
             disabled={!inStock}
-            className="w-full bg-slate-800 text-white font-semibold py-1.5 sm:py-2 px-2 sm:px-3 rounded-md flex items-center justify-center hover:bg-primary disabled:bg-gray-400 disabled:cursor-not-allowed text-xs sm:text-sm"
+            className="w-full bg-slate-800 text-white font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-md flex items-center justify-center hover:bg-primary disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
           >
-            <ShoppingCart size={14} className="mr-1 sm:mr-2" />
-            <span className="text-xs sm:text-sm">{inStock ? "Add to Cart" : "Out of Stock"}</span>
+            <ShoppingCart size={16} className="mr-2" />
+            <span className="text-sm sm:text-base">{inStock ? "Add to Cart" : "Out of Stock"}</span>
           </button>
         </div>
       </div>

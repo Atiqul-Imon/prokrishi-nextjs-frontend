@@ -16,15 +16,15 @@ function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="max-w-6xl mx-auto">
+      <div className="relative z-10 container mx-auto px-3 sm:px-4 lg:px-6 w-full">
+        <div className="max-w-7xl mx-auto w-full">
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
             
             {/* Left Content - Heading */}
             <div className="text-center lg:text-left">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight">
                 <span className="block">Prokrishi</span>
-                <span className="block bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent mt-1 sm:mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bangla-title">
+                <span className="block bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent mt-2 sm:mt-3 text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold bangla-title">
                   আপনার বিশ্বস্ত কৃষি পণ্যের প্ল্যাটফর্ম
                 </span>
               </h1>
@@ -34,44 +34,44 @@ function HeroSection() {
             <div className="relative">
               {/* Mobile & Tablet Version - 2 Products Per Row */}
               <div className="lg:hidden">
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
-                    <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Vegetables">🥬</span>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20">
+                    <div className="w-full h-20 sm:h-24 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
+                      <span className="text-white text-2xl sm:text-3xl" role="img" aria-label="Vegetables">🥬</span>
                     </div>
-                    <div className="mt-2">
-                      <h3 className="text-white font-bold text-xs sm:text-sm bangla-title">তাজা সবজি</h3>
-                      <p className="text-gray-300 text-xs bangla-body">জৈব ও প্রাকৃতিক</p>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
-                    <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Fruits">🍎</span>
-                    </div>
-                    <div className="mt-2">
-                      <h3 className="text-white font-bold text-xs sm:text-sm bangla-title">তাজা ফল</h3>
-                      <p className="text-gray-300 text-xs bangla-body">মৌসুমি ও মিষ্টি</p>
+                    <div className="mt-3">
+                      <h3 className="text-white font-bold text-sm sm:text-base bangla-title">তাজা সবজি</h3>
+                      <p className="text-gray-300 text-sm bangla-body">জৈব ও প্রাকৃতিক</p>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
-                    <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Grains">🌾</span>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20">
+                    <div className="w-full h-20 sm:h-24 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-md">
+                      <span className="text-white text-2xl sm:text-3xl" role="img" aria-label="Fruits">🍎</span>
                     </div>
-                    <div className="mt-2">
-                      <h3 className="text-white font-bold text-xs sm:text-sm bangla-title">ধান ও চাল</h3>
-                      <p className="text-gray-300 text-xs bangla-body">প্রিমিয়াম মান</p>
+                    <div className="mt-3">
+                      <h3 className="text-white font-bold text-sm sm:text-base bangla-title">তাজা ফল</h3>
+                      <p className="text-gray-300 text-sm bangla-body">মৌসুমি ও মিষ্টি</p>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-white/20">
-                    <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl sm:text-2xl" role="img" aria-label="Spices">🌿</span>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20">
+                    <div className="w-full h-20 sm:h-24 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center shadow-md">
+                      <span className="text-white text-2xl sm:text-3xl" role="img" aria-label="Grains">🌾</span>
                     </div>
-                    <div className="mt-2">
-                      <h3 className="text-white font-bold text-xs sm:text-sm bangla-title">মসলা ও ভেষজ</h3>
-                      <p className="text-gray-300 text-xs bangla-body">সুগন্ধি ও বিশুদ্ধ</p>
+                    <div className="mt-3">
+                      <h3 className="text-white font-bold text-sm sm:text-base bangla-title">ধান ও চাল</h3>
+                      <p className="text-gray-300 text-sm bangla-body">প্রিমিয়াম মান</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20">
+                    <div className="w-full h-20 sm:h-24 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center shadow-md">
+                      <span className="text-white text-2xl sm:text-3xl" role="img" aria-label="Spices">🌿</span>
+                    </div>
+                    <div className="mt-3">
+                      <h3 className="text-white font-bold text-sm sm:text-base bangla-title">মসলা ও ভেষজ</h3>
+                      <p className="text-gray-300 text-sm bangla-body">সুগন্ধি ও বিশুদ্ধ</p>
                     </div>
                   </div>
                 </div>

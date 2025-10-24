@@ -19,10 +19,10 @@ export default function ContentContainer({ children }: ContentContainerProps) {
   }
   
   // Public pages: 
-  // - Mobile/Tablet: Full width (100%)
-  // - Large screens (1024px+): 50% viewport width, centered
+  // - Mobile/Tablet/Small Laptop: Full width (100%)
+  // - Large screens (1536px+): 50% viewport width, centered
   return (
-    <div className="w-full bg-white min-h-screen lg:max-w-[50vw]">
+    <div className="w-full bg-white min-h-screen 2xl:max-w-[50vw]">
       {children}
     </div>
   );
