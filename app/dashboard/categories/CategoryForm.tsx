@@ -7,7 +7,7 @@ import * as z from "zod";
 
 // Define a schema for validation
 const categorySchema = z.object({
-  name: z.string().min(3, "Category name is required"),
+  name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
   image: z.any().optional(),
   isFeatured: z.boolean().optional(),
