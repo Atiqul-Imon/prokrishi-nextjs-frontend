@@ -197,6 +197,18 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Mobile Bottom Navigation */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 0;
+  }
+  
+  /* Ensure content doesn't get hidden behind bottom nav */
+  .mobile-content {
+    padding-bottom: 80px;
+  }
+}
+
 /* Minimal scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

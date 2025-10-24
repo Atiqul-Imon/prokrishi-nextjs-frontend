@@ -9,6 +9,7 @@ import chatConfig from "../config/chat";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContentContainer from "@/components/ContentContainer";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import { ReactNode } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -104,7 +105,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <div className="w-full">
                 <Footer />
               </div>
-              <ChatWidget />
+              {/* Chat Widget - Hidden on mobile, shown on desktop */}
+              <div className="hidden md:block">
+                <ChatWidget />
+              </div>
+              {/* Mobile Bottom Navigation */}
+              <MobileBottomNav />
               <Toaster
               position="top-right"
               toastOptions={{
