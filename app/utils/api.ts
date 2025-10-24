@@ -400,7 +400,9 @@ export async function deleteCategory(id: string): Promise<ApiResponse> {
 }
 
 export async function getFeaturedCategories(): Promise<any> {
-  return apiRequest("/category/featured");
+  // Add cache-busting timestamp to ensure fresh data
+  const timestamp = Date.now();
+  return apiRequest(`/category/featured?t=${timestamp}`);
 }
 
 // Address Management

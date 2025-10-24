@@ -22,7 +22,9 @@ export default function EditCategoryPage() {
       setError("");
       try {
         // Fetch all and find by id (since no direct by id endpoint)
-        const data = await getResourceList("category");
+        // Add cache-busting timestamp to ensure fresh data
+        const timestamp = Date.now();
+        const data = await getResourceList("category", `t=${timestamp}`);
         const category = (data.categories || data).find((c) => c._id === id);
         if (category)
           setForm({

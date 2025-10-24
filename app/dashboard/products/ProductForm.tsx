@@ -76,7 +76,9 @@ export default function ProductForm({ initial, onSave, loading }) {
     async function fetchCategories() {
       setCatLoading(true);
       try {
-        const data = await getResourceList("category");
+        // Add cache-busting timestamp to ensure fresh data
+        const timestamp = Date.now();
+        const data = await getResourceList("category", `t=${timestamp}`);
         setCategories(data.categories || data);
       } catch (err) {
         setCatError(err.message || "Failed to load categories");
