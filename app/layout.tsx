@@ -24,13 +24,18 @@ export const metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
-      { url: '/favicon.ico', sizes: '16x16', type: 'image/x-icon' },
+      { url: '/favicon.ico', sizes: '16x16 32x32 48x48', type: 'image/x-icon' },
+      { url: '/logo/prokrishihublogo.png', sizes: '32x32', type: 'image/png' },
+      { url: '/logo/prokrishihublogo.png', sizes: '16x16', type: 'image/png' },
     ],
     apple: [
       { url: '/logo/prokrishihublogo.png', sizes: '180x180', type: 'image/png' },
     ],
     shortcut: '/favicon.ico',
+    other: [
+      { rel: 'icon', url: '/favicon.ico', sizes: '16x16 32x32 48x48' },
+      { rel: 'icon', url: '/logo/prokrishihublogo.png', sizes: '32x32', type: 'image/png' },
+    ],
   },
 };
 
@@ -42,10 +47,25 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" dir="ltr">
       <head>
-        {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        {/* Favicon - Multiple formats for better browser support */}
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16 32x32 48x48" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" />
+        <link rel="icon" href="/logo/prokrishihublogo.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/logo/prokrishihublogo.png" type="image/png" sizes="16x16" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" sizes="180x180" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" sizes="152x152" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" sizes="144x144" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" sizes="120x120" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" sizes="114x114" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" sizes="76x76" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" sizes="72x72" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" sizes="60x60" />
+        <link rel="apple-touch-icon" href="/logo/prokrishihublogo.png" sizes="57x57" />
+        
+        {/* Force favicon refresh */}
+        <meta name="msapplication-TileImage" content="/logo/prokrishihublogo.png" />
+        <meta name="msapplication-TileColor" content="#16a34a" />
+        <meta name="theme-color" content="#16a34a" />
         
         {/* Facebook SDK for Messenger integration */}
         <script
