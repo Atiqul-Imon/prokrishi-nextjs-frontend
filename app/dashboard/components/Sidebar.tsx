@@ -13,6 +13,7 @@ import {
   User,
   LogOut,
   Home,
+  Image,
 } from "lucide-react";
 
 const navItems = [
@@ -21,6 +22,7 @@ const navItems = [
   { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
   { label: "Customers", href: "/dashboard/customers", icon: Users },
   { label: "Categories", href: "/dashboard/categories", icon: Tag },
+  { label: "Media Gallery", href: "/dashboard/media", icon: Image },
   { label: "Reports", href: "/dashboard/reports", icon: BarChart2 },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
   { label: "Profile", href: "/dashboard/profile", icon: User },

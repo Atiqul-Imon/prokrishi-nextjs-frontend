@@ -1,6 +1,6 @@
 /**
  * Image Optimization Utility
- * Optimizes external image URLs (Unsplash, Cloudinary, etc.)
+ * Optimizes external image URLs (Unsplash, ImageKit, etc.)
  */
 
 export function optimizeImageUrl(url: string, options?: {
@@ -28,7 +28,34 @@ export function optimizeImageUrl(url: string, options?: {
     return `${baseUrl}?${params.toString()}`;
   }
 
-  // Optimize Cloudinary images
+  // Optimize ImageKit images
+  if (url.includes('imagekit.io')) {
+    // ImageKit transformation parameters
+    const transformations = [];
+    
+    if (width) transformations.push(`w-${width}`);
+    if (height) transformations.push(`h-${height}`);
+    if (quality) transformations.push(`q-${quality}`);
+    if (format && format !== 'auto') transformations.push(`f-${format}`);
+    
+    // Add crop mode for consistent sizing
+    transformations.push('c-maintain_ratio');
+    
+    // Insert transformation into URL
+    if (url.includes('/tr:')) {
+      // Replace existing transformations
+      const baseUrl = url.split('/tr:')[0];
+      return `${baseUrl}/tr:${transformations.join(',')}/${url.split('/').pop()}`;
+    } else {
+      // Add new transformations
+      const pathParts = url.split('/');
+      const fileName = pathParts.pop();
+      const basePath = pathParts.join('/');
+      return `${basePath}/tr:${transformations.join(',')}/${fileName}`;
+    }
+  }
+
+  // Legacy Cloudinary support (for existing images)
   if (url.includes('cloudinary.com')) {
     // Cloudinary transformation parameters
     const transformation = `w_${width},h_${height},c_fill,q_${quality},f_auto`;
