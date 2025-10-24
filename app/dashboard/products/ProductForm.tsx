@@ -108,7 +108,7 @@ export default function ProductForm({ initial, onSave, loading }) {
     onSave?.(formData);
   }
 
-  const Input = ({ name, label, error, ...props }) => (
+  const Input = ({ name, label, error, multilang = false, ...props }) => (
     <div>
       <label
         htmlFor={name}
@@ -121,6 +121,8 @@ export default function ProductForm({ initial, onSave, loading }) {
         {...register(name)}
         {...props}
         className={`w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 ${
+          multilang ? 'bangla-text' : ''
+        } ${
           error ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-300"
         }`}
       />
@@ -160,8 +162,9 @@ export default function ProductForm({ initial, onSave, loading }) {
           <Input
             name="name"
             label="Product Name"
-            placeholder="e.g., Organic Honey"
+            placeholder="e.g., Organic Honey বা চাল, ডাল, তেল (supports both English and Bangla)"
             error={errors.name}
+            multilang={true}
           />
 
           <div>
@@ -206,8 +209,8 @@ export default function ProductForm({ initial, onSave, loading }) {
             <textarea
               id="description"
               {...register("description")}
-              placeholder="Detailed product description..."
-              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              placeholder="Detailed product description... বা পণ্যের বিস্তারিত বর্ণনা... (supports both English and Bangla)"
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bangla-text"
               rows={3}
             />
           </div>

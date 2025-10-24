@@ -45,7 +45,7 @@ export default function CategoryForm({ initial, onSave, loading }) {
     onSave?.(formData);
   }
 
-  const Input = ({ name, label, error, ...props }) => (
+  const Input = ({ name, label, error, multilang = false, ...props }) => (
     <div>
       <label
         htmlFor={name}
@@ -57,7 +57,9 @@ export default function CategoryForm({ initial, onSave, loading }) {
         id={name}
         {...register(name)}
         {...props}
-        className={`w-full border px-3 py-2 rounded ${error ? "border-red-500" : "border-gray-300"}`}
+        className={`w-full border px-3 py-2 rounded ${
+          multilang ? 'bangla-text' : ''
+        } ${error ? "border-red-500" : "border-gray-300"}`}
       />
       {error && (
         <span className="text-red-600 text-sm mt-1">{error.message}</span>

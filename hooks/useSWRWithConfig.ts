@@ -12,29 +12,29 @@ const fetcher = (url: string) => apiRequest(url);
 /**
  * Hook for STATIC/RARELY CHANGING data
  * Use for: Featured products, categories, site content
- * Cache: 30 minutes
+ * Cache: 2 minutes (reduced from 30 minutes)
  */
 export function useStaticData<T = any>(key: string | null) {
   return useSWR<T>(key, fetcher, {
-    revalidateOnFocus: false, // Don't refetch on tab focus
-    revalidateOnReconnect: false, // Don't refetch on reconnect
-    dedupingInterval: 1800000, // 30 minutes
-    refreshInterval: 1800000, // Auto-refresh every 30 minutes
+    revalidateOnFocus: true, // Refetch on tab focus for fresh data
+    revalidateOnReconnect: true, // Refetch on reconnect
+    dedupingInterval: 120000, // 2 minutes (reduced from 30 minutes)
+    refreshInterval: 120000, // Auto-refresh every 2 minutes (reduced from 30 minutes)
   });
 }
 
 /**
  * Hook for PRODUCT DATA
  * Use for: Product listings, product details
- * Cache: 5 minutes, revalidate on focus
+ * Cache: 1 minute, revalidate on focus
  * Important: Stock levels need to be relatively fresh
  */
 export function useProductData<T = any>(key: string | null) {
   return useSWR<T>(key, fetcher, {
     revalidateOnFocus: true, // Revalidate when user comes back
     revalidateOnReconnect: true,
-    dedupingInterval: 10000, // 10 seconds
-    refreshInterval: 300000, // Auto-refresh every 5 minutes
+    dedupingInterval: 5000, // 5 seconds (reduced from 10 seconds)
+    refreshInterval: 60000, // Auto-refresh every 1 minute (reduced from 5 minutes)
     compare: (a, b) => {
       // Special comparison for products (check stock changes)
       if (a && b && typeof a === 'object' && typeof b === 'object') {
@@ -54,8 +54,8 @@ export function useDynamicData<T = any>(key: string | null) {
   return useSWR<T>(key, fetcher, {
     revalidateOnFocus: true, // Always revalidate
     revalidateOnReconnect: true,
-    dedupingInterval: 2000, // 2 seconds only
-    refreshInterval: 30000, // Refresh every 30 seconds
+    dedupingInterval: 1000, // 1 second only (reduced from 2 seconds)
+    refreshInterval: 10000, // Refresh every 10 seconds (reduced from 30 seconds)
     revalidateIfStale: true,
   });
 }
@@ -63,13 +63,13 @@ export function useDynamicData<T = any>(key: string | null) {
 /**
  * Hook for SEARCH RESULTS
  * Use for: Product search, category filtering
- * Cache: 3 minutes, no auto-refresh
+ * Cache: 1 minute, no auto-refresh
  */
 export function useSearchData<T = any>(key: string | null) {
   return useSWR<T>(key, fetcher, {
-    revalidateOnFocus: false, // Search results don't need focus revalidation
-    revalidateOnReconnect: false,
-    dedupingInterval: 180000, // 3 minutes
+    revalidateOnFocus: true, // Revalidate on focus for fresh search results
+    revalidateOnReconnect: true,
+    dedupingInterval: 60000, // 1 minute (reduced from 3 minutes)
     refreshInterval: 0, // No auto-refresh for search
   });
 }
@@ -77,28 +77,28 @@ export function useSearchData<T = any>(key: string | null) {
 /**
  * Hook for USER-SPECIFIC data
  * Use for: User profile, addresses, order history
- * Cache: 10 minutes, revalidate on focus
+ * Cache: 2 minutes, revalidate on focus
  */
 export function useUserData<T = any>(key: string | null) {
   return useSWR<T>(key, fetcher, {
     revalidateOnFocus: true,
     revalidateOnReconnect: true,
-    dedupingInterval: 30000, // 30 seconds
-    refreshInterval: 600000, // Auto-refresh every 10 minutes
+    dedupingInterval: 10000, // 10 seconds (reduced from 30 seconds)
+    refreshInterval: 120000, // Auto-refresh every 2 minutes (reduced from 10 minutes)
   });
 }
 
 /**
  * Hook for ADMIN/DASHBOARD data
  * Use for: Admin analytics, reports, inventory
- * Cache: 2 minutes, always revalidate on focus
+ * Cache: 30 seconds, always revalidate on focus
  */
 export function useAdminData<T = any>(key: string | null) {
   return useSWR<T>(key, fetcher, {
     revalidateOnFocus: true, // Admin needs fresh data
     revalidateOnReconnect: true,
-    dedupingInterval: 5000, // 5 seconds
-    refreshInterval: 120000, // Auto-refresh every 2 minutes
+    dedupingInterval: 2000, // 2 seconds (reduced from 5 seconds)
+    refreshInterval: 30000, // Auto-refresh every 30 seconds (reduced from 2 minutes)
     errorRetryCount: 3,
   });
 }
