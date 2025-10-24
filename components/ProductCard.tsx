@@ -4,7 +4,6 @@ import React, { memo, useCallback, useMemo } from "react";
 import Link from "next/link";
 import {
   ShoppingCart,
-  Star,
   Heart,
   Eye,
   CheckCircle,
@@ -81,18 +80,6 @@ function ProductCard({ product }: { product: any }) {
           </p>
         )}
         
-        {/* Rating (Hidden on mobile) */}
-        <div className="hidden sm:flex items-center mb-1">
-          <div className="flex items-center">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={`w-3 h-3 ${star <= 4 ? "text-yellow-400 fill-current" : "text-gray-300"}`}
-              />
-            ))}
-          </div>
-          <span className="text-xs text-gray-500 ml-1">(12)</span>
-        </div>
 
         {/* Price */}
         <div className="mb-2">
