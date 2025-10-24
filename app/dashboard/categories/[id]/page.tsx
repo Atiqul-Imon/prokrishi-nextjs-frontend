@@ -25,7 +25,7 @@ export default function EditCategoryPage() {
         // Add cache-busting timestamp to ensure fresh data
         const timestamp = Date.now();
         const data = await getResourceList("category", `t=${timestamp}`);
-        const category = (data.categories || data).find((c) => c._id === id);
+        const category = (data.categories || data).find((c: any) => c._id === id);
         if (category)
           setForm({
             name: category.name,

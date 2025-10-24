@@ -175,7 +175,7 @@ const AccountPage = () => {
                 <div className="bg-gradient-to-r from-primary-50 to-secondary-50 px-6 py-4 border-b">
                   <div className="flex items-center gap-3">
                     {(() => {
-                      const currentTab = TABS.find((t) => t.name === activeTab);
+                      const currentTab = TABS.find((t: any) => t.name === activeTab);
                       const Icon = currentTab?.icon;
                       return Icon ? (
                         <Icon size={24} className="text-primary-600" />
@@ -186,7 +186,7 @@ const AccountPage = () => {
                         {activeTab}
                       </h2>
                       <p className="text-sm text-gray-600">
-                        {TABS.find((t) => t.name === activeTab)?.description}
+                        {TABS.find((t: any) => t.name === activeTab)?.description}
                       </p>
                     </div>
                   </div>

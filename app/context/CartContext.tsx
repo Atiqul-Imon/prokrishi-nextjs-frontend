@@ -84,7 +84,7 @@ export function CartProvider({ children }: CartProviderProps) {
   function removeFromCart(id: string) {
     try {
       setCart((prev) => {
-        const item = prev.find((i) => (i.id || i._id) === id);
+        const item = prev.find((i: any) => (i.id || i._id) === id);
         if (item) {
           toast.success(`${item.name} removed from cart`);
         }
