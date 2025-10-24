@@ -97,7 +97,7 @@ export const getAllMedia = async (filters: MediaFilters = {}): Promise<{
     if (filters.type) params.append('type', filters.type);
 
     const response = await mediaApi.get(`/media?${params.toString()}`);
-    return response.data;
+    return response.data as { mediaFiles: MediaFile[]; pagination: MediaPagination; };
   } catch (error) {
     console.error('Get media files error:', error);
     throw error;
@@ -128,7 +128,7 @@ export const uploadMedia = async (
       },
     });
 
-    return response.data.media;
+    return (response.data as any).media;
   } catch (error) {
     console.error('Upload media error:', error);
     throw error;
@@ -149,7 +149,7 @@ export const deleteMedia = async (id: string): Promise<void> => {
 export const getMediaById = async (id: string): Promise<MediaFile> => {
   try {
     const response = await mediaApi.get(`/media/${id}`);
-    return response.data.media;
+    return (response.data as any).media;
   } catch (error) {
     console.error('Get media details error:', error);
     throw error;
@@ -184,7 +184,7 @@ export const updateMedia = async (
 export const getMediaStats = async (): Promise<MediaStats> => {
   try {
     const response = await mediaApi.get('/media/stats');
-    return response.data.stats;
+    return (response.data as any).stats;
   } catch (error) {
     console.error('Get media stats error:', error);
     throw error;
