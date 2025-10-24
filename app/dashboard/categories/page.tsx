@@ -8,7 +8,7 @@ import {
   deleteCategory,
   updateCategory,
 } from "@/app/utils/api";
-import { Plus, Edit, Trash2, Star } from "lucide-react";
+import { Plus, Edit, Trash2, Star, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 
 // Enhanced toggle switch component
@@ -39,7 +39,9 @@ export default function CategoriesPage() {
     setLoading(true);
     setError("");
     try {
-      const data = await getResourceList("category");
+      // Add cache-busting timestamp to ensure fresh data
+      const timestamp = Date.now();
+      const data = await getResourceList("category", `t=${timestamp}`);
       setCategories(data.categories || []);
     } catch (err) {
       setError(err.message || "Error loading categories");
@@ -196,13 +198,23 @@ export default function CategoriesPage() {
           <h1 className="text-2xl font-bold">Categories</h1>
           <p className="text-gray-500">Manage your product categories.</p>
         </div>
-        <Link
-          href="/dashboard/categories/add"
-          className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2"
-        >
-          <Plus size={20} />
-          <span>Add Category</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchCategories}
+            disabled={loading}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50"
+          >
+            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+            <span>Refresh</span>
+          </button>
+          <Link
+            href="/dashboard/categories/add"
+            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2"
+          >
+            <Plus size={20} />
+            <span>Add Category</span>
+          </Link>
+        </div>
       </div>
 
       {loading && (
