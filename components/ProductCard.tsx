@@ -49,7 +49,7 @@ function ProductCard({ product }: { product: any }) {
   return (
     <div className="product-card group relative border rounded-lg overflow-hidden bg-white shadow-sm h-full flex flex-col">
       <Link href={`/products/${_id}`} className="block flex-shrink-0">
-        <div className="relative overflow-hidden h-24 sm:h-32 md:h-40">
+        <div className="relative overflow-hidden h-56 sm:h-56 md:h-64 lg:h-52">
           <img
             src={getProductImageUrl(image, 'card')}
             alt={name}
