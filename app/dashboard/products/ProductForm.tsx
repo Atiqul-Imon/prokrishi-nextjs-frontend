@@ -8,7 +8,7 @@ import * as z from "zod";
 
 // Define a schema for validation
 const productSchema = z.object({
-  name: z.string().min(3, "Product name must be at least 3 characters").max(100, "Product name must be less than 100 characters"),
+  name: z.string().min(1, "Product name is required").max(100, "Product name must be less than 100 characters"),
   category: z.string().min(1, "Category is required"),
   price: z.coerce.number().positive("Price must be a positive number").max(999999, "Price is too high"),
   measurement: z.coerce
