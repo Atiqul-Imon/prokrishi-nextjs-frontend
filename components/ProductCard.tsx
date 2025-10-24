@@ -47,16 +47,16 @@ function ProductCard({ product }: { product: any }) {
   }, [price, measurement, unit]);
 
   return (
-    <div className="product-card group relative border rounded-lg overflow-hidden bg-white shadow-sm">
-      <Link href={`/products/${_id}`} className="block">
-        <div className="relative overflow-hidden">
+    <div className="product-card group relative border rounded-lg overflow-hidden bg-white shadow-sm h-full flex flex-col">
+      <Link href={`/products/${_id}`} className="block flex-shrink-0">
+        <div className="relative overflow-hidden h-24 sm:h-32 md:h-40">
           <img
             src={getProductImageUrl(image, 'card')}
             alt={name}
             loading="lazy"
             width={400}
             height={400}
-            className="w-full h-24 sm:h-32 md:h-40 object-cover"
+            className="w-full h-full object-cover object-center"
           />
           {!inStock && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -69,7 +69,7 @@ function ProductCard({ product }: { product: any }) {
       </Link>
 
       {/* Content */}
-      <div className="p-2 sm:p-3">
+      <div className="p-2 sm:p-3 flex flex-col flex-grow">
         <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-1 line-clamp-2 hover:text-primary transition-colors bangla-title">
           <Link href={`/products/${_id}`}>{name}</Link>
         </h3>
@@ -111,15 +111,17 @@ function ProductCard({ product }: { product: any }) {
           )}
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          disabled={!inStock}
-          className="w-full bg-slate-800 text-white font-semibold py-1.5 sm:py-2 px-2 sm:px-3 rounded-md flex items-center justify-center hover:bg-primary disabled:bg-gray-400 disabled:cursor-not-allowed text-xs sm:text-sm"
-        >
-          <ShoppingCart size={14} className="mr-1 sm:mr-2" />
-          <span className="text-xs sm:text-sm">{inStock ? "Add to Cart" : "Out of Stock"}</span>
-        </button>
+        {/* Add to Cart Button - Pushed to bottom */}
+        <div className="mt-auto pt-2">
+          <button
+            onClick={handleAddToCart}
+            disabled={!inStock}
+            className="w-full bg-slate-800 text-white font-semibold py-1.5 sm:py-2 px-2 sm:px-3 rounded-md flex items-center justify-center hover:bg-primary disabled:bg-gray-400 disabled:cursor-not-allowed text-xs sm:text-sm"
+          >
+            <ShoppingCart size={14} className="mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">{inStock ? "Add to Cart" : "Out of Stock"}</span>
+          </button>
+        </div>
       </div>
     </div>
   );
