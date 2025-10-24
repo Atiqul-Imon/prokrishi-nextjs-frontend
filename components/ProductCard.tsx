@@ -23,6 +23,7 @@ function ProductCard({ product }: { product: any }) {
     category,
     stock,
     description,
+    shortDescription,
     measurement,
     unit,
   } = product;
@@ -74,9 +75,9 @@ function ProductCard({ product }: { product: any }) {
         </h3>
 
         {/* Description (Hidden on mobile) */}
-        {description && (
+        {(shortDescription || description) && (
           <p className="text-xs text-gray-500 mb-1 line-clamp-1 hidden sm:block bangla-body">
-            {description}
+            {shortDescription || (description && description.length > 100 ? description.substring(0, 100) + '...' : description)}
           </p>
         )}
         

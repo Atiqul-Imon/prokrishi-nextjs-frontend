@@ -18,6 +18,7 @@ export interface Product {
   id?: string; // For cart compatibility
   name: string;
   description: string;
+  shortDescription?: string;
   price: number;
   image: string;
   category: string | Category;

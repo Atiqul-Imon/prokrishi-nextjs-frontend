@@ -26,6 +26,7 @@ const productSchema = z.object({
   status: z.enum(["active", "inactive", "out_of_stock"]),
   isFeatured: z.boolean().optional(),
   description: z.string().max(1000, "Description must be less than 1000 characters").optional(),
+  shortDescription: z.string().max(100, "Short description must be less than 100 characters").optional(),
   image: z.any().optional(),
 });
 
@@ -49,6 +50,7 @@ export default function ProductForm({ initial, onSave, loading }) {
       status: "active",
       isFeatured: false,
       description: "",
+      shortDescription: "",
       image: null,
     },
   });
@@ -199,6 +201,25 @@ export default function ProductForm({ initial, onSave, loading }) {
                  {errors.category.message as string}
                </span>
              )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="shortDescription"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Short Description (Optional)
+            </label>
+            <input
+              id="shortDescription"
+              {...register("shortDescription")}
+              placeholder="Brief product summary... বা পণ্যের সংক্ষিপ্ত বর্ণনা... (max 100 characters, supports both English and Bangla)"
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bangla-text"
+              maxLength={100}
+            />
+            {errors.shortDescription && (
+              <span className="text-red-600 text-sm mt-1 block">{errors.shortDescription.message}</span>
+            )}
           </div>
 
           <div>

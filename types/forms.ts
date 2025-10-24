@@ -35,6 +35,7 @@ export const addressSchema = z.object({
 export const productSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
+  shortDescription: z.string().max(100, 'Short description must not exceed 100 characters').optional(),
   price: z.number().min(0, 'Price must be positive'),
   stock: z.number().min(0, 'Stock must be positive'),
   category: z.string().min(1, 'Category is required'),
