@@ -37,7 +37,9 @@ const config = {
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["var(--font-poppins)", "Poppins", "system-ui", "sans-serif"],
+        poppins: ["var(--font-poppins)", "Poppins", "sans-serif"],
+        bangla: ["var(--font-noto-sans-bengali)", "Noto Sans Bengali", "sans-serif"],
         display: ["Playfair Display", "serif"],
       },
     },

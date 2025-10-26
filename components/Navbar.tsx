@@ -184,7 +184,7 @@ function Navbar() {
 
         {/* Center: Desktop Menu (centered) */}
         <div className="hidden md:flex flex-1 basis-0 min-w-0 justify-center">
-          <nav className="flex items-center space-x-1 bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm border border-green-100/50">
+          <nav className="flex items-center space-x-1 bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm border border-green-100/50 font-poppins">
             <Link href="/" className="text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium">
               Home
             </Link>
@@ -222,7 +222,7 @@ function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search for products..."
-                  className="w-full pl-4 pr-12 py-3 border border-green-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-green-400 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 placeholder:text-gray-500"
+                  className="w-full pl-4 pr-12 py-3 border border-green-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-green-400 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 placeholder:text-gray-500 font-poppins"
                 />
                 <button
                   type="submit"
@@ -317,14 +317,14 @@ function Navbar() {
             <div className="flex items-center space-x-3">
               <Link
                 href="/account"
-                className="flex items-center space-x-2 text-gray-700 hover:text-green-600 px-3 py-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+                className="flex items-center space-x-2 text-gray-700 hover:text-green-600 px-3 py-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md font-poppins"
               >
                 <User size={18} />
                 <span className="hidden sm:inline text-sm">{user.name}</span>
               </Link>
               <button
                 onClick={logout}
-                className="text-gray-600 hover:text-red-600 text-sm px-3 py-2.5 rounded-xl hover:bg-red-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+                className="text-gray-600 hover:text-red-600 text-sm px-3 py-2.5 rounded-xl hover:bg-red-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md font-poppins"
               >
                 Logout
               </button>
@@ -332,7 +332,7 @@ function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center space-x-2 text-gray-700 hover:text-green-600 px-3 py-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+              className="flex items-center space-x-2 text-gray-700 hover:text-green-600 px-3 py-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md font-poppins"
             >
               <User size={18} />
               <span className="hidden sm:inline text-sm">Login</span>

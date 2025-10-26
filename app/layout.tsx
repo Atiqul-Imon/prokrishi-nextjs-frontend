@@ -1,4 +1,4 @@
-import { Inter, Noto_Sans_Bengali } from "next/font/google";
+import { Poppins, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
@@ -12,7 +12,11 @@ import ContentContainer from "@/components/ContentContainer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { ReactNode } from "react";
 
-const inter = Inter({ subsets: ["latin"] });
+const poppins = Poppins({ 
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins"
+});
 const notoSansBengali = Noto_Sans_Bengali({ 
   subsets: ["bengali"],
   variable: "--font-noto-sans-bengali",
@@ -90,7 +94,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
       </head>
-      <body className={`${inter.className} ${notoSansBengali.variable} min-h-screen flex flex-col bg-gray-100`}>
+      <body className={`${poppins.className} ${poppins.variable} ${notoSansBengali.variable} min-h-screen flex flex-col bg-gray-100`}>
         <SWRProvider>
           <AuthProvider>
             <CartProvider>
