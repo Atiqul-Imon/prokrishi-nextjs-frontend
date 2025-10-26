@@ -152,8 +152,9 @@ function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-        {/* Container with full responsive width */}
-        <div className="w-full mx-auto flex items-center justify-between py-3 px-4 sm:px-6 max-w-full">
+        {/* Container with consistent viewport width */}
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 w-full">
+          <div className="flex items-center justify-between py-3">
         {/* Left: Logo and Mobile Menu Icon */}
         <div className="flex items-center space-x-4 flex-1 basis-0 min-w-0">
           {/* Mobile Menu Icon */}
@@ -347,6 +348,7 @@ function Navbar() {
             )}
           </Link>
         </div>
+          </div>
         </div>
       </header>
 
