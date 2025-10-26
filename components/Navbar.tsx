@@ -151,15 +151,15 @@ function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-white/95 via-green-50/40 to-white/95 backdrop-blur-lg border-b border-green-200/60 shadow-xl shadow-green-100/30 transition-all duration-300">
         {/* Container with consistent viewport width */}
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 w-full">
-          <div className="flex items-center justify-between py-3">
+          <div className="flex items-center justify-between py-4">
         {/* Left: Logo and Mobile Menu Icon */}
         <div className="flex items-center space-x-4 flex-1 basis-0 min-w-0">
           {/* Mobile Menu Icon */}
           <button
-            className="md:hidden text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-green-50 transition-all duration-200"
+            className="md:hidden text-gray-700 hover:text-green-600 p-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 shadow-sm hover:shadow-md"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open Menu"
           >
@@ -169,34 +169,37 @@ function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center whitespace-nowrap"
+            className="flex items-center whitespace-nowrap group"
           >
-            <img 
-              src="/logo/prokrishihublogo.png" 
-              alt="Prokrishi Logo" 
-              className="h-6 sm:h-7 w-auto object-cover object-center"
-            />
+            <div className="relative">
+              <img 
+                src="/logo/prokrishihublogo.png" 
+                alt="Prokrishi Logo" 
+                className="h-7 sm:h-8 w-auto object-cover object-center transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-green-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
           </Link>
         </div>
 
         {/* Center: Desktop Menu (centered) */}
         <div className="hidden md:flex flex-1 basis-0 min-w-0 justify-center">
-          <nav className="flex items-center space-x-8 font-semibold">
-            <Link href="/" className="text-gray-700 hover:text-green-600">
+          <nav className="flex items-center space-x-1 bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm border border-green-100/50">
+            <Link href="/" className="text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium">
               Home
             </Link>
             <Link
               href="/products"
-              className="text-gray-700 hover:text-green-600"
+              className="text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium"
             >
               Products
             </Link>
-            <Link href="/about" className="text-gray-700 hover:text-green-600">
+            <Link href="/about" className="text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium">
               About
             </Link>
             <Link
               href="/contact"
-              className="text-gray-700 hover:text-green-600"
+              className="text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium"
             >
               Contact
             </Link>
@@ -219,11 +222,11 @@ function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search for products..."
-                  className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition-all duration-200"
+                  className="w-full pl-4 pr-12 py-3 border border-green-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-green-400 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 placeholder:text-gray-500"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-600 text-white p-1.5 rounded-md hover:bg-green-700 transition-colors duration-200"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-green-600 to-green-700 text-white p-2 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-sm hover:shadow-md"
                 >
                   <Search size={16} />
                 </button>
@@ -302,26 +305,26 @@ function Navbar() {
           {isAdmin && (
             <Link
               href="/dashboard"
-              className="hidden md:flex items-center space-x-2 bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 rounded-2xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
             >
               <Settings size={16} />
-              <span className="font-medium">Dashboard</span>
+              <span>Dashboard</span>
             </Link>
           )}
 
           {/* Icons */}
           {user ? (
-            <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-3">
               <Link
                 href="/account"
-                className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-green-600 px-2 sm:px-3 py-2 rounded-lg hover:bg-green-50 transition-all duration-200"
+                className="flex items-center space-x-2 text-gray-700 hover:text-green-600 px-3 py-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md"
               >
                 <User size={18} />
-                <span className="hidden sm:inline font-medium text-sm">{user.name}</span>
+                <span className="hidden sm:inline text-sm">{user.name}</span>
               </Link>
               <button
                 onClick={logout}
-                className="text-gray-600 hover:text-red-600 text-xs sm:text-sm px-2 sm:px-3 py-2 rounded-lg hover:bg-red-50 transition-all duration-200"
+                className="text-gray-600 hover:text-red-600 text-sm px-3 py-2.5 rounded-xl hover:bg-red-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md"
               >
                 Logout
               </button>
@@ -329,20 +332,20 @@ function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-green-600 px-2 sm:px-3 py-2 rounded-lg hover:bg-green-50 transition-all duration-200"
+              className="flex items-center space-x-2 text-gray-700 hover:text-green-600 px-3 py-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md"
             >
               <User size={18} />
-              <span className="hidden sm:inline font-medium text-sm">Login</span>
+              <span className="hidden sm:inline text-sm">Login</span>
             </Link>
           )}
 
           <Link
             href="/cart"
-            className="relative text-gray-600 hover:text-green-600 p-2 sm:p-3 rounded-lg hover:bg-green-50 transition-all duration-200"
+            className="relative text-gray-700 hover:text-green-600 p-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 shadow-sm hover:shadow-md"
           >
             <ShoppingCart size={20} />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full px-2 py-1 flex items-center justify-center min-w-[20px] font-medium shadow-sm">
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-green-600 to-green-700 text-white text-xs rounded-full px-2 py-1 flex items-center justify-center min-w-[20px] font-medium shadow-lg animate-pulse">
                 {cartCount}
               </span>
             )}

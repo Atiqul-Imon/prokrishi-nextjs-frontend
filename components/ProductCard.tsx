@@ -104,9 +104,8 @@ function ProductCard({ product }: { product: any }) {
           <button
             onClick={handleAddToCart}
             disabled={!inStock}
-            className="w-full bg-green-800 text-white font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-md flex items-center justify-center hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
+            className="w-full bg-green-900 text-white font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-md flex items-center justify-center hover:bg-green-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
           >
-            <ShoppingCart size={16} className="mr-2" />
             <span className="text-sm sm:text-base">{inStock ? "Add to Cart" : "Out of Stock"}</span>
           </button>
         </div>
