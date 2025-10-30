@@ -5,7 +5,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: "Inter", var(--font-noto-sans-bengali), system-ui, sans-serif;
+  font-family: var(--font-pt-serif), var(--font-noto-sans-bengali), "PT Serif", serif;
 }
 
 /* Bangla Typography Support */

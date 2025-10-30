@@ -37,10 +37,11 @@ const config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-poppins)", "Poppins", "system-ui", "sans-serif"],
-        poppins: ["var(--font-poppins)", "Poppins", "sans-serif"],
+        // Default app body to PT Serif via sans key for convenience
+        sans: ["var(--font-pt-serif)", "PT Serif", "serif"],
+        serif: ["var(--font-pt-serif)", "PT Serif", "serif"],
+        display: ["var(--font-marcellus)", "Marcellus", "serif"],
         bangla: ["var(--font-noto-sans-bengali)", "Noto Sans Bengali", "sans-serif"],
-        display: ["Playfair Display", "serif"],
       },
     },
   },
