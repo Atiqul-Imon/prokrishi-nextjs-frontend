@@ -5,8 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import ProductForm from "../../ProductForm";
 import { getProductById, updateProduct } from "@/app/utils/api";
-import toast from "react-hot-toast";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const { messages, success, error: showError, removeMessage } = useInlineMessage();
 
   useEffect(() => {
     if (id) {
@@ -30,11 +32,10 @@ export default function EditProductPage() {
           const productData = response.product || response;
           console.log("Extracted product data:", productData);
           setProduct(productData);
-          toast.success("Product loaded successfully!");
-        } catch (err) {
+        } catch (err: any) {
           const errorMessage = err.message || "Failed to load product data.";
           setError(errorMessage);
-          toast.error(errorMessage);
+          showError(errorMessage, 5000);
         } finally {
           setLoading(false);
         }
@@ -47,14 +48,14 @@ export default function EditProductPage() {
     setSaving(true);
     try {
       await updateProduct(id!, formData);
-      toast.success("Product updated successfully!");
+      success("Product updated successfully!", 3000);
       // Force a full page refresh to ensure data is updated
       setTimeout(() => {
         window.location.href = "/dashboard/products";
-      }, 100);
-    } catch (err) {
+      }, 2000);
+    } catch (err: any) {
       const errorMessage = err.message || "Failed to update product.";
-      toast.error(errorMessage);
+      showError(errorMessage, 5000);
       console.error("Update error:", err);
     } finally {
       setSaving(false);
@@ -73,8 +74,19 @@ export default function EditProductPage() {
   }
 
   if (error) {
-    return (
-      <div className="max-w-4xl mx-auto">
+  return (
+    <div className="max-w-4xl mx-auto">
+      {/* Inline Messages */}
+      <div className="mb-4 space-y-2">
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
           <div className="flex items-center mb-4">
             <div className="text-red-600">

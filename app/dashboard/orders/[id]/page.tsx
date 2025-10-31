@@ -24,7 +24,8 @@ import {
   updateAdminOrderStatus,
   updateAdminPaymentStatus,
 } from "@/app/utils/api";
-import toast from "react-hot-toast";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
 
 const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
@@ -77,6 +78,7 @@ const OrderDetailPage = () => {
   const [newStatus, setNewStatus] = useState("");
   const [newPaymentStatus, setNewPaymentStatus] = useState("");
   const [notes, setNotes] = useState("");
+  const { messages, success, error: showError, removeMessage } = useInlineMessage();
 
   useEffect(() => {
     fetchOrder();
@@ -90,9 +92,9 @@ const OrderDetailPage = () => {
       setOrder(response.order);
       setNewStatus(response.order.status);
       setNewPaymentStatus(response.order.paymentStatus);
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Failed to fetch order details");
-      toast.error("Failed to fetch order details");
+      showError("Failed to fetch order details", 5000);
     } finally {
       setLoading(false);
     }
@@ -101,22 +103,22 @@ const OrderDetailPage = () => {
   const handleStatusUpdate = async () => {
     try {
       await updateAdminOrderStatus(orderId, newStatus, notes);
-      toast.success(`Order status updated to ${newStatus}`);
+      success(`Order status updated to ${newStatus}`, 5000);
       setEditingStatus(false);
       fetchOrder();
-    } catch (err) {
-      toast.error("Failed to update order status");
+    } catch (err: any) {
+      showError("Failed to update order status", 5000);
     }
   };
 
   const handlePaymentUpdate = async () => {
     try {
       await updateAdminPaymentStatus(orderId, newPaymentStatus, order.transactionId, notes);
-      toast.success(`Payment status updated to ${newPaymentStatus}`);
+      success(`Payment status updated to ${newPaymentStatus}`, 5000);
       setEditingPayment(false);
       fetchOrder();
-    } catch (err) {
-      toast.error("Failed to update payment status");
+    } catch (err: any) {
+      showError("Failed to update payment status", 5000);
     }
   };
 
@@ -130,23 +132,48 @@ const OrderDetailPage = () => {
 
   if (error || !order) {
     return (
-      <div className="text-center py-12">
-        <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Order</h3>
-        <p className="text-gray-600 mb-4">{error}</p>
-        <Link
-          href="/dashboard/orders"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Orders
-        </Link>
-      </div>
+      <>
+        {/* Inline Messages */}
+        <div className="mb-4 space-y-2">
+          {messages.map((msg) => (
+            <InlineMessage
+              key={msg.id}
+              type={msg.type}
+              message={msg.message}
+              onClose={() => removeMessage(msg.id)}
+            />
+          ))}
+        </div>
+        <div className="text-center py-12">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Order</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Link
+            href="/dashboard/orders"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Orders
+          </Link>
+        </div>
+      </>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Inline Messages */}
+      <div className="mb-4 space-y-2">
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

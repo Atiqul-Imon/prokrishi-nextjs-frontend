@@ -30,7 +30,9 @@ import {
   deleteAdminOrder,
   AdminOrderFilters,
 } from "@/app/utils/api";
-import toast from "react-hot-toast";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
@@ -100,6 +102,8 @@ const OrdersPage = () => {
   const [pagination, setPagination] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState([]);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const { messages, success, error: showError, removeMessage } = useInlineMessage();
 
   const fetchOrders = async () => {
     try {
@@ -108,9 +112,9 @@ const OrdersPage = () => {
       const response = await getAdminOrders(filters);
       setOrders(response.orders);
       setPagination(response.pagination);
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Failed to fetch orders");
-      toast.error("Failed to fetch orders");
+      showError("Failed to fetch orders", 5000);
     } finally {
       setLoading(false);
     }
@@ -139,32 +143,37 @@ const OrdersPage = () => {
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       await updateAdminOrderStatus(orderId, newStatus);
-      toast.success(`Order status updated to ${newStatus}`);
+      success(`Order status updated to ${newStatus}`, 5000);
       fetchOrders();
-    } catch (err) {
-      toast.error("Failed to update order status");
+    } catch (err: any) {
+      showError("Failed to update order status", 5000);
     }
   };
 
   const handlePaymentUpdate = async (orderId, newPaymentStatus) => {
     try {
       await updateAdminPaymentStatus(orderId, newPaymentStatus);
-      toast.success(`Payment status updated to ${newPaymentStatus}`);
+      success(`Payment status updated to ${newPaymentStatus}`, 5000);
       fetchOrders();
-    } catch (err) {
-      toast.error("Failed to update payment status");
+    } catch (err: any) {
+      showError("Failed to update payment status", 5000);
     }
   };
 
-  const handleDeleteOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to delete this order?")) return;
-    
+  const handleDeleteOrder = (orderId: string) => {
+    setDeleteConfirm(orderId);
+  };
+
+  const confirmDeleteOrder = async () => {
+    if (!deleteConfirm) return;
     try {
-      await deleteAdminOrder(orderId);
-      toast.success("Order deleted successfully");
+      await deleteAdminOrder(deleteConfirm);
+      success("Order deleted successfully", 5000);
       fetchOrders();
-    } catch (err) {
-      toast.error("Failed to delete order");
+      setDeleteConfirm(null);
+    } catch (err: any) {
+      showError("Failed to delete order", 5000);
+      setDeleteConfirm(null);
     }
   };
 
@@ -190,6 +199,30 @@ const OrdersPage = () => {
 
   return (
     <div className="space-y-6">
+      {/* Inline Messages */}
+      <div className="space-y-2">
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        title="Delete Order"
+        message="Are you sure you want to delete this order? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={confirmDeleteOrder}
+        onCancel={() => setDeleteConfirm(null)}
+      />
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

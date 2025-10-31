@@ -4,7 +4,6 @@ import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Filter, X } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
-import toast from "react-hot-toast";
 import { useProductData } from "@/hooks/useSWRWithConfig";
 
 export default function ProductsPage() {

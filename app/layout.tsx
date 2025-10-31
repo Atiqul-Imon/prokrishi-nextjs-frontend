@@ -1,6 +1,5 @@
 import { Marcellus, PT_Serif, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import SWRProvider from "./providers/SWRProvider";
@@ -120,30 +119,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
               </div>
               {/* Mobile Bottom Navigation */}
               <MobileBottomNav />
-              <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 5000,
-                style: {
-                  background: "#363636",
-                  color: "#fff",
-                },
-                success: {
-                  duration: 5000,
-                  iconTheme: {
-                    primary: "#4ade80",
-                    secondary: "#fff",
-                  },
-                },
-                error: {
-                  duration: 5000,
-                  iconTheme: {
-                    primary: "#ef4444",
-                    secondary: "#fff",
-                  },
-                },
-              }}
-            />
             </CartProvider>
           </AuthProvider>
         </SWRProvider>

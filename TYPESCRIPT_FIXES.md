@@ -117,7 +117,7 @@ Type 'string' not assignable to 'number'
 ### Run these in order:
 
 ```bash
-cd /home/atiqul-islam/prokrishi-v2/prokrishi-dev/frontend
+cd /home/atiqul-islam/prokrishi-v2/frontend
 
 # 1. Check current error count
 npm run type-check 2>&1 | grep "error TS" | wc -l

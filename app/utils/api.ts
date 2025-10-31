@@ -211,6 +211,13 @@ export function getProductById(id: string): Promise<ProductResponse> {
   return apiRequest<ProductResponse>(`/product/${id}?t=${timestamp}`);
 }
 
+/**
+ * Get related products for a product
+ */
+export async function getRelatedProducts(productId: string, limit: number = 6): Promise<{ success: boolean; products: Product[] }> {
+  return apiRequest<{ success: boolean; products: Product[] }>(`/product/${productId}/related?limit=${limit}`);
+}
+
 export async function getCategoryById(id: string): Promise<CategoryResponse> {
   return apiRequest<CategoryResponse>(`/category/id/${id}`);
 }

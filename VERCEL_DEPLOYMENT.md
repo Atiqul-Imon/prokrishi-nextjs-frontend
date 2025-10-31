@@ -24,7 +24,7 @@ This guide provides step-by-step instructions for deploying the Prokrishi fronte
 Vercel will auto-detect Next.js, but verify these settings:
 
 - **Framework Preset**: Next.js
-- **Root Directory**: `prokrishi-dev/frontend`
+- **Root Directory**: `frontend`
 - **Build Command**: `npm run build`
 - **Output Directory**: `.next`
 - **Install Command**: `npm install`
@@ -77,7 +77,7 @@ vercel login
 ### Navigate to Frontend Directory
 
 ```bash
-cd prokrishi-dev/frontend
+cd frontend
 ```
 
 ### Deploy
@@ -451,7 +451,7 @@ Already configured in `next.config.mjs`:
 ### During Deployment
 
 - [ ] Vercel project created
-- [ ] Root directory set to `prokrishi-dev/frontend`
+- [ ] Root directory set to `frontend`
 - [ ] Environment variables added
 - [ ] First deployment successful
 

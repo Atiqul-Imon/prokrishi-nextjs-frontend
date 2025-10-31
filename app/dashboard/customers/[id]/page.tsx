@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getUserById } from "@/app/utils/api";
-import toast from "react-hot-toast";
 import { User, Mail, Phone, MapPin, Calendar, Shield } from "lucide-react";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
 import Link from "next/link";
 
 function formatDate(dateString) {
@@ -37,6 +38,7 @@ export default function CustomerDetailPage() {
   const [customer, setCustomer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { messages, error: showError, removeMessage } = useInlineMessage();
 
   useEffect(() => {
     if (!id) return;
@@ -45,9 +47,9 @@ export default function CustomerDetailPage() {
       try {
         const data = await getUserById(id!);
         setCustomer(data.user);
-      } catch (err) {
+      } catch (err: any) {
         setError("Failed to load customer details.");
-        toast.error("Failed to load customer details.");
+        showError("Failed to load customer details.", 5000);
       }
       setLoading(false);
     }
@@ -63,6 +65,18 @@ export default function CustomerDetailPage() {
 
   return (
     <div className="container mx-auto p-4">
+      {/* Inline Messages */}
+      <div className="mb-4 space-y-2">
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
+
       <div className="mb-6">
         <Link
           href="/dashboard/customers"

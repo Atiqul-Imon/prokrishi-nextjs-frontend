@@ -8,12 +8,17 @@ import {
   deleteProduct,
   toggleProductFeatured,
 } from "@/app/utils/api";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refresh, setRefresh] = useState(0);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const { messages, success, error: showError, removeMessage } = useInlineMessage();
 
   useEffect(() => {
     async function fetchProducts() {
@@ -31,14 +36,20 @@ export default function ProductsPage() {
   }, [refresh]);
 
   // Handler for delete
-  async function handleDelete(id) {
-    if (!window.confirm("Are you sure you want to delete this product?"))
-      return;
+  function handleDelete(id) {
+    setDeleteConfirm(id);
+  }
+
+  async function confirmDelete() {
+    if (!deleteConfirm) return;
     try {
-      await deleteProduct(id);
+      await deleteProduct(deleteConfirm);
       setRefresh((r) => r + 1);
-    } catch (err) {
-      alert(err.message || "Failed to delete product");
+      success("Product deleted successfully!", 5000);
+      setDeleteConfirm(null);
+    } catch (err: any) {
+      showError(err.message || "Failed to delete product", 5000);
+      setDeleteConfirm(null);
     }
   }
 
@@ -47,13 +58,38 @@ export default function ProductsPage() {
     try {
       await toggleProductFeatured(id);
       setRefresh((r) => r + 1);
-    } catch (err) {
-      alert(err.message || "Failed to toggle featured status");
+      success("Featured status updated!", 3000);
+    } catch (err: any) {
+      showError(err.message || "Failed to toggle featured status", 5000);
     }
   }
 
   return (
     <div>
+      {/* Inline Messages */}
+      <div className="mb-4 space-y-2">
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm(null)}
+      />
+
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Products</h1>
         <div className="flex gap-3">

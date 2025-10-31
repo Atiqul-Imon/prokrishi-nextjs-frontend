@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Lock, Eye, EyeOff } from 'lucide-react';
-import toast from 'react-hot-toast';
 import { resetPasswordWithToken } from '@/app/utils/api';
+import { useInlineMessage } from '@/hooks/useInlineMessage';
+import { InlineMessage } from '@/components/InlineMessage';
 
 export default function ResetPasswordTokenPage() {
   const router = useRouter();
@@ -16,24 +17,25 @@ export default function ResetPasswordTokenPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { messages, success, error, removeMessage } = useInlineMessage();
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match.');
+      error('Passwords do not match.', 5000);
       return;
     }
     if (!token) {
-        toast.error('Invalid or missing reset token.');
+        error('Invalid or missing reset token.', 5000);
         return;
     }
     setLoading(true);
     try {
       const data = await resetPasswordWithToken(token, password);
-      toast.success(data.message);
-      router.push('/login');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to reset password.');
+      success(data.message, 3000);
+      setTimeout(() => router.push('/login'), 2000);
+    } catch (err: any) {
+      error(err.message || 'Failed to reset password.', 5000);
     } finally {
       setLoading(false);
     }
@@ -42,6 +44,18 @@ export default function ResetPasswordTokenPage() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
+        {/* Inline Messages */}
+        <div className="mb-4 space-y-2">
+          {messages.map((msg) => (
+            <InlineMessage
+              key={msg.id}
+              type={msg.type}
+              message={msg.message}
+              onClose={() => removeMessage(msg.id)}
+            />
+          ))}
+        </div>
+
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-800">Reset Your Password</h1>
           <p className="mt-2 text-gray-600">Enter your new password below.</p>

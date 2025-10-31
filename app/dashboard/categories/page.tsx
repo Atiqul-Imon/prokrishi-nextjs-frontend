@@ -9,7 +9,9 @@ import {
   updateCategory,
 } from "@/app/utils/api";
 import { Plus, Edit, Trash2, Star, RefreshCw } from "lucide-react";
-import toast from "react-hot-toast";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 // Enhanced toggle switch component
 const ToggleSwitch = ({ checked, onChange, disabled = false }) => (
@@ -34,6 +36,9 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [togglingCategories, setTogglingCategories] = useState<Set<string>>(new Set());
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+  const { messages, success, error: showError, removeMessage } = useInlineMessage();
 
   async function fetchCategories() {
     setLoading(true);
@@ -55,7 +60,7 @@ export default function CategoriesPage() {
 
   async function handleToggleFeatured(category) {
     const newStatus = !category.isFeatured;
-    const toastId = toast.loading(
+    setLoadingMessage(
       `${newStatus ? "Featuring" : "Unfeaturing"} "${category.name}"...`,
     );
     
@@ -73,11 +78,12 @@ export default function CategoriesPage() {
       );
 
       await updateCategory(category._id, { isFeatured: newStatus });
-      toast.success(
+      setLoadingMessage(null);
+      success(
         `Category "${category.name}" is now ${newStatus ? "featured" : "not featured"}.`,
-        { id: toastId },
+        5000
       );
-    } catch (err) {
+    } catch (err: any) {
       // Revert optimistic update on error
       setCategories(prevCategories => 
         prevCategories.map(cat => 
@@ -86,8 +92,8 @@ export default function CategoriesPage() {
             : cat
         )
       );
-      
-      toast.error(`Failed to update "${category.name}". ${err.message || ''}`, { id: toastId });
+      setLoadingMessage(null);
+      showError(`Failed to update "${category.name}". ${err.message || ''}`, 5000);
     } finally {
       // Remove from toggling set
       setTogglingCategories(prev => {
@@ -98,39 +104,24 @@ export default function CategoriesPage() {
     }
   }
 
-  async function handleDelete(id, name) {
-    toast(
-      (t) => (
-        <span>
-          Delete category "<b>{name}</b>"?
-          <button
-            onClick={() => {
-              toast.dismiss(t.id);
-              toast.promise(
-                deleteCategory(id).then(() => {
-                  fetchCategories(); // Refresh the list
-                }),
-                {
-                  loading: "Deleting...",
-                  success: `Category "${name}" deleted.`,
-                  error: `Failed to delete "${name}".`,
-                },
-              );
-            }}
-            className="ml-4 bg-red-500 text-white px-3 py-1 rounded"
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => toast.dismiss(t.id)}
-            className="ml-2 bg-gray-200 px-3 py-1 rounded"
-          >
-            Cancel
-          </button>
-        </span>
-      ),
-      { duration: 6000 },
-    );
+  function handleDelete(id: string, name: string) {
+    setDeleteConfirm({ id, name });
+  }
+
+  async function confirmDelete() {
+    if (!deleteConfirm) return;
+    setLoadingMessage("Deleting...");
+    try {
+      await deleteCategory(deleteConfirm.id);
+      setLoadingMessage(null);
+      success(`Category "${deleteConfirm.name}" deleted.`, 5000);
+      fetchCategories(); // Refresh the list
+      setDeleteConfirm(null);
+    } catch (err: any) {
+      setLoadingMessage(null);
+      showError(`Failed to delete "${deleteConfirm.name}". ${err.message || ''}`, 5000);
+      setDeleteConfirm(null);
+    }
   }
 
   const CategoryCard = ({ category }) => (
@@ -193,6 +184,32 @@ export default function CategoriesPage() {
 
   return (
     <div>
+      {/* Inline Messages */}
+      <div className="mb-4 space-y-2">
+        {loadingMessage && (
+          <InlineMessage type="info" message={loadingMessage} />
+        )}
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        title="Delete Category"
+        message={deleteConfirm ? `Are you sure you want to delete category "${deleteConfirm.name}"? This action cannot be undone.` : ""}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm(null)}
+      />
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">Categories</h1>

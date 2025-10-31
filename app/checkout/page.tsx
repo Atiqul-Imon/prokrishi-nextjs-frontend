@@ -19,8 +19,9 @@ import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
 import { placeOrder, addAddress, createPaymentSession } from "../utils/api";
 import CheckoutProgress from "@/components/CheckoutProgress";
-import toast from "react-hot-toast";
 import { Address } from "@/types/models";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
 
 export default function CheckoutPage() {
   const {
@@ -43,6 +44,8 @@ export default function CheckoutPage() {
   const [openAddressForm, setOpenAddressForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cod");
+  const { messages, success, error, info, removeMessage } = useInlineMessage();
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
 
   const addresses = user?.addresses || [];
 
@@ -84,7 +87,7 @@ export default function CheckoutPage() {
   }, [selectedAddress]);
 
   const handleAddressSave = async (addressData: Address) => {
-    const toastId = toast.loading("Adding new address...");
+    setLoadingMessage("Adding new address...");
     try {
       const response = await addAddress(addressData);
       if (refreshUser) {
@@ -96,29 +99,31 @@ export default function CheckoutPage() {
       if (newlyAddedAddress) {
         setSelectedAddress(newlyAddedAddress);
       }
-      toast.success("Address added successfully!", { id: toastId });
+      setLoadingMessage(null);
+      success("Address added successfully!", 5000);
     } catch (err) {
-      const error = err as Error;
-      toast.error(error.message || "Failed to add address.", { id: toastId });
+      const errMsg = err as Error;
+      setLoadingMessage(null);
+      error(errMsg.message || "Failed to add address.", 5000);
     }
   };
 
   const handlePlaceOrder = async () => {
     if (cart.length === 0) {
-      toast.error("Your cart is empty.");
+      error("Your cart is empty.", 5000);
       return;
     }
     if (!selectedAddress) {
-      toast.error("Please select a shipping address.");
+      error("Please select a shipping address.", 5000);
       return;
     }
     if (!selectedPaymentMethod) {
-      toast.error("Please select a payment method.");
+      error("Please select a payment method.", 5000);
       return;
     }
 
     setIsSubmitting(true);
-    const toastId = toast.loading("Placing your order...");
+    setLoadingMessage("Placing your order...");
 
     const orderData = {
       orderItems: cart.map((item) => ({
@@ -141,7 +146,7 @@ export default function CheckoutPage() {
 
     try {
       const newOrder = await placeOrder(orderData);
-      toast.dismiss(toastId);
+      setLoadingMessage(null);
 
       if (selectedPaymentMethod === "sslcommerz") {
         // Create payment session for online payment
@@ -155,22 +160,22 @@ export default function CheckoutPage() {
           // Redirect to SSL Commerz payment page
           window.location.href = paymentResult.paymentUrl;
         } else {
-          toast.error("Failed to create payment session. Please try again.");
+          error("Failed to create payment session. Please try again.", 5000);
         }
       } else {
         // Cash on Delivery - proceed to success page
-        toast.success("Order placed successfully!");
+        success("Order placed successfully!", 3000);
         clearCart();
         const orderId = newOrder._id || newOrder.order?._id || newOrder.data?._id;
         router.push(`/order/success?orderId=${orderId}`);
       }
     } catch (error) {
-      toast.dismiss(toastId);
+      setLoadingMessage(null);
       console.error("Failed to create order:", error);
       const errorMessage =
-        error.response?.data?.message ||
+        (error as any).response?.data?.message ||
         "There was an issue placing your order.";
-      toast.error(errorMessage);
+      error(errorMessage, 5000);
     } finally {
       setIsSubmitting(false);
     }
@@ -216,6 +221,21 @@ export default function CheckoutPage() {
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       <div className="container mx-auto px-4 py-8 md:py-12">
         <CheckoutProgress currentStep={checkoutStep} />
+
+        {/* Inline Messages */}
+        <div className="mt-6 space-y-2">
+          {loadingMessage && (
+            <InlineMessage type="info" message={loadingMessage} />
+          )}
+          {messages.map((msg) => (
+            <InlineMessage
+              key={msg.id}
+              type={msg.type}
+              message={msg.message}
+              onClose={() => removeMessage(msg.id)}
+            />
+          ))}
+        </div>
 
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8 xl:gap-12">
           {/* Left Side: Address & Payment */}

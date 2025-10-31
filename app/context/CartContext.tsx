@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode } from "react";
-import toast from "react-hot-toast";
 import { CartContextType } from "@/types/context";
 import { CartItem, Product } from "@/types/models";
 
@@ -25,7 +24,6 @@ export function CartProvider({ children }: CartProviderProps) {
       }
     } catch (error) {
       console.error("Error loading cart from localStorage:", error);
-      toast.error("Failed to load your cart items");
     } finally {
       setLoading(false);
     }
@@ -38,7 +36,6 @@ export function CartProvider({ children }: CartProviderProps) {
         localStorage.setItem("cart", JSON.stringify(cart));
       } catch (error) {
         console.error("Error saving cart to localStorage:", error);
-        toast.error("Failed to save your cart");
       }
     }
   }, [cart, loading]);
@@ -60,7 +57,6 @@ export function CartProvider({ children }: CartProviderProps) {
       });
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast.error("Failed to add item to cart");
     }
   }
 
@@ -77,32 +73,22 @@ export function CartProvider({ children }: CartProviderProps) {
       );
     } catch (error) {
       console.error("Error updating quantity:", error);
-      toast.error("Failed to update quantity");
     }
   }
 
   function removeFromCart(id: string) {
     try {
-      setCart((prev) => {
-        const item = prev.find((i: any) => (i.id || i._id) === id);
-        if (item) {
-          toast.success(`${item.name} removed from cart`);
-        }
-        return prev.filter((item) => (item.id || item._id) !== id);
-      });
+      setCart((prev) => prev.filter((item) => (item.id || item._id) !== id));
     } catch (error) {
       console.error("Error removing from cart:", error);
-      toast.error("Failed to remove item from cart");
     }
   }
 
   function clearCart() {
     try {
       setCart([]);
-      toast.success("Cart cleared");
     } catch (error) {
       console.error("Error clearing cart:", error);
-      toast.error("Failed to clear cart");
     }
   }
 

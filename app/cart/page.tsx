@@ -14,9 +14,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
-import toast from "react-hot-toast";
 import { ProductCardSkeleton } from "@/components/LoadingSkeleton";
 import EmptyState from "@/components/EmptyState";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 function CartPage() {
   const {
@@ -29,10 +31,12 @@ function CartPage() {
     clearCart,
   } = useCart();
   const router = useRouter();
+  const { messages, error, removeMessage } = useInlineMessage();
+  const [showClearConfirm, setShowClearConfirm] = React.useState(false);
 
   function handleCheckout() {
     if (cart.length === 0) {
-      toast.error("Your cart is empty");
+      error("Your cart is empty", 5000);
       return;
     }
     router.push("/checkout");
@@ -48,13 +52,15 @@ function CartPage() {
 
   function handleClearCart() {
     if (cart.length === 0) {
-      toast.error("Cart is already empty");
+      error("Cart is already empty", 3000);
       return;
     }
+    setShowClearConfirm(true);
+  }
 
-    if (confirm("Are you sure you want to clear your cart?")) {
-      clearCart();
-    }
+  function confirmClearCart() {
+    clearCart();
+    setShowClearConfirm(false);
   }
 
   if (loading) {
@@ -105,6 +111,29 @@ function CartPage() {
   return (
     <div className="bg-gray-50 min-h-screen py-8">
       <div className="max-w-6xl mx-auto p-4 sm:p-6">
+        {/* Inline Messages */}
+        <div className="mb-4 space-y-2">
+          {messages.map((msg) => (
+            <InlineMessage
+              key={msg.id}
+              type={msg.type}
+              message={msg.message}
+              onClose={() => removeMessage(msg.id)}
+            />
+          ))}
+        </div>
+
+        {/* Clear Cart Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={showClearConfirm}
+          title="Clear Cart"
+          message="Are you sure you want to remove all items from your cart? This action cannot be undone."
+          confirmText="Clear Cart"
+          cancelText="Cancel"
+          type="warning"
+          onConfirm={confirmClearCart}
+          onCancel={() => setShowClearConfirm(false)}
+        />
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
           <div className="flex items-center space-x-4">

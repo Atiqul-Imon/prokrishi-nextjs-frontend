@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import CategoryForm from "../../CategoryForm";
 import { getCategoryById, updateCategory } from "@/app/utils/api";
-import toast from "react-hot-toast";
 import Link from "next/link";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
 import { ArrowLeft } from "lucide-react";
 
 export default function EditCategoryPage() {
@@ -17,6 +18,8 @@ export default function EditCategoryPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+  const { messages, success, error: showError, removeMessage } = useInlineMessage();
 
   useEffect(() => {
     if (!id) return;
@@ -25,9 +28,9 @@ export default function EditCategoryPage() {
       try {
         const data = await getCategoryById(id!);
         setCategory(data.category);
-      } catch (err) {
+      } catch (err: any) {
         setError(err.message || "Failed to load category");
-        toast.error(err.message || "Failed to load category");
+        showError(err.message || "Failed to load category", 5000);
       }
       setLoading(false);
     }
@@ -36,15 +39,15 @@ export default function EditCategoryPage() {
 
   async function handleUpdate(data) {
     setSaving(true);
-    toast.loading("Updating category...");
+    setLoadingMessage("Updating category...");
     try {
       const updated = await updateCategory(id, data);
-      toast.dismiss();
-      toast.success(`Category "${updated.category.name}" updated!`);
-      router.push("/dashboard/categories");
-    } catch (err) {
-      toast.dismiss();
-      toast.error(err.message || "Failed to update category");
+      setLoadingMessage(null);
+      success(`Category "${updated.category.name}" updated!`, 3000);
+      setTimeout(() => router.push("/dashboard/categories"), 2000);
+    } catch (err: any) {
+      setLoadingMessage(null);
+      showError(err.message || "Failed to update category", 5000);
     } finally {
       setSaving(false);
     }
@@ -56,6 +59,21 @@ export default function EditCategoryPage() {
 
   return (
     <div>
+      {/* Inline Messages */}
+      <div className="mb-4 space-y-2">
+        {loadingMessage && (
+          <InlineMessage type="info" message={loadingMessage} />
+        )}
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
+
       <div className="mb-6">
         <Link
           href="/dashboard/categories"

@@ -13,8 +13,9 @@ import {
 } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { searchProducts } from "@/app/utils/api";
-import toast from "react-hot-toast";
 import { ProductsResponse } from "@/types/api";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
 
 function SearchPageContent() {
   const searchParams = useSearchParams();
@@ -29,6 +30,7 @@ function SearchPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const { messages, error: showError, removeMessage } = useInlineMessage();
 
   // Get search parameters from URL
   const query = searchParams.get("q") || "";
@@ -83,7 +85,7 @@ function SearchPageContent() {
       setResults(data);
     } catch (err: any) {
       setError(err.message);
-      toast.error("Failed to search products");
+      showError("Failed to search products", 5000);
     } finally {
       setLoading(false);
     }
@@ -124,6 +126,18 @@ function SearchPageContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
+        {/* Inline Messages */}
+        <div className="mb-4 space-y-2">
+          {messages.map((msg) => (
+            <InlineMessage
+              key={msg.id}
+              type={msg.type}
+              message={msg.message}
+              onClose={() => removeMessage(msg.id)}
+            />
+          ))}
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">

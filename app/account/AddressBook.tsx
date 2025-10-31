@@ -18,14 +18,19 @@ import {
   updateAddress,
   deleteAddress,
 } from "../utils/api";
-import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Address } from "@/types/models";
 
 export default function AddressBook() {
   const { user, loading, error, refreshUser } = useAuth();
   const [openForm, setOpenForm] = useState(false);
   const [editAddress, setEditAddress] = useState<Address | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+  const { messages, success, error: showError, removeMessage } = useInlineMessage();
 
   const addresses = user?.addresses || [];
 
@@ -40,7 +45,7 @@ export default function AddressBook() {
   };
 
   const handleSave = async (addressData: Address) => {
-    const toastId = toast.loading(
+    setLoadingMessage(
       editAddress ? "Updating address..." : "Adding address...",
     );
     try {
@@ -54,30 +59,39 @@ export default function AddressBook() {
 
       await refreshUser(); // Refresh user data from context
 
-      toast.success(
+      setLoadingMessage(null);
+      success(
         editAddress
           ? "Address updated successfully!"
           : "Address added successfully!",
-        { id: toastId },
+        5000
       );
       setOpenForm(false);
       setEditAddress(null);
     } catch (err) {
-      const error = err as Error;
-      toast.error(error.message || "Failed to save address", { id: toastId });
+      const errMsg = err as Error;
+      setLoadingMessage(null);
+      showError(errMsg.message || "Failed to save address", 5000);
     }
   };
 
   const handleDelete = async (addressId: string) => {
-    if (window.confirm("Are you sure you want to delete this address?")) {
-      const toastId = toast.loading("Deleting address...");
-      try {
-        await deleteAddress(addressId);
-        await refreshUser();
-        toast.success("Address deleted successfully!", { id: toastId });
-      } catch (err) {
-        toast.error("Failed to delete address.", { id: toastId });
-      }
+    setDeleteConfirm(addressId);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
+    setLoadingMessage("Deleting address...");
+    try {
+      await deleteAddress(deleteConfirm);
+      await refreshUser();
+      setLoadingMessage(null);
+      success("Address deleted successfully!", 5000);
+      setDeleteConfirm(null);
+    } catch (err) {
+      setLoadingMessage(null);
+      showError("Failed to delete address.", 5000);
+      setDeleteConfirm(null);
     }
   };
 
@@ -126,6 +140,33 @@ export default function AddressBook() {
 
   return (
     <div className="space-y-6">
+      {/* Inline Messages */}
+      <div className="space-y-2">
+        {loadingMessage && (
+          <InlineMessage type="info" message={loadingMessage} />
+        )}
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        title="Delete Address"
+        message="Are you sure you want to delete this address? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm(null)}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -3,8 +3,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { getResourceList } from "@/app/utils/api";
 import { User, Mail, Phone, Calendar, Shield, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
 import { useDebounce } from "use-debounce";
 
 function formatDate(dateString) {
@@ -23,6 +24,7 @@ export default function CustomersPage() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
+  const { messages, error: showError, removeMessage } = useInlineMessage();
 
   const router = useRouter();
 
@@ -34,10 +36,10 @@ export default function CustomersPage() {
       const data = await getResourceList("user", query);
       setCustomers(data.data || []);
       setPagination(data.pagination || {});
-    } catch (err) {
+    } catch (err: any) {
       const errorMessage = err.message || "Error loading customers";
       setError(errorMessage);
-      toast.error(errorMessage);
+      showError(errorMessage, 5000);
     }
     setLoading(false);
   }, [page, debouncedSearchTerm]);
@@ -90,6 +92,18 @@ export default function CustomersPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Inline Messages */}
+      <div className="mb-4 space-y-2">
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
+
       <div className="mb-6 md:flex md:items-center md:justify-between">
         <div>
             <h1 className="text-3xl font-bold text-gray-900">Customers</h1>

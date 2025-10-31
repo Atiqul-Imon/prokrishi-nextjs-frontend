@@ -17,7 +17,9 @@ import {
 import ProfileInfo from "./ProfileInfo";
 import AddressBook from "./AddressBook";
 import Orders from "./Orders";
-import toast from "react-hot-toast";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const TABS = [
   {
@@ -78,6 +80,8 @@ const AccountPage = () => {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("Profile");
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const { messages, success, removeMessage } = useInlineMessage();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -113,19 +117,46 @@ const AccountPage = () => {
 
   const handleTabClick = (name) => {
     if (name === "Logout") {
-      if (confirm("Are you sure you want to logout?")) {
-        logout();
-        toast.success("Logged out successfully");
-        router.push("/");
-      }
+      setShowLogoutConfirm(true);
     } else {
       setActiveTab(name);
     }
   };
 
+  const confirmLogout = () => {
+    logout();
+    success("Logged out successfully", 3000);
+    setShowLogoutConfirm(false);
+    router.push("/");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Inline Messages */}
+        <div className="mb-4 space-y-2">
+          {messages.map((msg) => (
+            <InlineMessage
+              key={msg.id}
+              type={msg.type}
+              message={msg.message}
+              onClose={() => removeMessage(msg.id)}
+            />
+          ))}
+        </div>
+
+        {/* Logout Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={showLogoutConfirm}
+          title="Confirm Logout"
+          message="Are you sure you want to logout?"
+          confirmText="Logout"
+          cancelText="Cancel"
+          type="warning"
+          onConfirm={confirmLogout}
+          onCancel={() => setShowLogoutConfirm(false)}
+        />
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">My Account</h1>

@@ -4,28 +4,32 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import CategoryForm from "../CategoryForm";
 import { createCategory } from "@/app/utils/api";
-import toast from "react-hot-toast";
 import { ArrowLeft } from "lucide-react";
+import { useInlineMessage } from "@/hooks/useInlineMessage";
+import { InlineMessage } from "@/components/InlineMessage";
 import Link from "next/link";
 
 export default function AddCategoryPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+  const { messages, success, error, removeMessage } = useInlineMessage();
 
   async function handleSave(data) {
     setLoading(true);
-    toast.loading("Creating category...");
+    setLoadingMessage("Creating category...");
 
     try {
       const newCategory = await createCategory(data);
-      toast.dismiss();
-      toast.success(
+      setLoadingMessage(null);
+      success(
         `Category "${newCategory.category.name}" created successfully!`,
+        3000
       );
-      router.push("/dashboard/categories");
-    } catch (err) {
-      toast.dismiss();
-      toast.error(err.message || "Error creating category");
+      setTimeout(() => router.push("/dashboard/categories"), 2000);
+    } catch (err: any) {
+      setLoadingMessage(null);
+      error(err.message || "Error creating category", 5000);
     } finally {
       setLoading(false);
     }
@@ -33,6 +37,21 @@ export default function AddCategoryPage() {
 
   return (
     <div>
+      {/* Inline Messages */}
+      <div className="mb-4 space-y-2">
+        {loadingMessage && (
+          <InlineMessage type="info" message={loadingMessage} />
+        )}
+        {messages.map((msg) => (
+          <InlineMessage
+            key={msg.id}
+            type={msg.type}
+            message={msg.message}
+            onClose={() => removeMessage(msg.id)}
+          />
+        ))}
+      </div>
+
       <div className="mb-6">
         <Link
           href="/dashboard/categories"

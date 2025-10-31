@@ -3,31 +3,33 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Phone } from 'lucide-react';
-import toast from 'react-hot-toast';
 import { requestPasswordReset } from '@/app/utils/api';
+import { useInlineMessage } from '@/hooks/useInlineMessage';
+import { InlineMessage } from '@/components/InlineMessage';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState('');
   const [loading, setLoading] = useState(false);
+  const { messages, success, error, removeMessage } = useInlineMessage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!identifier) {
-      toast.error('Please enter your email or phone number.');
+      error('Please enter your email or phone number.', 5000);
       return;
     }
     setLoading(true);
 
     try {
       const data = await requestPasswordReset(identifier);
-      toast.success(data.message, { duration: 5000 });
+      success(data.message, 5000);
       // If the API call was for a phone number, it might redirect to OTP page
       if (data.redirect) {
         router.push(data.redirect);
       }
-    } catch (error) {
-      toast.error(error.message || 'An unexpected error occurred.');
+    } catch (err: any) {
+      error(err.message || 'An unexpected error occurred.', 5000);
     } finally {
       setLoading(false);
     }
@@ -36,6 +38,18 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+        {/* Inline Messages */}
+        <div className="mb-4 space-y-2">
+          {messages.map((msg) => (
+            <InlineMessage
+              key={msg.id}
+              type={msg.type}
+              message={msg.message}
+              onClose={() => removeMessage(msg.id)}
+            />
+          ))}
+        </div>
+
         <div className="text-center mb-8">
           <h2 className="text-4xl font-extrabold text-gray-800">Forgot Password?</h2>
           <p className="text-gray-500 mt-2">No problem. Enter your email or phone number below and we'll help you reset it.</p>
