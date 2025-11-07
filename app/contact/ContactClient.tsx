@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
 
 export default function ContactClient() {
   const [formData, setFormData] = useState({
@@ -34,13 +34,14 @@ export default function ContactClient() {
             <div className="flex items-start">
                 <div className="flex-shrink-0">
                     <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
-                        <Mail className="h-6 w-6" />
+                        <MapPin className="h-6 w-6" />
                     </div>
                 </div>
                 <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Email</h3>
-                    <p className="mt-1 text-gray-600">General Inquiries: <a href="mailto:contact@prokrishi.com" className="text-primary hover:underline">contact@prokrishi.com</a></p>
-                    <p className="mt-1 text-gray-600">Support: <a href="mailto:support@prokrishi.com" className="text-primary hover:underline">support@prokrishi.com</a></p>
+                    <h3 className="text-lg font-medium text-gray-900">📍 আমাদের ঠিকানা</h3>
+                    <p className="mt-1 text-gray-600 bangla-text">প্রোকৃষি হাব</p>
+                    <p className="mt-1 text-gray-600 bangla-text">২৬১/এফ/১, পূর্ব নাখালপাড়া</p>
+                    <p className="mt-1 text-gray-600 bangla-text">তেজগাঁও, ঢাকা ১২১৫</p>
                 </div>
             </div>
             <div className="flex items-start">
@@ -50,21 +51,38 @@ export default function ContactClient() {
                     </div>
                 </div>
                 <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Phone</h3>
-                    <p className="mt-1 text-gray-600">Customer Service: <a href="tel:+8801234567890" className="text-primary hover:underline">+880 123 456 7890</a></p>
-                     <p className="mt-1 text-gray-600">(Sun-Thu, 9am - 6pm)</p>
+                    <h3 className="text-lg font-medium text-gray-900">☎ ফোন</h3>
+                    <p className="mt-1 text-gray-600">
+                        <a href="tel:+8801748027775" className="text-primary hover:underline font-medium">
+                            📞 +880 1748027775
+                        </a>
+                    </p>
                 </div>
             </div>
             <div className="flex items-start">
                 <div className="flex-shrink-0">
-                     <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
-                        <MapPin className="h-6 w-6" />
+                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
+                        <Mail className="h-6 w-6" />
                     </div>
                 </div>
                 <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Office Address</h3>
-                    <p className="mt-1 text-gray-600">123 Green Avenue, Gulshan</p>
-                    <p className="mt-1 text-gray-600">Dhaka 1212, Bangladesh</p>
+                    <h3 className="text-lg font-medium text-gray-900">✉ ই-মেইল</h3>
+                    <p className="mt-1 text-gray-600">
+                        <a href="mailto:prokrishi2025@gmail.com" className="text-primary hover:underline font-medium">
+                            📧 prokrishi2025@gmail.com
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <div className="flex items-start">
+                <div className="flex-shrink-0">
+                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
+                        <Clock className="h-6 w-6" />
+                    </div>
+                </div>
+                <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">🕒 সাপোর্ট সময়</h3>
+                    <p className="mt-1 text-gray-600 bangla-text">সকাল ৯টা – রাত ৯টা</p>
                 </div>
             </div>
         </div>
