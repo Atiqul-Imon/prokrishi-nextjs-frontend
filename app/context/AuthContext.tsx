@@ -91,8 +91,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(updatedUser);
   }
 
-  // Memoize isAdmin check
-  const isAdmin = useMemo(() => user?.role === 'admin', [user]);
+  // Memoize isAdmin check (includes both admin and super_admin roles)
+  const isAdmin = useMemo(() => user?.role === 'admin' || user?.role === 'super_admin', [user]);
 
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo(

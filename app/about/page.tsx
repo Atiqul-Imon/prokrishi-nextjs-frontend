@@ -1,8 +1,8 @@
-import { Building, Target, Users, Leaf } from "lucide-react";
+import { Building, Target, Users, Leaf, Heart, Shield, Truck } from "lucide-react";
 
 export const metadata = {
-  title: "About Us - Prokrishi",
-  description: "Learn more about Prokrishi, our mission, and our commitment to providing the best organic and fresh products.",
+  title: "আমাদের সম্পর্কে - Prokrishi",
+  description: "প্রোকৃষি সম্পর্কে জানুন - আমাদের মিশন এবং স্বাস্থ্যকর ও নিরাপদ খাদ্য সরবরাহের প্রতিশ্রুতি।",
 };
 
 const AboutPage = () => {
@@ -11,73 +11,66 @@ const AboutPage = () => {
       {/* Hero Section */}
       <section className="bg-gray-50 py-20 md:py-32">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight">
-            Nourishing Communities, Naturally.
+          <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight font-display">
+            আমাদের সম্পর্কে
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
-            Prokrishi is more than just an e-commerce store. We are a movement dedicated to bringing you the freshest, highest-quality products directly from nature to your table.
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600 font-bangla">
+            প্রোকৃষি একটি ই-কমার্স প্রতিষ্ঠান। আমরা মানুষের দোরগোড়ায় হেলদি ও সেফ ফুড পৌঁছে দিই।
           </p>
         </div>
       </section>
 
-      {/* Our Mission Section */}
+      {/* Main Content Section */}
       <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-          <div className="pr-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Mission</h2>
-            <p className="text-gray-600 mb-4">
-              Our mission is to bridge the gap between dedicated local farmers and conscious consumers. We aim to create a sustainable ecosystem that supports local agriculture, promotes healthy living, and delivers unparalleled freshness and quality.
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="prose prose-lg max-w-none">
+            <p className="text-gray-700 mb-6 leading-relaxed font-bangla text-lg">
+              নদীর মাছ, হাওর-বাওর ও কাপ্তাই লেকের মাছ, সামুদ্রিক মাছ, লাল আটা, লাল চিনি, বিষমুক্ত সবজি ও মৌসুমী ফল সুন্দরবনের মধু, ঘি, শ্রীমঙ্গলের চা ও গ্রিন টি, কেমিক্যাল ফ্রি চাল ও খেজুরের গুড় পাটালি প্রোকৃষি সরাসরি উৎস থেকে সংগ্রহ করে। মানুষের স্বাস্থ্য আমাদের অগ্রাধিকার।
             </p>
-            <p className="text-gray-600">
-              We believe in fair trade, environmental responsibility, and the simple joy of eating well.
+            
+            <p className="text-gray-700 mb-6 leading-relaxed font-bangla text-lg">
+              আমরা শুধু পণ্য বিক্রি করি না — মানুষকে নিরাপদ ও সচেতন খাদ্যাভ্যাস গড়ে তুলতে উৎসাহিত করি, সচেতন করি। কারণ ভেজাল খাবারের কারণেই ক্যান্সার, হৃদরোগ, ডায়বেটিস, কিডনি ও লিভারের জটিল রোগসহ অসংক্রামক নানা রোগ মহামারির আকার ধারণ করেছে।
             </p>
-          </div>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-green-50 p-6 rounded-lg text-center">
-              <Leaf className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold text-lg">Organic Quality</h3>
-              <p className="text-sm text-gray-600">Sourced directly from trusted local farms.</p>
+
+            <div className="bg-green-50 border-l-4 border-green-600 p-6 my-8 rounded-r-lg">
+              <p className="text-gray-800 font-bold text-xl mb-2 font-bangla">
+                প্রোকৃষি বিশ্বাস করে,
+              </p>
+              <p className="text-gray-900 text-2xl font-bold italic font-bangla">
+                "সুস্থ মানুষই শক্তিশালী সমাজ গড়ে তোলে।"
+              </p>
             </div>
-            <div className="bg-green-50 p-6 rounded-lg text-center">
-              <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold text-lg">Community Support</h3>
-              <p className="text-sm text-gray-600">Empowering farmers and nourishing customers.</p>
-            </div>
+
+            <p className="text-gray-700 mb-6 leading-relaxed font-bangla text-lg">
+              তাই আমাদের এই উদ্যোগটিই হলো পুষ্টিকর ও নিরাপদ খাদ্য পৌঁছে দেওয়ার মাধ্যম হেলদি বাংলাদেশ গড়ে তোলা।
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Our Story Section */}
+      {/* Features Section */}
       <section className="bg-gray-50 py-16 md:py-24">
-        <div className="container mx-auto px-4 max-w-3xl text-center">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Story</h2>
-            <p className="text-gray-600 mb-4">
-                Founded in [Year], Prokrishi started with a simple idea: everyone deserves access to fresh, healthy, and authentic food. We saw the incredible dedication of local farmers and the growing desire of people to know where their food comes from.
-            </p>
-            <p className="text-gray-600">
-                What began as a small weekend market stall has blossomed into a thriving online platform, but our core principles remain unchanged. We are still that passionate team committed to quality, community, and the goodness of nature.
-            </p>
-        </div>
-      </section>
-      
-      {/* Our Values Section */}
-       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Our Core Values</h2>
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-                <div className="p-4">
-                    <h3 className="font-bold text-xl mb-2">Authenticity</h3>
-                    <p className="text-gray-600">We guarantee genuine products, free from harmful chemicals and sourced with integrity.</p>
-                </div>
-                <div className="p-4">
-                    <h3 className="font-bold text-xl mb-2">Sustainability</h3>
-                    <p className="text-gray-600">We practice and promote farming methods that respect and protect our environment.</p>
-                </div>
-                <div className="p-4">
-                    <h3 className="font-bold text-xl mb-2">Customer Trust</h3>
-                    <p className="text-gray-600">Your health and satisfaction are our highest priorities. We are transparent in everything we do.</p>
-                </div>
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12 font-bangla">
+            আমাদের সেবা
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+              <Truck className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <h3 className="font-bold text-xl mb-2 font-bangla">দোরগোড়ায় পৌঁছে দেওয়া</h3>
+              <p className="text-gray-600 font-bangla">হেলদি ও সেফ ফুড আপনার দোরগোড়ায় পৌঁছে দেওয়া</p>
             </div>
+            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+              <Shield className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <h3 className="font-bold text-xl mb-2 font-bangla">নিরাপদ খাদ্য</h3>
+              <p className="text-gray-600 font-bangla">বিষমুক্ত ও কেমিক্যাল ফ্রি পণ্য সরাসরি উৎস থেকে</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md text-center">
+              <Heart className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <h3 className="font-bold text-xl mb-2 font-bangla">স্বাস্থ্য অগ্রাধিকার</h3>
+              <p className="text-gray-600 font-bangla">মানুষের স্বাস্থ্য আমাদের সর্বোচ্চ অগ্রাধিকার</p>
+            </div>
+          </div>
         </div>
       </section>
 
