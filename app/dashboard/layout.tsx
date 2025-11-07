@@ -50,11 +50,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     // Dashboard layout - responsive for mobile/tablet
-    <div className="fixed inset-0 flex bg-gray-50 z-50">
+    <div className="fixed inset-0 flex bg-slate-50 z-50">
       <Sidebar current="" />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Topbar />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4 md:p-6 lg:p-8">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-4 sm:p-5 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

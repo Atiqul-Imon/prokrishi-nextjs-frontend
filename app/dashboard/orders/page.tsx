@@ -36,19 +36,19 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
-    pending: { bg: "bg-yellow-100", text: "text-yellow-800", icon: Clock },
-    confirmed: { bg: "bg-blue-100", text: "text-blue-800", icon: CheckCircle },
-    processing: { bg: "bg-purple-100", text: "text-purple-800", icon: Package },
-    shipped: { bg: "bg-cyan-100", text: "text-cyan-800", icon: Truck },
-    delivered: { bg: "bg-green-100", text: "text-green-800", icon: CheckCircle },
-    cancelled: { bg: "bg-red-100", text: "text-red-800", icon: X },
+    pending: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300", icon: Clock },
+    confirmed: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-300", icon: CheckCircle },
+    processing: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-300", icon: Package },
+    shipped: { bg: "bg-cyan-50", text: "text-cyan-700", border: "border-cyan-300", icon: Truck },
+    delivered: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300", icon: CheckCircle },
+    cancelled: { bg: "bg-red-50", text: "text-red-700", border: "border-red-300", icon: X },
   };
 
   const config = statusConfig[status] || statusConfig.pending;
   const Icon = config.icon;
 
   return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
+    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold border-2 ${config.bg} ${config.text} ${config.border}`}>
       <Icon className="w-3 h-3" />
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
@@ -57,35 +57,45 @@ const OrderStatusBadge = ({ status }) => {
 
 const PaymentStatusBadge = ({ status }) => {
   const statusConfig = {
-    pending: { bg: "bg-yellow-100", text: "text-yellow-800" },
-    completed: { bg: "bg-green-100", text: "text-green-800" },
-    failed: { bg: "bg-red-100", text: "text-red-800" },
-    cancelled: { bg: "bg-gray-100", text: "text-gray-800" },
+    pending: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300" },
+    completed: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300" },
+    failed: { bg: "bg-red-50", text: "text-red-700", border: "border-red-300" },
+    cancelled: { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300" },
   };
 
   const config = statusConfig[status] || statusConfig.pending;
 
   return (
-    <span className={`px-2 py-1 text-xs font-medium rounded-full ${config.bg} ${config.text}`}>
+    <span className={`px-3 py-1 text-xs font-bold rounded-lg border-2 ${config.bg} ${config.text} ${config.border}`}>
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
 };
 
-const StatCard = ({ title, value, icon: Icon, color, subtitle = null }) => (
-  <div className={`bg-white p-6 rounded-lg shadow-sm border-l-4 ${color}`}>
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
-      </div>
-      <div className={`p-3 rounded-full ${color.replace('border-l-', 'bg-').replace('-500', '-100')}`}>
-        <Icon className="w-6 h-6 text-gray-600" />
+const StatCard = ({ title, value, icon: Icon, color, subtitle = null }) => {
+  const colorMap: { [key: string]: { border: string; bg: string; iconColor: string } } = {
+    'border-l-blue-500': { border: 'border-l-4 border-blue-500', bg: 'bg-blue-50', iconColor: 'text-blue-600' },
+    'border-l-green-500': { border: 'border-l-4 border-emerald-500', bg: 'bg-emerald-50', iconColor: 'text-emerald-600' },
+    'border-l-yellow-500': { border: 'border-l-4 border-amber-500', bg: 'bg-amber-50', iconColor: 'text-amber-600' },
+  };
+  
+  const colorConfig = colorMap[color] || colorMap['border-l-green-500'];
+  
+  return (
+    <div className={`bg-white p-6 rounded-lg border-2 border-slate-200 ${colorConfig.border}`}>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">{title}</p>
+          <p className="text-2xl font-bold text-slate-900">{value}</p>
+          {subtitle && <p className="text-xs text-slate-500 font-medium mt-1">{subtitle}</p>}
+        </div>
+        <div className={`p-3 rounded-lg ${colorConfig.bg} border-2 ${colorConfig.border.replace('border-l-4', 'border')}`}>
+          <Icon className={`w-6 h-6 ${colorConfig.iconColor}`} />
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -192,7 +202,7 @@ const OrdersPage = () => {
   if (statsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-xl font-semibold text-gray-600">Loading dashboard...</div>
+        <div className="text-xl font-bold text-slate-600">Loading dashboard...</div>
       </div>
     );
   }
@@ -226,18 +236,18 @@ const OrdersPage = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
-          <p className="text-gray-600 mt-1">Manage and track all customer orders</p>
+          <h1 className="text-3xl font-bold text-slate-900">Order Management</h1>
+          <p className="text-slate-600 mt-1 font-medium">Manage and track all customer orders</p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => fetchOrders()}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2.5 text-slate-700 bg-white border-2 border-slate-200 rounded-lg hover:bg-slate-50 font-medium"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button className="flex items-center gap-2 px-4 py-2.5 text-slate-700 bg-white border-2 border-slate-200 rounded-lg hover:bg-slate-50 font-medium">
             <Download className="w-4 h-4" />
             Export
           </button>
@@ -276,40 +286,40 @@ const OrdersPage = () => {
       )}
 
       {/* Filters */}
-      <div className="bg-white p-6 rounded-lg shadow-sm">
+      <div className="bg-white p-6 rounded-lg border-2 border-slate-200">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Orders</h2>
+          <h2 className="text-lg font-bold text-slate-900">Orders</h2>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+            className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 font-medium border-2 border-slate-200"
           >
             <Filter className="w-4 h-4" />
             Filters
-            <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-4 h-4 ${showFilters ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
         {showFilters && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 bg-slate-50 rounded-lg border-2 border-slate-200">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Search</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Order ID, customer name..."
                   value={filters.search || ''}
                   onChange={(e) => handleFilterChange('search', e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full pl-10 pr-3 py-2.5 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 bg-white font-medium"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Status</label>
               <select
                 value={filters.status || ''}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full px-3 py-2.5 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 bg-white font-medium"
               >
                 <option value="">All Statuses</option>
                 <option value="pending">Pending</option>
@@ -321,11 +331,11 @@ const OrdersPage = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Payment Status</label>
               <select
                 value={filters.paymentStatus || ''}
                 onChange={(e) => handleFilterChange('paymentStatus', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full px-3 py-2.5 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 bg-white font-medium"
               >
                 <option value="">All Payment Statuses</option>
                 <option value="pending">Pending</option>
@@ -335,7 +345,7 @@ const OrdersPage = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Sort By</label>
               <select
                 value={`${filters.sortBy}-${filters.sortOrder}`}
                 onChange={(e) => {
@@ -343,7 +353,7 @@ const OrdersPage = () => {
                   handleFilterChange('sortBy', sortBy);
                   handleFilterChange('sortOrder', sortOrder);
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full px-3 py-2.5 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 bg-white font-medium"
               >
                 <option value="createdAt-desc">Newest First</option>
                 <option value="createdAt-asc">Oldest First</option>
@@ -357,78 +367,78 @@ const OrdersPage = () => {
         {/* Orders Table */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
-            <span className="ml-2 text-gray-600">Loading orders...</span>
+            <RefreshCw className="w-6 h-6 animate-spin text-slate-400" />
+            <span className="ml-2 text-slate-600 font-medium">Loading orders...</span>
           </div>
         ) : error ? (
           <div className="text-center py-12">
-            <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Orders</h3>
-            <p className="text-gray-600">{error}</p>
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-slate-900 mb-2">Error Loading Orders</h3>
+            <p className="text-slate-600 font-medium">{error}</p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y-2 divide-slate-100">
+                <thead className="bg-slate-100">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-200">
                       <input
                         type="checkbox"
-                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                        className="rounded border-2 border-slate-300 text-emerald-600 focus:ring-emerald-500"
                       />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-200">
                       Order ID
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-200">
                       Customer
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-200">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-200">
                       Total
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-200">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-200">
                       Payment
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-200">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y-2 divide-slate-100">
                   {orders.map((order) => (
-                    <tr key={order._id} className="hover:bg-gray-50">
+                    <tr key={order._id} className="hover:bg-slate-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input
                           type="checkbox"
-                          className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                          className="rounded border-2 border-slate-300 text-emerald-600 focus:ring-emerald-500"
                         />
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-600">
                         <Link href={`/dashboard/orders/${order._id}`} className="hover:underline">
                           #{order._id.substring(0, 8)}
                         </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-bold text-slate-900">
                             {order.userInfo?.name || "Guest"}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-slate-600 font-medium">
                             {order.userInfo?.email || order.userInfo?.phone}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">
                         ৳{order.totalPrice.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -441,7 +451,7 @@ const OrdersPage = () => {
                         <div className="flex items-center gap-2">
                           <Link
                             href={`/dashboard/orders/${order._id}`}
-                            className="text-green-600 hover:text-green-800"
+                            className="text-emerald-600 hover:text-emerald-800"
                             title="View Details"
                           >
                             <Eye className="w-4 h-4" />
@@ -464,7 +474,7 @@ const OrdersPage = () => {
             {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (
               <div className="flex items-center justify-between mt-6">
-                <div className="text-sm text-gray-700">
+                <div className="text-sm text-slate-700 font-medium">
                   Showing {((pagination.currentPage - 1) * pagination.limit) + 1} to{' '}
                   {Math.min(pagination.currentPage * pagination.limit, pagination.totalOrders)} of{' '}
                   {pagination.totalOrders} orders
@@ -473,7 +483,7 @@ const OrdersPage = () => {
                   <button
                     onClick={() => handlePageChange(pagination.currentPage - 1)}
                     disabled={!pagination.hasPrevPage}
-                    className="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    className="px-4 py-2 text-sm text-slate-700 bg-white border-2 border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 font-medium"
                   >
                     Previous
                   </button>
@@ -481,10 +491,10 @@ const OrdersPage = () => {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 text-sm rounded-lg ${
+                      className={`px-4 py-2 text-sm rounded-lg font-bold ${
                         page === pagination.currentPage
-                          ? 'bg-green-600 text-white'
-                          : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                          ? 'bg-emerald-600 text-white border-2 border-emerald-700'
+                          : 'text-slate-700 bg-white border-2 border-slate-200 hover:bg-slate-50'
                       }`}
                     >
                       {page}
@@ -493,7 +503,7 @@ const OrdersPage = () => {
                   <button
                     onClick={() => handlePageChange(pagination.currentPage + 1)}
                     disabled={!pagination.hasNextPage}
-                    className="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    className="px-4 py-2 text-sm text-slate-700 bg-white border-2 border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 font-medium"
                   >
                     Next
                   </button>
@@ -503,9 +513,9 @@ const OrdersPage = () => {
 
             {orders.length === 0 && (
               <div className="text-center py-12">
-                <ShoppingCart className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No orders found</h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <ShoppingCart className="mx-auto h-12 w-12 text-slate-400" />
+                <h3 className="mt-2 text-sm font-bold text-slate-900">No orders found</h3>
+                <p className="mt-1 text-sm text-slate-600 font-medium">
                   No orders match your current filters.
                 </p>
               </div>

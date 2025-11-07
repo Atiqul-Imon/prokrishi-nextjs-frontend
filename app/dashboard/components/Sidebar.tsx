@@ -36,22 +36,22 @@ export default function Sidebar({ current }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="bg-white border-r border-gray-200 min-h-screen w-64 sm:w-72 flex flex-col shadow-lg">
+    <aside className="bg-slate-900 border-r-2 border-slate-800 min-h-screen w-64 sm:w-72 flex flex-col">
       {/* Logo Section */}
-      <div className="p-4 sm:p-6 border-b border-gray-200">
+      <div className="p-5 sm:p-6 border-b-2 border-slate-800">
         <Link href="/" className="flex items-center space-x-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm sm:text-lg">P</span>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-600 rounded-lg flex items-center justify-center border-2 border-emerald-500">
+            <span className="text-white font-bold text-lg sm:text-xl">P</span>
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl font-bold text-gray-900">Prokrishi</h1>
-            <p className="text-xs text-gray-500">Admin Panel</p>
+            <h1 className="text-lg sm:text-xl font-bold text-white">Prokrishi</h1>
+            <p className="text-xs text-slate-400 font-medium">Admin Panel</p>
           </div>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 sm:p-4">
+      <nav className="flex-1 p-3 sm:p-4 overflow-y-auto">
         <ul className="space-y-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -59,22 +59,17 @@ export default function Sidebar({ current }: SidebarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-200 group ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium ${
                     isActive
-                      ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg shadow-green-500/25"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      ? "bg-emerald-600 text-white border-l-4 border-emerald-400"
+                      : "text-slate-300 hover:bg-slate-800 hover:text-white border-l-4 border-transparent"
                   }`}
                 >
                   <item.icon 
-                    size={18} 
-                    className={`transition-colors ${
-                      isActive ? "text-white" : "text-gray-500 group-hover:text-gray-700"
-                    }`} 
+                    size={20} 
+                    className={isActive ? "text-white" : "text-slate-400"}
                   />
                   <span className="font-medium text-sm sm:text-base">{item.label}</span>
-                  {isActive && (
-                    <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
-                  )}
                 </Link>
               </li>
             );
@@ -83,15 +78,15 @@ export default function Sidebar({ current }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 sm:p-4 border-t border-gray-200">
+      <div className="p-4 border-t-2 border-slate-800">
         <Link
           href="/"
-          className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white border-l-4 border-transparent"
         >
-          <Home size={18} />
+          <Home size={20} className="text-slate-400" />
           <span className="font-medium text-sm sm:text-base">Back to Site</span>
         </Link>
-        <div className="mt-4 text-xs text-gray-400 text-center">
+        <div className="mt-4 text-xs text-slate-500 text-center font-medium">
           &copy; {new Date().getFullYear()} Prokrishi. All rights reserved.
         </div>
       </div>

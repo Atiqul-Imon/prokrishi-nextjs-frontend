@@ -24,19 +24,28 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, icon, color, href }: StatCardProps) => {
+  const colorMap: { [key: string]: { border: string; bg: string; text: string; hover: string } } = {
+    'border-l-blue-500': { border: 'border-l-4 border-blue-500', bg: 'bg-blue-50', text: 'text-blue-700', hover: 'hover:border-blue-600' },
+    'border-l-green-500': { border: 'border-l-4 border-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-700', hover: 'hover:border-emerald-600' },
+    'border-l-purple-500': { border: 'border-l-4 border-purple-500', bg: 'bg-purple-50', text: 'text-purple-700', hover: 'hover:border-purple-600' },
+    'border-l-yellow-500': { border: 'border-l-4 border-amber-500', bg: 'bg-amber-50', text: 'text-amber-700', hover: 'hover:border-amber-600' },
+  };
+  
+  const colorConfig = colorMap[color] || colorMap['border-l-green-500'];
+  
   const CardContent = (
-    <div className={`bg-white p-6 rounded-xl shadow-sm border-l-4 ${color} hover:shadow-lg transition-all duration-300 hover:scale-105 group`}>
+    <div className={`bg-white p-6 rounded-lg border-2 border-slate-200 ${colorConfig.border} ${colorConfig.hover}`}>
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 group-hover:text-green-600 transition-colors">{value}</p>
+          <p className="text-sm font-bold text-slate-600 mb-2 uppercase tracking-wide">{title}</p>
+          <p className="text-3xl font-bold text-slate-900">{value}</p>
         </div>
-        <div className={`p-4 rounded-xl ${color.replace('border-l-', 'bg-').replace('-500', '-100')} group-hover:scale-110 transition-transform duration-300`}>
+        <div className={`p-4 rounded-lg ${colorConfig.bg} border-2 ${colorConfig.border.replace('border-l-4', 'border')}`}>
           {icon}
         </div>
       </div>
-      <div className="mt-4 flex items-center text-sm text-gray-500">
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+      <div className="mt-4 flex items-center">
+        <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold ${colorConfig.bg} ${colorConfig.text} border-2 ${colorConfig.border.replace('border-l-4', 'border')}`}>
           +12% from last month
         </span>
       </div>
@@ -45,7 +54,7 @@ const StatCard = ({ title, value, icon, color, href }: StatCardProps) => {
 
   if (href) {
     return (
-      <Link href={href} className="block group">
+      <Link href={href} className="block">
         {CardContent}
       </Link>
     );
@@ -55,23 +64,23 @@ const StatCard = ({ title, value, icon, color, href }: StatCardProps) => {
 };
 
 const RecentOrderItem = ({ order }) => (
-  <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors rounded-lg px-3 -mx-3">
+  <div className="flex items-center justify-between py-4 border-b-2 border-slate-100 last:border-b-0 hover:bg-slate-50 rounded-lg px-3 -mx-3">
     <div className="flex items-center space-x-4">
-      <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center shadow-sm">
-        <ShoppingCart className="w-6 h-6 text-green-600" />
+      <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center border-2 border-emerald-200">
+        <ShoppingCart className="w-6 h-6 text-emerald-600" />
       </div>
       <div>
-        <p className="font-semibold text-gray-900">
+        <p className="font-bold text-slate-900">
           {order.user?.name || "Guest"}
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-slate-600 font-medium">
           Order #{order._id.substring(0, 8)}
         </p>
       </div>
     </div>
     <div className="text-right">
-      <p className="font-bold text-gray-900 text-lg">৳{order.totalPrice?.toFixed(2)}</p>
-      <p className="text-sm text-gray-500">
+      <p className="font-bold text-slate-900 text-lg">৳{order.totalPrice?.toFixed(2)}</p>
+      <p className="text-sm text-slate-500 font-medium">
         {new Date(order.createdAt).toLocaleDateString()}
       </p>
     </div>
@@ -79,18 +88,18 @@ const RecentOrderItem = ({ order }) => (
 );
 
 const LowStockItem = ({ product }) => (
-  <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 hover:bg-red-50 transition-colors rounded-lg px-3 -mx-3">
+  <div className="flex items-center justify-between py-4 border-b-2 border-slate-100 last:border-b-0 hover:bg-red-50 rounded-lg px-3 -mx-3">
     <div className="flex items-center space-x-4">
-      <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center shadow-sm">
+      <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center border-2 border-red-200">
         <AlertTriangle className="w-6 h-6 text-red-600" />
       </div>
       <div>
-        <p className="font-semibold text-gray-900">{product.name}</p>
-        <p className="text-sm text-red-600 font-medium">Low stock alert</p>
+        <p className="font-bold text-slate-900">{product.name}</p>
+        <p className="text-sm text-red-600 font-bold">Low stock alert</p>
       </div>
     </div>
     <div className="text-right">
-      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold bg-red-100 text-red-800 border border-red-200">
+      <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold bg-red-50 text-red-700 border-2 border-red-300">
         {product.stock} left
       </span>
     </div>
@@ -124,9 +133,9 @@ export default function DashboardHome() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-        <div className="text-red-600 text-xl font-semibold mb-2">Error Loading Dashboard</div>
-        <div className="text-red-700">{error}</div>
+      <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6 text-center">
+        <div className="text-red-700 text-xl font-bold mb-2">Error Loading Dashboard</div>
+        <div className="text-red-600 font-medium">{error}</div>
       </div>
     );
   }
@@ -134,7 +143,7 @@ export default function DashboardHome() {
   if (!stats) {
     return (
       <div className="text-center py-12">
-        <div className="text-xl font-semibold text-gray-600">No data available</div>
+        <div className="text-xl font-bold text-slate-600">No data available</div>
       </div>
     );
   }
@@ -150,7 +159,7 @@ export default function DashboardHome() {
     {
       title: "Total Products",
       value: stats.stats.totalProducts,
-      icon: <Package className="w-6 h-6 text-green-600" />,
+      icon: <Package className="w-6 h-6 text-emerald-600" />,
       color: "border-l-green-500",
       href: "/dashboard/products",
     },
@@ -164,24 +173,24 @@ export default function DashboardHome() {
     {
       title: "Total Revenue",
       value: `৳${stats.stats.totalRevenue}`,
-      icon: <DollarSign className="w-6 h-6 text-yellow-600" />,
+      icon: <DollarSign className="w-6 h-6 text-amber-600" />,
       color: "border-l-yellow-500",
     },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl p-8 text-white">
+      <div className="bg-slate-900 rounded-lg p-6 sm:p-8 border-2 border-slate-800">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
-            <p className="text-green-100 text-lg">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Dashboard</h1>
+            <p className="text-slate-300 text-base sm:text-lg font-medium">
               Welcome back! Here's what's happening with your store today.
             </p>
           </div>
           <div className="hidden md:block">
-            <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center">
+            <div className="w-20 h-20 bg-emerald-600 rounded-lg flex items-center justify-center border-2 border-emerald-500">
               <TrendingUp className="w-10 h-10 text-white" />
             </div>
           </div>
@@ -189,22 +198,22 @@ export default function DashboardHome() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {statCards.map((card, index) => (
           <StatCard key={index} {...card} />
         ))}
       </div>
 
       {/* Recent Activity Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Orders */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+        <div className="bg-white rounded-lg border-2 border-slate-200 overflow-hidden">
+          <div className="bg-blue-600 px-6 py-4 border-b-2 border-blue-700">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-white">Recent Orders</h2>
               <Link
                 href="/dashboard/orders"
-                className="text-blue-100 hover:text-white font-medium text-sm transition-colors"
+                className="text-blue-100 hover:text-white font-bold text-sm"
               >
                 View all →
               </Link>
@@ -217,12 +226,12 @@ export default function DashboardHome() {
                   <RecentOrderItem key={order._id} order={order} />
                 ))
               ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <ShoppingCart className="w-8 h-8 text-gray-400" />
+                <div className="text-center py-12 text-slate-500">
+                  <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center mx-auto mb-4 border-2 border-slate-200">
+                    <ShoppingCart className="w-8 h-8 text-slate-400" />
                   </div>
-                  <p className="text-lg font-medium">No recent orders</p>
-                  <p className="text-sm">Orders will appear here once customers start shopping</p>
+                  <p className="text-lg font-bold">No recent orders</p>
+                  <p className="text-sm font-medium">Orders will appear here once customers start shopping</p>
                 </div>
               )}
             </div>
@@ -230,13 +239,13 @@ export default function DashboardHome() {
         </div>
 
         {/* Low Stock Alerts */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+        <div className="bg-white rounded-lg border-2 border-slate-200 overflow-hidden">
+          <div className="bg-red-600 px-6 py-4 border-b-2 border-red-700">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-white">Low Stock Alerts</h2>
               <Link
                 href="/dashboard/products"
-                className="text-red-100 hover:text-white font-medium text-sm transition-colors"
+                className="text-red-100 hover:text-white font-bold text-sm"
               >
                 View all →
               </Link>
@@ -249,12 +258,12 @@ export default function DashboardHome() {
                   <LowStockItem key={product._id} product={product} />
                 ))
               ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Package className="w-8 h-8 text-green-500" />
+                <div className="text-center py-12 text-slate-500">
+                  <div className="w-16 h-16 bg-emerald-50 rounded-lg flex items-center justify-center mx-auto mb-4 border-2 border-emerald-200">
+                    <Package className="w-8 h-8 text-emerald-600" />
                   </div>
-                  <p className="text-lg font-medium text-green-600">All products are well stocked</p>
-                  <p className="text-sm">Great job managing your inventory!</p>
+                  <p className="text-lg font-bold text-emerald-600">All products are well stocked</p>
+                  <p className="text-sm font-medium">Great job managing your inventory!</p>
                 </div>
               )}
             </div>
@@ -263,46 +272,46 @@ export default function DashboardHome() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+      <div className="bg-white rounded-lg border-2 border-slate-200 overflow-hidden">
+        <div className="bg-purple-600 px-6 py-4 border-b-2 border-purple-700">
           <h2 className="text-xl font-bold text-white">Quick Actions</h2>
         </div>
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <Link
               href="/dashboard/products/add"
-              className="group flex items-center p-6 border-2 border-gray-200 rounded-xl hover:border-green-300 hover:bg-green-50 transition-all duration-300 hover:scale-105"
+              className="flex items-center p-5 border-2 border-slate-200 rounded-lg hover:border-emerald-400 hover:bg-emerald-50"
             >
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-green-200 transition-colors">
-                <Package className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center mr-4 border-2 border-emerald-200">
+                <Package className="w-6 h-6 text-emerald-600" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900 group-hover:text-green-700">Add Product</p>
-                <p className="text-sm text-gray-500">Create a new product listing</p>
+                <p className="font-bold text-slate-900">Add Product</p>
+                <p className="text-sm text-slate-600 font-medium">Create a new product listing</p>
               </div>
             </Link>
             <Link
               href="/dashboard/categories/add"
-              className="group flex items-center p-6 border-2 border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 hover:scale-105"
+              className="flex items-center p-5 border-2 border-slate-200 rounded-lg hover:border-blue-400 hover:bg-blue-50"
             >
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-colors">
+              <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mr-4 border-2 border-blue-200">
                 <TrendingUp className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900 group-hover:text-blue-700">Add Category</p>
-                <p className="text-sm text-gray-500">Create a new product category</p>
+                <p className="font-bold text-slate-900">Add Category</p>
+                <p className="text-sm text-slate-600 font-medium">Create a new product category</p>
               </div>
             </Link>
             <Link
               href="/dashboard/reports"
-              className="group flex items-center p-6 border-2 border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-300 hover:scale-105"
+              className="flex items-center p-5 border-2 border-slate-200 rounded-lg hover:border-purple-400 hover:bg-purple-50"
             >
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-4 group-hover:bg-purple-200 transition-colors">
+              <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center mr-4 border-2 border-purple-200">
                 <Calendar className="w-6 h-6 text-purple-600" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900 group-hover:text-purple-700">View Reports</p>
-                <p className="text-sm text-gray-500">Analyze sales and performance</p>
+                <p className="font-bold text-slate-900">View Reports</p>
+                <p className="text-sm text-slate-600 font-medium">Analyze sales and performance</p>
               </div>
             </Link>
           </div>
