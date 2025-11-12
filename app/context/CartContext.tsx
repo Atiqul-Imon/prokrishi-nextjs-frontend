@@ -13,6 +13,7 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -55,6 +56,8 @@ export function CartProvider({ children }: CartProviderProps) {
         // Removed toast notification for adding to cart
         return [...prev, { ...product, id: id, quantity: qty }];
       });
+      // Open sidebar when item is added
+      setIsSidebarOpen(true);
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
@@ -114,8 +117,11 @@ export function CartProvider({ children }: CartProviderProps) {
       clearCart,
       cartTotal,
       cartCount,
+      isSidebarOpen,
+      openSidebar: () => setIsSidebarOpen(true),
+      closeSidebar: () => setIsSidebarOpen(false),
     }),
-    [cart, loading, cartTotal, cartCount]
+    [cart, loading, cartTotal, cartCount, isSidebarOpen]
   );
 
   return (

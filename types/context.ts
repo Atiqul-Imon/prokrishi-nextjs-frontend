@@ -24,5 +24,8 @@ export interface CartContextType {
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
+  isSidebarOpen: boolean;
+  openSidebar: () => void;
+  closeSidebar: () => void;
 }
 

@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContentContainer from "@/components/ContentContainer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import CartSidebarWrapper from "@/components/CartSidebarWrapper";
 import { ReactNode } from "react";
 
 const marcellus = Marcellus({ 
@@ -102,6 +103,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <SWRProvider>
           <AuthProvider>
             <CartProvider>
+              <CartSidebarWrapper />
               <div className="w-full">
                 <Navbar />
               </div>

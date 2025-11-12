@@ -9,7 +9,7 @@ import { useAuth } from "@/app/context/AuthContext";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const { cartCount } = useCart();
+  const { cartCount, openSidebar } = useCart();
   const { user } = useAuth();
 
   // Don't show on dashboard pages
@@ -34,10 +34,11 @@ export default function MobileBottomNav() {
     },
     {
       name: "Cart",
-      href: "/cart",
+      href: "#",
       icon: ShoppingCart,
-      isActive: pathname === "/cart",
-      badge: cartCount > 0 ? cartCount : null
+      isActive: false,
+      badge: cartCount > 0 ? cartCount : null,
+      onClick: openSidebar
     },
     {
       name: "Chat",

@@ -25,7 +25,7 @@ function Navbar() {
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const { user, isAdmin, logout } = useAuth();
-  const { cartCount } = useCart();
+  const { cartCount, openSidebar } = useCart();
   const router = useRouter();
   const searchRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -339,8 +339,8 @@ function Navbar() {
             </Link>
           )}
 
-          <Link
-            href="/cart"
+          <button
+            onClick={openSidebar}
             className="relative text-gray-700 hover:text-green-600 p-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 shadow-sm hover:shadow-md"
           >
             <ShoppingCart size={20} />
@@ -349,7 +349,7 @@ function Navbar() {
                 {cartCount}
               </span>
             )}
-          </Link>
+          </button>
         </div>
           </div>
         </div>
