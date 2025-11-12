@@ -13,11 +13,12 @@ import {
   CheckCircle,
   Shield,
   Loader2,
+  User,
 } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
 import { placeOrder, addAddress, createPaymentSession } from "@/app/utils/api";
-import AddressForm from "@/app/account/AddressForm";
+import InlineAddressForm from "./InlineAddressForm";
 import { Address } from "@/types/models";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
@@ -228,14 +229,25 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
       />
 
       {/* Sidebar */}
-      <div className="fixed right-0 top-0 h-full w-full sm:w-[420px] lg:w-[480px] bg-white shadow-2xl z-50 flex flex-col">
+      <div className="fixed right-0 top-0 h-full w-full sm:w-[450px] lg:w-[520px] bg-white shadow-2xl z-50 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b-2 border-gray-200 bg-white sticky top-0 z-10">
+        <div className="flex items-center justify-between p-4 border-b-2 border-gray-200 bg-white sticky top-0 z-10 flex-shrink-0">
           <div className="flex items-center gap-3">
             <ShoppingCart className="w-6 h-6 text-green-600" />
-            <h2 className="text-xl font-bold text-gray-900">
-              {cartCount > 0 ? `${cartCount} ITEM${cartCount > 1 ? "S" : ""}` : "CART"}
-            </h2>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                {checkoutStep === "cart" 
+                  ? (cartCount > 0 ? `${cartCount} ITEM${cartCount > 1 ? "S" : ""}` : "CART")
+                  : checkoutStep === "address"
+                  ? "Shipping Address"
+                  : "Payment"}
+              </h2>
+              {checkoutStep !== "cart" && (
+                <p className="text-xs text-gray-500 text-xs mt-0.5">
+                  Step {checkoutStep === "address" ? "1" : "2"} of 2
+                </p>
+              )}
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -247,7 +259,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         </div>
 
         {/* Messages */}
-        <div className="px-4 pt-2 space-y-2">
+        <div className="px-4 pt-2 space-y-2 flex-shrink-0">
           {loadingMessage && (
             <InlineMessage type="info" message={loadingMessage} />
           )}
@@ -353,24 +365,29 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     </div>
                   </div>
 
-                  {/* Proceed to Checkout Button */}
-                  <button
-                    onClick={() => setCheckoutStep("address")}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg"
-                  >
-                    Proceed to Checkout
-                  </button>
+                  {/* Proceed to Checkout Button - Sticky */}
+                  <div className="sticky bottom-0 bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4">
+                    <button
+                      onClick={() => setCheckoutStep("address")}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg"
+                    >
+                      Proceed to Checkout
+                    </button>
+                  </div>
                 </>
               )}
             </div>
           )}
 
           {checkoutStep === "address" && (
-            <div className="p-4 space-y-4">
-              <div className="flex items-center justify-between mb-4">
+            <div className="p-4 space-y-4 pb-6">
+              <div className="flex items-center justify-between mb-2 sticky top-0 bg-white z-10 pb-2">
                 <button
-                  onClick={() => setCheckoutStep("cart")}
-                  className="text-green-600 hover:text-green-700 font-semibold flex items-center gap-2"
+                  onClick={() => {
+                    setOpenAddressForm(false);
+                    setCheckoutStep("cart");
+                  }}
+                  className="text-green-600 hover:text-green-700 font-semibold flex items-center gap-2 text-sm"
                 >
                   ← Back to Cart
                 </button>
@@ -379,10 +396,13 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
               {/* Guest Information Form */}
               {!user && (
                 <div className="bg-gray-50 p-4 rounded-lg border-2 border-gray-200">
-                  <h3 className="font-bold text-gray-900 mb-3">Your Information</h3>
+                  <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <User className="w-5 h-5 text-green-600" />
+                    Your Information
+                  </h3>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
                         Full Name <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -391,13 +411,15 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                         onChange={(e) =>
                           setGuestInfo({ ...guestInfo, name: e.target.value })
                         }
-                        className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
+                        className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:outline-none focus:border-green-500 ${
+                          guestInfo.name ? "border-green-300" : "border-gray-200"
+                        }`}
                         placeholder="Enter your full name"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
                         Phone Number <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -406,13 +428,15 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                         onChange={(e) =>
                           setGuestInfo({ ...guestInfo, phone: e.target.value })
                         }
-                        className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
+                        className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:outline-none focus:border-green-500 ${
+                          guestInfo.phone ? "border-green-300" : "border-gray-200"
+                        }`}
                         placeholder="01XXXXXXXXX"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
                         Email (Optional)
                       </label>
                       <input
@@ -421,7 +445,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                         onChange={(e) =>
                           setGuestInfo({ ...guestInfo, email: e.target.value })
                         }
-                        className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
+                        className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
                         placeholder="your@email.com"
                       />
                     </div>
@@ -436,7 +460,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   Shipping Address
                 </h3>
                 {openAddressForm ? (
-                  <AddressForm
+                  <InlineAddressForm
                     initial={null}
                     onClose={() => setOpenAddressForm(false)}
                     onSave={handleAddressSave}
@@ -445,53 +469,58 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   <div>
                     {user ? (
                       <>
-                        <div className="space-y-2 mb-3">
+                        <div className="space-y-2 mb-3 max-h-64 overflow-y-auto">
                           {addresses.length > 0 ? (
                             addresses.map((addr) => (
                               <div
                                 key={addr._id}
                                 onClick={() => setSelectedAddress(addr)}
-                                className={`p-3 border-2 rounded-lg cursor-pointer transition-colors ${
+                                className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                                   selectedAddress?._id === addr._id
-                                    ? "border-green-500 bg-green-50"
-                                    : "border-gray-200 hover:border-green-300"
+                                    ? "border-green-500 bg-green-50 ring-2 ring-green-200"
+                                    : "border-gray-200 hover:border-green-300 hover:bg-gray-50"
                                 }`}
                               >
                                 <div className="flex items-center justify-between">
-                                  <div>
+                                  <div className="flex-1 min-w-0">
                                     <p className="font-semibold text-sm text-gray-900">
                                       {addr.addressType || "Saved Address"}
                                     </p>
-                                    <p className="text-xs text-gray-600 mt-1">
+                                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">
                                       {addr.address}, {addr.upazila}, {addr.district} - {addr.postalCode}
                                     </p>
                                   </div>
                                   {selectedAddress?._id === addr._id && (
-                                    <CheckCircle className="w-5 h-5 text-green-600" />
+                                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 ml-2" />
                                   )}
                                 </div>
                               </div>
                             ))
                           ) : (
-                            <p className="text-sm text-gray-500 text-center py-4">
-                              No saved addresses. Please add one.
-                            </p>
+                            <div className="text-center py-6 border-2 border-dashed border-gray-200 rounded-lg">
+                              <MapPin className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                              <p className="text-sm text-gray-500">
+                                No saved addresses. Please add one.
+                              </p>
+                            </div>
                           )}
                         </div>
-                        <button
-                          onClick={() => setOpenAddressForm(true)}
-                          className="w-full text-green-600 hover:text-green-700 font-semibold text-sm py-2 border-2 border-dashed border-green-300 rounded-lg hover:bg-green-50 transition-colors"
-                        >
-                          <Plus className="w-4 h-4 inline mr-1" />
-                          Add New Address
-                        </button>
+                        {!openAddressForm && (
+                          <button
+                            onClick={() => setOpenAddressForm(true)}
+                            className="w-full text-green-600 hover:text-green-700 font-semibold text-sm py-2.5 border-2 border-dashed border-green-300 rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Add New Address
+                          </button>
+                        )}
                       </>
                     ) : (
-                      <AddressForm
+                      <InlineAddressForm
                         initial={null}
                         onClose={() => {}}
-                        onSave={(addressData) => {
-                          setSelectedAddress(addressData);
+                        onSave={async (addressData) => {
+                          setSelectedAddress(addressData as Address);
                           success("Address saved!", 3000);
                         }}
                       />
@@ -500,28 +529,41 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 )}
               </div>
 
-              {/* Continue to Payment Button */}
-              <button
-                onClick={() => {
-                  if ((user && selectedAddress) || (!user && selectedAddress && guestInfo.name && guestInfo.phone)) {
-                    setCheckoutStep("payment");
-                  } else {
-                    error("Please complete all required fields.", 3000);
-                  }
-                }}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg"
-              >
-                Continue to Payment
-              </button>
+              {/* Continue to Payment Button - Sticky at bottom */}
+              <div className="sticky bottom-0 bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4">
+                <button
+                  onClick={() => {
+                    if (openAddressForm) {
+                      error("Please save the address first.", 3000);
+                      return;
+                    }
+                    if ((user && selectedAddress) || (!user && selectedAddress && guestInfo.name && guestInfo.phone)) {
+                      setCheckoutStep("payment");
+                    } else {
+                      if (!user && (!guestInfo.name || !guestInfo.phone)) {
+                        error("Please fill in your name and phone number.", 3000);
+                      } else if (!selectedAddress) {
+                        error("Please select or add a shipping address.", 3000);
+                      } else {
+                        error("Please complete all required fields.", 3000);
+                      }
+                    }
+                  }}
+                  disabled={openAddressForm}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  Continue to Payment
+                </button>
+              </div>
             </div>
           )}
 
           {checkoutStep === "payment" && (
-            <div className="p-4 space-y-4">
-              <div className="flex items-center justify-between mb-4">
+            <div className="p-4 space-y-4 pb-6">
+              <div className="flex items-center justify-between mb-2 sticky top-0 bg-white z-10 pb-2">
                 <button
                   onClick={() => setCheckoutStep("address")}
-                  className="text-green-600 hover:text-green-700 font-semibold flex items-center gap-2"
+                  className="text-green-600 hover:text-green-700 font-semibold flex items-center gap-2 text-sm"
                 >
                   ← Back to Address
                 </button>
@@ -595,28 +637,35 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 </div>
               </div>
 
-              {/* Place Order Button */}
-              <button
-                onClick={handlePlaceOrder}
-                disabled={
-                  !selectedPaymentMethod ||
-                  isSubmitting ||
-                  (!user && (!guestInfo.name || !guestInfo.phone)) ||
-                  !selectedAddress
-                }
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Processing...</span>
-                  </>
-                ) : selectedPaymentMethod === "cod" ? (
-                  "Place Order (Cash on Delivery)"
-                ) : (
-                  "Proceed to Payment"
+              {/* Place Order Button - Sticky at bottom */}
+              <div className="sticky bottom-0 bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4">
+                <button
+                  onClick={handlePlaceOrder}
+                  disabled={
+                    !selectedPaymentMethod ||
+                    isSubmitting ||
+                    (!user && (!guestInfo.name || !guestInfo.phone)) ||
+                    !selectedAddress
+                  }
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Processing...</span>
+                    </>
+                  ) : selectedPaymentMethod === "cod" ? (
+                    "Place Order (Cash on Delivery)"
+                  ) : (
+                    "Proceed to Payment"
+                  )}
+                </button>
+                {(!selectedPaymentMethod || !selectedAddress || (!user && (!guestInfo.name || !guestInfo.phone))) && (
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    Please complete all required fields to continue
+                  </p>
                 )}
-              </button>
+              </div>
             </div>
           )}
         </div>
