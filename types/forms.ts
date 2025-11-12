@@ -22,7 +22,7 @@ export const addressSchema = z.object({
   phone: z.string()
     .min(1, 'Phone number is required')
     .regex(/^(\+880|880|0)?1[3-9]\d{8}$/, 'Please enter a valid Bangladeshi phone number'),
-  address: z.string().min(10, 'Please provide a detailed address'),
+  address: z.string().min(2, 'Address is required'),
   district: z.string().min(2, 'District is required').optional(),
   upazila: z.string().min(2, 'Upazila is required').optional(),
   postalCode: z.string().optional(),

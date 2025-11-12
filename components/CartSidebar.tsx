@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   X,
@@ -82,6 +82,23 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
       error(errMsg.message || "Failed to add address.", 5000);
     }
   };
+
+  // Memoize form change callbacks to prevent infinite loops
+  const handleFormChangeForLoggedIn = useCallback((formData: Address | null, isValid: boolean) => {
+    if (isValid && formData) {
+      setSelectedAddress(formData);
+    } else {
+      setSelectedAddress(null);
+    }
+  }, []);
+
+  const handleFormChangeForGuest = useCallback((formData: Address | null, isValid: boolean) => {
+    if (isValid && formData) {
+      setSelectedAddress(formData);
+    } else {
+      setSelectedAddress(null);
+    }
+  }, []);
 
   const handlePlaceOrder = async () => {
     if (cart.length === 0) {
@@ -326,6 +343,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     initial={null}
                     onClose={() => setOpenAddressForm(false)}
                     onSave={handleAddressSave}
+                    onFormChange={handleFormChangeForLoggedIn}
                   />
                 ) : (
                   <div>
@@ -385,6 +403,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                           setSelectedAddress(addressData as Address);
                           success("Address saved!", 3000);
                         }}
+                        onFormChange={handleFormChangeForGuest}
                       />
                     )}
                   </div>
@@ -395,7 +414,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
               <div className="sticky bottom-0 bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4">
                 <button
                   onClick={handlePlaceOrder}
-                  disabled={openAddressForm || !selectedAddress || isSubmitting}
+                  disabled={!selectedAddress || isSubmitting}
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
@@ -407,9 +426,9 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     "Place Order (Cash on Delivery)"
                   )}
                 </button>
-                {!selectedAddress && !openAddressForm && (
+                {!selectedAddress && (
                   <p className="text-xs text-gray-500 text-center mt-2">
-                    Please provide a shipping address to continue
+                    Please fill in name, phone, and address to continue
                   </p>
                 )}
               </div>

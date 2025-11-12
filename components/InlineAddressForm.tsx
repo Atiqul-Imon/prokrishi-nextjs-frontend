@@ -69,6 +69,7 @@ interface InlineAddressFormProps {
   onClose: () => void;
   onSave: (data: AddressFormData & { _id?: string }) => Promise<void> | void;
   compact?: boolean;
+  onFormChange?: (data: AddressFormData | null, isValid: boolean) => void;
 }
 
 export default function InlineAddressForm({
@@ -76,6 +77,7 @@ export default function InlineAddressForm({
   onClose,
   onSave,
   compact = false,
+  onFormChange,
 }: InlineAddressFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -84,6 +86,7 @@ export default function InlineAddressForm({
     handleSubmit,
     watch,
     setValue,
+    trigger,
     formState: { errors, isValid },
   } = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
@@ -99,8 +102,79 @@ export default function InlineAddressForm({
     mode: "onChange",
   });
 
+  // Watch form values
+  const watchedName = watch("name");
+  const watchedPhone = watch("phone");
+  const watchedAddress = watch("address");
   const watchedDivision = watch("division");
   const watchedDistrict = watch("district");
+  const watchedUpazila = watch("upazila");
+  const watchedPostalCode = watch("postalCode");
+
+  // Memoize validation result to prevent infinite loops
+  const validationResult = React.useMemo(() => {
+    const nameValue = watchedName?.trim() || "";
+    const phoneValue = watchedPhone?.trim() || "";
+    const addressValue = watchedAddress?.trim() || "";
+    
+    const hasName = nameValue.length >= 1;
+    const hasPhone = phoneValue.length > 0 && /^(\+880|880|0)?1[3-9]\d{8}$/.test(phoneValue);
+    const hasAddress = addressValue.length >= 2;
+    
+    const isValid = hasName && hasPhone && hasAddress;
+    
+    if (isValid) {
+      return {
+        isValid: true,
+        addressData: {
+          name: nameValue,
+          phone: phoneValue,
+          address: addressValue,
+          division: watchedDivision || "",
+          district: watchedDistrict || "",
+          upazila: watchedUpazila || "",
+          postalCode: watchedPostalCode || "",
+        }
+      };
+    }
+    
+    return { isValid: false, addressData: null };
+  }, [watchedName, watchedPhone, watchedAddress, watchedDivision, watchedDistrict, watchedUpazila, watchedPostalCode]);
+
+  // Track previous validation result and callback to prevent unnecessary updates
+  const prevValidationRef = React.useRef<{ isValid: boolean; addressData: any } | null>(null);
+  const onFormChangeRef = React.useRef(onFormChange);
+
+  // Update callback ref when it changes
+  React.useEffect(() => {
+    onFormChangeRef.current = onFormChange;
+  }, [onFormChange]);
+
+  // Notify parent component of form changes (single effect to prevent loops)
+  React.useEffect(() => {
+    const callback = onFormChangeRef.current;
+    if (callback) {
+      const prev = prevValidationRef.current;
+      const current = {
+        isValid: validationResult.isValid,
+        addressData: validationResult.addressData,
+      };
+
+      // Only update if validation result actually changed
+      if (
+        !prev ||
+        prev.isValid !== current.isValid ||
+        (current.isValid && JSON.stringify(prev.addressData) !== JSON.stringify(current.addressData))
+      ) {
+        prevValidationRef.current = current;
+        if (current.isValid && current.addressData) {
+          callback(current.addressData, true);
+        } else {
+          callback(null, false);
+        }
+      }
+    }
+  }, [validationResult]);
 
   const divisionDistricts = React.useMemo(
     () => (watchedDivision ? districts[watchedDivision] || [] : []),
