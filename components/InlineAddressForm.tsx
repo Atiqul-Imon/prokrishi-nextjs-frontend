@@ -145,26 +145,28 @@ export default function InlineAddressForm({
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-bold text-gray-900 text-sm flex items-center gap-2">
           <MapPin className="w-4 h-4 text-green-600" />
-          {initial ? "Edit Address" : "Add New Address"}
+          {initial ? "Edit Address" : "Shipping Address"}
         </h4>
-        <button
-          onClick={onClose}
-          className="p-1 hover:bg-gray-100 rounded transition-colors"
-          aria-label="Close form"
-        >
-          <X className="w-4 h-4 text-gray-500" />
-        </button>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 rounded transition-colors"
+            aria-label="Close form"
+          >
+            <X className="w-4 h-4 text-gray-500" />
+          </button>
+        )}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-        {/* Address Label */}
+        {/* Full Name */}
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1">
-            Address Label
+            Full Name <span className="text-red-500">*</span>
           </label>
           <input
             {...register("name")}
-            placeholder="e.g., Home, Office"
+            placeholder="Enter your full name"
             className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:outline-none focus:border-green-500 ${
               errors.name ? "border-red-300" : "border-gray-200"
             }`}
@@ -191,103 +193,15 @@ export default function InlineAddressForm({
           )}
         </div>
 
-        {/* Division */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Division <span className="text-red-500">*</span>
-          </label>
-          <select
-            {...register("division")}
-            className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:outline-none focus:border-green-500 ${
-              errors.division ? "border-red-300" : "border-gray-200"
-            }`}
-          >
-            <option value="">Select Division</option>
-            {divisions.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-          {errors.division && (
-            <p className="mt-1 text-xs text-red-600">{errors.division.message}</p>
-          )}
-        </div>
-
-        {/* District */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            District <span className="text-red-500">*</span>
-          </label>
-          <select
-            {...register("district")}
-            disabled={!watchedDivision}
-            className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:outline-none focus:border-green-500 ${
-              errors.district ? "border-red-300" : "border-gray-200"
-            } ${!watchedDivision ? "bg-gray-50" : ""}`}
-          >
-            <option value="">Select District</option>
-            {divisionDistricts.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-          {errors.district && (
-            <p className="mt-1 text-xs text-red-600">{errors.district.message}</p>
-          )}
-        </div>
-
-        {/* Upazila */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Upazila/Thana <span className="text-red-500">*</span>
-          </label>
-          <select
-            {...register("upazila")}
-            disabled={!watchedDistrict}
-            className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:outline-none focus:border-green-500 ${
-              errors.upazila ? "border-red-300" : "border-gray-200"
-            } ${!watchedDistrict ? "bg-gray-50" : ""}`}
-          >
-            <option value="">Select Upazila/Thana</option>
-            {districtUpazilas.map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
-            ))}
-          </select>
-          {errors.upazila && (
-            <p className="mt-1 text-xs text-red-600">{errors.upazila.message}</p>
-          )}
-        </div>
-
-        {/* Postal Code */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Postal Code <span className="text-red-500">*</span>
-          </label>
-          <input
-            {...register("postalCode")}
-            placeholder="e.g., 1205"
-            className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:outline-none focus:border-green-500 ${
-              errors.postalCode ? "border-red-300" : "border-gray-200"
-            }`}
-          />
-          {errors.postalCode && (
-            <p className="mt-1 text-xs text-red-600">{errors.postalCode.message}</p>
-          )}
-        </div>
-
         {/* Street Address */}
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1">
-            Street Address <span className="text-red-500">*</span>
+            Full Address <span className="text-red-500">*</span>
           </label>
           <textarea
             {...register("address")}
-            placeholder="House number, road, area, landmarks..."
-            rows={2}
+            placeholder="House number, road, area, district, upazila, landmarks..."
+            rows={3}
             className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:outline-none focus:border-green-500 resize-none ${
               errors.address ? "border-red-300" : "border-gray-200"
             }`}
@@ -295,23 +209,106 @@ export default function InlineAddressForm({
           {errors.address && (
             <p className="mt-1 text-xs text-red-600">{errors.address.message}</p>
           )}
+          <p className="mt-1 text-xs text-gray-500">
+            Include district, upazila, and postal code if known
+          </p>
         </div>
+
+        {/* Optional Fields - Collapsible */}
+        <details className="text-xs">
+          <summary className="cursor-pointer text-gray-600 hover:text-gray-900 font-medium mb-2">
+            Additional Details (Optional)
+          </summary>
+          <div className="space-y-3 pt-2">
+            {/* Division */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Division
+              </label>
+              <select
+                {...register("division")}
+                className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
+              >
+                <option value="">Select Division (Optional)</option>
+                {divisions.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* District */}
+            {watchedDivision && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  District
+                </label>
+                <select
+                  {...register("district")}
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
+                >
+                  <option value="">Select District (Optional)</option>
+                  {divisionDistricts.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Upazila */}
+            {watchedDistrict && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Upazila/Thana
+                </label>
+                <select
+                  {...register("upazila")}
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
+                >
+                  <option value="">Select Upazila/Thana (Optional)</option>
+                  {districtUpazilas.map((u) => (
+                    <option key={u} value={u}>
+                      {u}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Postal Code */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Postal Code
+              </label>
+              <input
+                {...register("postalCode")}
+                placeholder="e.g., 1205 (Optional)"
+                className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
+              />
+            </div>
+          </div>
+        </details>
 
         {/* Actions */}
         <div className="flex gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 px-4 py-2 text-sm border-2 border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors"
-          >
-            Cancel
-          </button>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 text-sm border-2 border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors"
+            >
+              Cancel
+            </button>
+          )}
           <button
             type="submit"
             disabled={isSubmitting || !isValid}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm rounded-lg font-semibold transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className={`${onClose ? 'flex-1' : 'w-full'} bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm rounded-lg font-semibold transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed`}
           >
-            {isSubmitting ? "Saving..." : "Save"}
+            {isSubmitting ? "Saving..." : "Save Address"}
           </button>
         </div>
       </form>

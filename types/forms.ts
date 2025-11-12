@@ -16,18 +16,17 @@ export const registerSchema = z.object({
   phone: z.string().optional(),
 });
 
-// Address Schema
+// Address Schema - Minimal version for checkout
 export const addressSchema = z.object({
-  name: z.string().min(1, 'Address label is required').optional(),
+  name: z.string().min(1, 'Name is required'),
   phone: z.string()
     .min(1, 'Phone number is required')
-    .regex(/^(\+880|880|0)?1[3-9]\d{8}$/, 'Please enter a valid Bangladeshi phone number')
-    .optional(),
-  division: z.string().min(1, 'Please select a division').optional(),
-  district: z.string().min(2, 'District is required'),
-  upazila: z.string().min(2, 'Upazila is required'),
+    .regex(/^(\+880|880|0)?1[3-9]\d{8}$/, 'Please enter a valid Bangladeshi phone number'),
   address: z.string().min(10, 'Please provide a detailed address'),
-  postalCode: z.string().regex(/^\d{4}$/, 'Please enter a valid 4-digit postal code'),
+  district: z.string().min(2, 'District is required').optional(),
+  upazila: z.string().min(2, 'Upazila is required').optional(),
+  postalCode: z.string().optional(),
+  division: z.string().optional(),
   isDefault: z.boolean().optional(),
 });
 
