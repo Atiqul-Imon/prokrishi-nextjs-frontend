@@ -107,7 +107,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <div className="w-full">
                 <Navbar />
               </div>
-              <main className="flex-grow flex justify-center bg-gray-100">
+              <main className="flex-grow flex justify-center bg-gray-100 pb-16 md:pb-0">
                 <ContentContainer>
                   {children}
                 </ContentContainer>
@@ -119,7 +119,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <div className="hidden md:block">
                 <ChatWidget />
               </div>
-              {/* Mobile Bottom Navigation */}
+              {/* Mobile Bottom Navigation - Rendered last to ensure it's on top */}
               <MobileBottomNav />
             </CartProvider>
           </AuthProvider>

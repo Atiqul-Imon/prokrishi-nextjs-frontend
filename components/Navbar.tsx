@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback, memo } from "react";
+import { createPortal } from "react-dom";
 import {
   ShoppingCart,
   Search,
@@ -24,11 +25,17 @@ function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [mounted, setMounted] = useState(false);
   const { user, isAdmin, logout } = useAuth();
   const { cartCount, openSidebar } = useCart();
   const router = useRouter();
   const searchRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  // Ensure component is mounted before using portal
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Debounce search
   useEffect(() => {
@@ -151,7 +158,7 @@ function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-white/95 via-green-50/40 to-white/95 backdrop-blur-lg border-b border-green-200/60 shadow-xl shadow-green-100/30 transition-all duration-300">
+      <header className="sticky top-0 z-[100] bg-gradient-to-r from-white/95 via-green-50/40 to-white/95 backdrop-blur-lg border-b border-green-200/60 shadow-xl shadow-green-100/30 transition-all duration-300">
         {/* Container with consistent viewport width */}
         <div className="container mx-auto px-2 sm:px-3 md:px-4 lg:px-6 w-full max-w-7xl">
           <div className="flex items-center justify-between py-2.5 sm:py-3 md:py-4 gap-2 sm:gap-3">
@@ -357,14 +364,29 @@ function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Drawer */}
-      {drawerOpen && (
+      {/* Mobile Drawer - Using Portal to render at body level */}
+      {drawerOpen && mounted && createPortal(
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm"
+          className="mobile-drawer-overlay fixed inset-0 z-[9998] backdrop-blur-sm"
+          style={{ 
+            position: 'fixed', 
+            zIndex: 9998, 
+            transform: 'translateZ(0)',
+            contain: 'none',
+            isolation: 'isolate',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)'
+          }}
           onClick={() => setDrawerOpen(false)}
         >
           <div
-            className="bg-white w-[85vw] max-w-sm h-full p-4 sm:p-6 shadow-2xl overflow-y-auto"
+            className="mobile-drawer bg-white w-[85vw] max-w-sm h-full p-4 sm:p-6 shadow-2xl overflow-y-auto"
+            style={{ 
+              position: 'relative', 
+              zIndex: 9999, 
+              transform: 'translateZ(0)',
+              contain: 'none',
+              isolation: 'isolate'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -476,7 +498,8 @@ function Navbar() {
               )}
             </nav>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
