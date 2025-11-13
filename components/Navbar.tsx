@@ -153,29 +153,29 @@ function Navbar() {
     <>
       <header className="sticky top-0 z-50 bg-gradient-to-r from-white/95 via-green-50/40 to-white/95 backdrop-blur-lg border-b border-green-200/60 shadow-xl shadow-green-100/30 transition-all duration-300">
         {/* Container with consistent viewport width */}
-        <div className="container mx-auto px-3 sm:px-4 lg:px-6 w-full">
-          <div className="flex items-center justify-between py-4">
+        <div className="container mx-auto px-2 sm:px-3 md:px-4 lg:px-6 w-full max-w-7xl">
+          <div className="flex items-center justify-between py-2.5 sm:py-3 md:py-4 gap-2 sm:gap-3">
         {/* Left: Logo and Mobile Menu Icon */}
-        <div className="flex items-center space-x-4 flex-1 basis-0 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 min-w-0">
           {/* Mobile Menu Icon */}
           <button
-            className="md:hidden text-gray-700 hover:text-green-600 p-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 shadow-sm hover:shadow-md"
+            className="md:hidden text-gray-700 hover:text-green-600 p-2 sm:p-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 shadow-sm hover:shadow-md touch-manipulation"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open Menu"
           >
-            <Menu size={20} />
+            <Menu size={20} className="sm:w-5 sm:h-5" />
           </button>
 
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center whitespace-nowrap group"
+            className="flex items-center whitespace-nowrap group flex-shrink-0"
           >
             <div className="relative">
               <img 
                 src="/logo/prokrishihublogo.png" 
                 alt="Prokrishi Logo" 
-                className="h-7 sm:h-8 w-auto object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                className="h-6 sm:h-7 md:h-8 w-auto object-cover object-center transition-transform duration-300 group-hover:scale-105 max-w-[120px] sm:max-w-[140px] md:max-w-none"
               />
               <div className="absolute inset-0 bg-green-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
@@ -183,23 +183,23 @@ function Navbar() {
         </div>
 
         {/* Center: Desktop Menu (centered) */}
-        <div className="hidden md:flex flex-1 basis-0 min-w-0 justify-center">
-          <nav className="flex items-center space-x-1 bg-white/60 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm border border-green-100/50 font-poppins">
-            <Link href="/" className="text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium">
+        <div className="hidden md:flex flex-1 basis-0 min-w-0 justify-center px-2">
+          <nav className="flex items-center gap-1 bg-white/60 backdrop-blur-sm rounded-2xl px-2 md:px-4 py-2 shadow-sm border border-green-100/50 font-poppins">
+            <Link href="/" className="text-gray-700 hover:text-green-600 px-3 md:px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium text-sm md:text-base whitespace-nowrap">
               Home
             </Link>
             <Link
               href="/products"
-              className="text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium"
+              className="text-gray-700 hover:text-green-600 px-3 md:px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium text-sm md:text-base whitespace-nowrap"
             >
               Products
             </Link>
-            <Link href="/about" className="text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium">
+            <Link href="/about" className="text-gray-700 hover:text-green-600 px-3 md:px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium text-sm md:text-base whitespace-nowrap">
               About
             </Link>
             <Link
               href="/contact"
-              className="text-gray-700 hover:text-green-600 px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium"
+              className="text-gray-700 hover:text-green-600 px-3 md:px-4 py-2 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium text-sm md:text-base whitespace-nowrap"
             >
               Contact
             </Link>
@@ -207,11 +207,11 @@ function Navbar() {
         </div>
 
         {/* Right: Search Bar (conditional) & Icons */}
-        <div className="flex items-center flex-1 basis-0 min-w-0 justify-end space-x-6">
+        <div className="flex items-center flex-shrink-0 justify-end gap-2 sm:gap-3 md:gap-4 lg:gap-6 min-w-0">
           {/* Search Bar with Dropdown - Hidden for Admin */}
           {!isAdmin && (
             <div
-              className="hidden md:block relative max-w-md w-full mr-4"
+              className="hidden md:block relative max-w-md w-full"
               ref={searchRef}
             >
             <form onSubmit={handleSearch} className="relative">
@@ -222,13 +222,13 @@ function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search for products..."
-                  className="w-full pl-4 pr-12 py-3 border border-green-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-green-400 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 placeholder:text-gray-500 font-poppins"
+                  className="w-full pl-3 md:pl-4 pr-10 md:pr-12 py-2 md:py-3 border border-green-200/60 rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:border-green-400 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 placeholder:text-gray-500 font-poppins text-sm md:text-base"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-green-600 to-green-700 text-white p-2 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="absolute right-1.5 md:right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-green-600 to-green-700 text-white p-1.5 md:p-2 rounded-lg md:rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-sm hover:shadow-md touch-manipulation"
                 >
-                  <Search size={16} />
+                  <Search size={14} className="md:w-4 md:h-4" />
                 </button>
               </div>
             </form>
@@ -305,48 +305,50 @@ function Navbar() {
           {isAdmin && (
             <Link
               href="/dashboard"
-              className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 rounded-2xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+              className="hidden md:flex items-center gap-1.5 md:gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white px-3 md:px-5 py-2 md:py-2.5 rounded-xl md:rounded-2xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl font-medium text-sm md:text-base whitespace-nowrap touch-manipulation"
             >
-              <Settings size={16} />
+              <Settings size={14} className="md:w-4 md:h-4" />
               <span>Dashboard</span>
             </Link>
           )}
 
           {/* Icons */}
           {user ? (
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
               <Link
                 href="/account"
-                className="flex items-center space-x-2 text-gray-700 hover:text-green-600 px-3 py-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md font-poppins"
+                className="flex items-center gap-1 sm:gap-2 text-gray-700 hover:text-green-600 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg md:rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md font-poppins touch-manipulation"
               >
-                <User size={18} />
-                <span className="hidden sm:inline text-sm">{user.name}</span>
+                <User size={16} className="sm:w-[18px] sm:h-[18px] flex-shrink-0" />
+                <span className="hidden lg:inline text-xs sm:text-sm truncate max-w-[80px] md:max-w-none">{user.name}</span>
               </Link>
               <button
                 onClick={logout}
-                className="text-gray-600 hover:text-red-600 text-sm px-3 py-2.5 rounded-xl hover:bg-red-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md font-poppins"
+                className="text-gray-600 hover:text-red-600 text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg md:rounded-xl hover:bg-red-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md font-poppins touch-manipulation whitespace-nowrap"
               >
-                Logout
+                <span className="hidden sm:inline">Logout</span>
+                <span className="sm:hidden">Out</span>
               </button>
             </div>
           ) : (
             <Link
               href="/login"
-              className="flex items-center space-x-2 text-gray-700 hover:text-green-600 px-3 py-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md font-poppins"
+              className="flex items-center gap-1 sm:gap-2 text-gray-700 hover:text-green-600 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg md:rounded-xl hover:bg-green-100/80 transition-all duration-300 font-medium shadow-sm hover:shadow-md font-poppins touch-manipulation"
             >
-              <User size={18} />
-              <span className="hidden sm:inline text-sm">Login</span>
+              <User size={16} className="sm:w-[18px] sm:h-[18px] flex-shrink-0" />
+              <span className="hidden lg:inline text-xs sm:text-sm">Login</span>
             </Link>
           )}
 
           <button
             onClick={openSidebar}
-            className="relative text-gray-700 hover:text-green-600 p-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 shadow-sm hover:shadow-md"
+            className="relative text-gray-700 hover:text-green-600 p-2 sm:p-2.5 rounded-lg md:rounded-xl hover:bg-green-100/80 transition-all duration-300 shadow-sm hover:shadow-md touch-manipulation flex-shrink-0"
+            aria-label={`Shopping cart with ${cartCount} items`}
           >
-            <ShoppingCart size={20} />
+            <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-green-600 to-green-700 text-white text-xs rounded-full px-2 py-1 flex items-center justify-center min-w-[20px] font-medium shadow-lg animate-pulse">
-                {cartCount}
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-green-600 to-green-700 text-white text-[10px] sm:text-xs rounded-full px-1.5 sm:px-2 py-0.5 sm:py-1 flex items-center justify-center min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] font-medium shadow-lg animate-pulse">
+                {cartCount > 99 ? "99+" : cartCount}
               </span>
             )}
           </button>
@@ -358,75 +360,106 @@ function Navbar() {
       {/* Mobile Drawer */}
       {drawerOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-50"
+          className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm"
           onClick={() => setDrawerOpen(false)}
         >
           <div
-            className="bg-white w-72 sm:w-80 h-full p-6"
+            className="bg-white w-[85vw] max-w-sm h-full p-4 sm:p-6 shadow-2xl overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
-            <button
-              className="mb-4 text-gray-600 hover:text-green-600"
-              onClick={() => setDrawerOpen(false)}
-              aria-label="Close Menu"
-            >
-              <X size={24} />
-            </button>
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Menu</h2>
+              <button
+                className="text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-green-100/80 transition-colors touch-manipulation"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="Close Menu"
+              >
+                <X size={24} />
+              </button>
+            </div>
 
             {/* Mobile Search */}
-            <div className="mb-6">
-              <div className="flex">
+            <div className="mb-4 sm:mb-6">
+              <div className="flex gap-2">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500 text-base"
+                  className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
                 />
                 <button
                   onClick={handleMobileSearch}
-                  className="bg-green-600 text-white px-4 py-3 rounded-r-md hover:bg-green-700 transition-colors"
+                  className="bg-green-600 text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-r-lg hover:bg-green-700 transition-colors touch-manipulation flex-shrink-0"
+                  aria-label="Search"
                 >
-                  <Search size={20} />
+                  <Search size={18} className="sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
 
             {/* Drawer menu items */}
-            <nav className="flex flex-col space-y-4 px-2">
-              <Link href="/" className="text-lg text-gray-700 hover:text-green-600 py-2 px-3 rounded-lg hover:bg-green-50 transition-colors" onClick={() => setDrawerOpen(false)}>Home</Link>
-              <Link href="/products" className="text-lg text-gray-700 hover:text-green-600 py-2 px-3 rounded-lg hover:bg-green-50 transition-colors" onClick={() => setDrawerOpen(false)}>Products</Link>
-              <Link href="/about" className="text-lg text-gray-700 hover:text-green-600 py-2 px-3 rounded-lg hover:bg-green-50 transition-colors" onClick={() => setDrawerOpen(false)}>About</Link>
-              <Link href="/contact" className="text-lg text-gray-700 hover:text-green-600 py-2 px-3 rounded-lg hover:bg-green-50 transition-colors" onClick={() => setDrawerOpen(false)}>Contact</Link>
+            <nav className="flex flex-col gap-2">
+              <Link 
+                href="/" 
+                className="text-base sm:text-lg text-gray-700 hover:text-green-600 py-3 px-4 rounded-lg hover:bg-green-50 transition-colors touch-manipulation font-medium" 
+                onClick={() => setDrawerOpen(false)}
+              >
+                Home
+              </Link>
+              <Link 
+                href="/products" 
+                className="text-base sm:text-lg text-gray-700 hover:text-green-600 py-3 px-4 rounded-lg hover:bg-green-50 transition-colors touch-manipulation font-medium" 
+                onClick={() => setDrawerOpen(false)}
+              >
+                Products
+              </Link>
+              <Link 
+                href="/about" 
+                className="text-base sm:text-lg text-gray-700 hover:text-green-600 py-3 px-4 rounded-lg hover:bg-green-50 transition-colors touch-manipulation font-medium" 
+                onClick={() => setDrawerOpen(false)}
+              >
+                About
+              </Link>
+              <Link 
+                href="/contact" 
+                className="text-base sm:text-lg text-gray-700 hover:text-green-600 py-3 px-4 rounded-lg hover:bg-green-50 transition-colors touch-manipulation font-medium" 
+                onClick={() => setDrawerOpen(false)}
+              >
+                Contact
+              </Link>
 
               {/* Dashboard Link (Admin Only) */}
               {isAdmin && (
                 <Link
                   href="/dashboard"
-                  className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-semibold"
+                  className="flex items-center gap-2 text-green-600 hover:text-green-700 font-semibold py-3 px-4 rounded-lg hover:bg-green-50 transition-colors touch-manipulation text-base sm:text-lg"
                   onClick={() => setDrawerOpen(false)}
                 >
-                  <Settings size={16} />
+                  <Settings size={18} className="sm:w-5 sm:h-5" />
                   <span>Dashboard</span>
                 </Link>
               )}
+
+              <div className="border-t border-gray-200 my-2"></div>
 
               {user ? (
                 <>
                   <Link
                     href="/account"
-                    className="text-gray-700 hover:text-green-600"
+                    className="flex items-center gap-2 text-gray-700 hover:text-green-600 py-3 px-4 rounded-lg hover:bg-green-50 transition-colors touch-manipulation text-base sm:text-lg font-medium"
                     onClick={() => setDrawerOpen(false)}
                   >
-                    {user.name}
+                    <User size={18} className="sm:w-5 sm:h-5" />
+                    <span className="truncate">{user.name}</span>
                   </Link>
                   <button
                     onClick={() => {
                       logout();
                       setDrawerOpen(false);
                     }}
-                    className="text-left text-red-600 hover:text-red-700"
+                    className="text-left text-red-600 hover:text-red-700 py-3 px-4 rounded-lg hover:bg-red-50 transition-colors touch-manipulation text-base sm:text-lg font-medium"
                   >
                     Logout
                   </button>
@@ -434,10 +467,11 @@ function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="text-gray-700 hover:text-green-600"
+                  className="flex items-center gap-2 text-gray-700 hover:text-green-600 py-3 px-4 rounded-lg hover:bg-green-50 transition-colors touch-manipulation text-base sm:text-lg font-medium"
                   onClick={() => setDrawerOpen(false)}
                 >
-                  Login
+                  <User size={18} className="sm:w-5 sm:h-5" />
+                  <span>Login</span>
                 </Link>
               )}
             </nav>
