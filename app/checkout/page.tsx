@@ -257,7 +257,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen pb-20 md:pb-0">
       <div className="container mx-auto px-4 py-8 md:py-12">
         <CheckoutProgress currentStep={checkoutStep} />
 

@@ -140,7 +140,7 @@ export default function ProductDetailsPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="bg-gray-50 min-h-screen">
+      <div className="bg-gray-50 min-h-screen pb-20 md:pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="animate-pulse space-y-8">
             <div className="h-8 bg-gray-200 rounded w-32"></div>
@@ -161,7 +161,7 @@ export default function ProductDetailsPage() {
   // Error state
   if (error) {
     return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+      <div className="bg-gray-50 min-h-screen pb-20 md:pb-0 flex items-center justify-center">
         <div className="text-center max-w-md px-4">
           <div className="text-red-600 mb-4">
             <X className="w-16 h-16 mx-auto" />
@@ -190,7 +190,7 @@ export default function ProductDetailsPage() {
   // Not found state
   if (!product) {
     return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+      <div className="bg-gray-50 min-h-screen pb-20 md:pb-0 flex items-center justify-center">
         <div className="text-center max-w-md px-4">
           <div className="text-gray-400 mb-4">
             <Package className="w-16 h-16 mx-auto" />
@@ -242,7 +242,7 @@ export default function ProductDetailsPage() {
   ];
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen pb-20 md:pb-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Inline Messages */}
         <div className="mb-4 space-y-2">

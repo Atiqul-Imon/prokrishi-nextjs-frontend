@@ -219,6 +219,18 @@ body {
   .mobile-content {
     padding-bottom: 80px;
   }
+  
+  /* Ensure pages with min-h-screen have bottom padding for mobile nav */
+  [class*="min-h-screen"] {
+    padding-bottom: 5rem !important;
+  }
+}
+
+/* Override min-h-screen padding for desktop */
+@media (min-width: 768px) {
+  [class*="min-h-screen"] {
+    padding-bottom: 0 !important;
+  }
 }
 
 /* Safe area insets for devices with notches */
