@@ -14,8 +14,6 @@ function HeroSection() {
           className="object-cover"
           quality={90}
         />
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-slate-900/40"></div>
       </div>
 
     </section>
