@@ -173,10 +173,12 @@ function Navbar() {
   }, [showDropdown, searchResults, selectedIndex, router, handleSearch, mobileSearchOpen]);
 
   const handleResultClick = useCallback((product: any) => {
-    router.push(`/products/${product._id}`);
-    setSearchQuery("");
-    setShowDropdown(false);
-    setSelectedIndex(-1);
+    if (product?._id) {
+      router.push(`/products/${product._id}`);
+      setSearchQuery("");
+      setShowDropdown(false);
+      setSelectedIndex(-1);
+    }
   }, [router]);
 
   const handleMobileSearch = useCallback(() => {
@@ -604,9 +606,14 @@ function Navbar() {
                     {searchResults.map((product, index) => (
                       <div
                         key={product._id}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           handleResultClick(product);
-                          setMobileSearchOpen(false);
+                          // Close overlay after navigation starts
+                          setTimeout(() => {
+                            setMobileSearchOpen(false);
+                          }, 100);
                         }}
                         className={`p-4 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-150 ${
                           index === selectedIndex ? "bg-green-50" : ""
