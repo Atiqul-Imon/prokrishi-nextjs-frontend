@@ -278,14 +278,25 @@ export async function updateProduct(id: string, productData: any): Promise<Produ
 }
 
 /**
- * Get all products.
+ * Get all products with pagination.
  */
-export async function getAllProducts(): Promise<Product[]> {
+export async function getAllProducts(params?: { page?: number; limit?: number; search?: string; category?: string; sort?: string; order?: 'asc' | 'desc' }): Promise<ProductsResponse> {
   try {
-    // Add cache busting parameter to ensure fresh data
-    const timestamp = Date.now();
-    const res = await api.get<ProductsResponse>(`/product?t=${timestamp}`);
-    return res.data.products;
+    const queryParams = new URLSearchParams();
+    
+    // Add cache busting parameter
+    queryParams.append('t', Date.now().toString());
+    
+    // Add pagination and filter parameters
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.sort) queryParams.append('sort', params.sort);
+    if (params?.order) queryParams.append('order', params.order);
+    
+    const res = await api.get<ProductsResponse>(`/product?${queryParams.toString()}`);
+    return res.data;
   } catch (err: any) {
     throw new Error(
       err.response?.data?.message || err.message || "Failed to get products",

@@ -14,9 +14,18 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalProducts: 0,
+    hasNext: false,
+    hasPrev: false,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refresh, setRefresh] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(20);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const { messages, success, error: showError, removeMessage } = useInlineMessage();
 
@@ -25,15 +34,29 @@ export default function ProductsPage() {
       setLoading(true);
       setError("");
       try {
-        const result = await getAllProducts();
-        setProducts(result);
-      } catch (err) {
+        const result = await getAllProducts({ page: currentPage, limit: pageSize });
+        setProducts(result.products || []);
+        const paginationData = result.pagination || {
+          currentPage: 1,
+          totalPages: 1,
+          totalProducts: 0,
+          hasNext: false,
+          hasPrev: false,
+        };
+        setPagination({
+          currentPage: paginationData.currentPage || 1,
+          totalPages: paginationData.totalPages || 1,
+          totalProducts: paginationData.totalProducts || 0,
+          hasNext: paginationData.hasNext || false,
+          hasPrev: paginationData.hasPrev || false,
+        });
+      } catch (err: any) {
         setError(err.message || "Error fetching products");
       }
       setLoading(false);
     }
     fetchProducts();
-  }, [refresh]);
+  }, [refresh, currentPage, pageSize]);
 
   // Handler for delete
   function handleDelete(id) {
@@ -44,7 +67,12 @@ export default function ProductsPage() {
     if (!deleteConfirm) return;
     try {
       await deleteProduct(deleteConfirm);
-      setRefresh((r) => r + 1);
+      // If we're on the last page and it becomes empty, go to previous page
+      if (products.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      } else {
+        setRefresh((r) => r + 1);
+      }
       success("Product deleted successfully!", 5000);
       setDeleteConfirm(null);
     } catch (err: any) {
@@ -119,6 +147,8 @@ export default function ProductsPage() {
         loading={loading}
         onDelete={handleDelete}
         onToggleFeatured={handleToggleFeatured}
+        pagination={pagination}
+        onPageChange={setCurrentPage}
       />
     </div>
   );
