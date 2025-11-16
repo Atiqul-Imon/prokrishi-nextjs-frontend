@@ -20,6 +20,7 @@ import { searchProducts } from "@/app/utils/api";
 
 function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -31,6 +32,7 @@ function Navbar() {
   const router = useRouter();
   const searchRef = useRef(null);
   const dropdownRef = useRef(null);
+  const mobileSearchRef = useRef(null);
 
   // Ensure component is mounted before using portal
   useEffect(() => {
@@ -50,6 +52,29 @@ function Navbar() {
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
+
+  // Update dropdown position on scroll/resize
+  useEffect(() => {
+    if (!showDropdown || !searchRef.current || !dropdownRef.current) return;
+
+    const updatePosition = () => {
+      if (searchRef.current && dropdownRef.current) {
+        const rect = searchRef.current.getBoundingClientRect();
+        dropdownRef.current.style.top = `${rect.bottom + window.scrollY + 4}px`;
+        dropdownRef.current.style.left = `${rect.left + window.scrollX}px`;
+        dropdownRef.current.style.width = `${rect.width}px`;
+      }
+    };
+
+    updatePosition();
+    window.addEventListener('scroll', updatePosition, { passive: true });
+    window.addEventListener('resize', updatePosition, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [showDropdown]);
 
   // Close dropdown when clicking outside - Use passive event listener and memoize handler
   useEffect(() => {
@@ -135,11 +160,17 @@ function Navbar() {
         }
         break;
       case "Escape":
-        setShowDropdown(false);
-        setSelectedIndex(-1);
+        if (mobileSearchOpen) {
+          setMobileSearchOpen(false);
+          setShowDropdown(false);
+          setSelectedIndex(-1);
+        } else {
+          setShowDropdown(false);
+          setSelectedIndex(-1);
+        }
         break;
     }
-  }, [showDropdown, searchResults, selectedIndex, router, handleSearch]);
+  }, [showDropdown, searchResults, selectedIndex, router, handleSearch, mobileSearchOpen]);
 
   const handleResultClick = useCallback((product: any) => {
     router.push(`/products/${product._id}`);
@@ -172,6 +203,17 @@ function Navbar() {
           >
             <Menu size={20} className="sm:w-5 sm:h-5" />
           </button>
+
+          {/* Mobile Search Icon - Hidden for Admin */}
+          {!isAdmin && (
+            <button
+              className="md:hidden text-gray-700 hover:text-green-600 p-2 sm:p-2.5 rounded-xl hover:bg-green-100/80 transition-all duration-300 shadow-sm hover:shadow-md touch-manipulation"
+              onClick={() => setMobileSearchOpen(true)}
+              aria-label="Open Search"
+            >
+              <Search size={20} className="sm:w-5 sm:h-5" />
+            </button>
+          )}
 
           {/* Logo */}
           <Link
@@ -240,11 +282,22 @@ function Navbar() {
               </div>
             </form>
 
-            {/* Search Dropdown */}
-            {showDropdown && (
+            {/* Search Dropdown - Using Portal to render at body level */}
+            {showDropdown && mounted && createPortal(
               <div
                 ref={dropdownRef}
-                className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto mt-1"
+                className="fixed bg-white border border-gray-200 rounded-lg shadow-xl z-[10001] max-h-96 overflow-y-auto"
+                style={{
+                  position: 'fixed',
+                  zIndex: 10001,
+                  transform: 'translateZ(0)',
+                  isolation: 'isolate',
+                  top: searchRef.current ? `${searchRef.current.getBoundingClientRect().bottom + window.scrollY + 4}px` : '0px',
+                  left: searchRef.current ? `${searchRef.current.getBoundingClientRect().left + window.scrollX}px` : '0px',
+                  width: searchRef.current ? `${searchRef.current.getBoundingClientRect().width}px` : 'auto',
+                  minWidth: '300px',
+                  maxWidth: '500px',
+                }}
               >
                 {loading ? (
                   <div className="p-4 text-center text-gray-500">
@@ -303,7 +356,8 @@ function Navbar() {
                     </p>
                   </div>
                 ) : null}
-              </div>
+              </div>,
+              document.body
             )}
             </div>
           )}
@@ -401,25 +455,6 @@ function Navbar() {
               </button>
             </div>
 
-            {/* Mobile Search */}
-            <div className="mb-4 sm:mb-6">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
-                />
-                <button
-                  onClick={handleMobileSearch}
-                  className="bg-green-600 text-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-r-lg hover:bg-green-700 transition-colors touch-manipulation flex-shrink-0"
-                  aria-label="Search"
-                >
-                  <Search size={18} className="sm:w-5 sm:h-5" />
-                </button>
-              </div>
-            </div>
 
             {/* Drawer menu items */}
             <nav className="flex flex-col gap-2">
@@ -497,6 +532,131 @@ function Navbar() {
                 </Link>
               )}
             </nav>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Mobile Search Overlay */}
+      {mobileSearchOpen && mounted && createPortal(
+        <div
+          className="fixed inset-0 z-[10002] bg-black/50 backdrop-blur-sm"
+          style={{
+            position: 'fixed',
+            zIndex: 10002,
+            transform: 'translateZ(0)',
+            isolation: 'isolate',
+          }}
+          onClick={() => setMobileSearchOpen(false)}
+        >
+          <div
+            className="bg-white w-full p-4 sm:p-6 shadow-2xl"
+            style={{
+              position: 'relative',
+              zIndex: 10003,
+              transform: 'translateZ(0)',
+              isolation: 'isolate',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Search Products</h2>
+              <button
+                className="text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-green-100/80 transition-colors touch-manipulation"
+                onClick={() => setMobileSearchOpen(false)}
+                aria-label="Close Search"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative mb-4" ref={mobileSearchRef}>
+              <form onSubmit={handleSearch} className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search for products..."
+                  className="w-full pl-4 pr-12 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 bg-white text-base"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-green-600 to-green-700 text-white p-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-sm hover:shadow-md touch-manipulation"
+                >
+                  <Search size={18} />
+                </button>
+              </form>
+            </div>
+
+            {/* Search Results */}
+            {showDropdown && (
+              <div className="max-h-96 overflow-y-auto border-2 border-gray-200 rounded-lg">
+                {loading ? (
+                  <div className="p-4 text-center text-gray-500">
+                    <p className="text-sm">Searching...</p>
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <>
+                    {searchResults.map((product, index) => (
+                      <div
+                        key={product._id}
+                        onClick={() => {
+                          handleResultClick(product);
+                          setMobileSearchOpen(false);
+                        }}
+                        className={`p-4 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-150 ${
+                          index === selectedIndex ? "bg-green-50" : ""
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={product.image || "/img/placeholder.png"}
+                            alt={product.name}
+                            className="w-12 h-12 object-cover rounded-lg shadow-sm"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium text-gray-900 truncate">
+                              {product.name}
+                            </h4>
+                            <p className="text-sm text-gray-500">
+                              {product.category?.name}
+                            </p>
+                            <p className="text-sm font-semibold text-green-600">
+                              ৳{product.price}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="p-3 border-t border-gray-200 bg-green-50">
+                      <button
+                        onClick={() => {
+                          handleSearch({ preventDefault: () => {} } as React.FormEvent);
+                          setMobileSearchOpen(false);
+                        }}
+                        className="w-full text-sm text-green-600 hover:text-green-700 font-medium py-2 px-3 rounded-md hover:bg-green-100 transition-colors duration-150"
+                      >
+                        View all results for "{searchQuery}"
+                      </button>
+                    </div>
+                  </>
+                ) : searchQuery.trim().length >= 2 ? (
+                  <div className="p-6 text-center text-gray-500">
+                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Search size={20} className="text-gray-400" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">No products found</p>
+                    <p className="text-xs text-gray-400">
+                      Try different keywords or check spelling
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            )}
           </div>
         </div>,
         document.body

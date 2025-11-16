@@ -397,3 +397,11 @@ img, video {
   transform: translateZ(0) !important;
   -webkit-transform: translateZ(0) !important;
 }
+
+/* Ensure search dropdown appears above hero section */
+div[class*="absolute"][class*="top-full"][class*="z-\[101\]"] {
+  position: absolute !important;
+  z-index: 101 !important;
+  transform: translateZ(0) !important;
+  isolation: isolate !important;
+}
