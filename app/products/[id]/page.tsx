@@ -275,22 +275,22 @@ export default function ProductDetailsPage() {
               {/* Image Zoom Modal */}
               {imageZoomed && (
                 <div
-                  className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+                  className="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
                   onClick={() => setImageZoomed(false)}
                 >
                   <button
                     onClick={() => setImageZoomed(false)}
-                    className="absolute top-4 right-4 text-white hover:text-gray-300"
+                    className="absolute top-4 right-4 text-gray-800 hover:text-gray-600 transition-colors"
                   >
                     <X className="w-8 h-8" />
                   </button>
-                  <div className="relative max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
+                  <div className="relative max-w-4xl max-h-full bg-white rounded-2xl shadow-2xl border border-gray-200 p-4" onClick={(e) => e.stopPropagation()}>
                     <Image
                       src={getProductImageUrl(product.image || "/testp.webp", "full")}
                       alt={product.name}
                       width={1200}
                       height={1200}
-                      className="object-contain max-h-[90vh]"
+                      className="object-contain max-h-[80vh]"
                     />
                   </div>
                 </div>
