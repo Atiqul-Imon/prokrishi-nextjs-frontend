@@ -361,18 +361,6 @@ export default function ProductDetailsPage() {
                 )}
               </div>
 
-              {/* Description */}
-              {product.description && (
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Product Description</h2>
-                  <div className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
-                    <div className="text-base sm:text-lg text-gray-700 leading-relaxed whitespace-pre-line bangla-body">
-                      {product.description}
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Specifications */}
               {product.specifications && Object.keys(product.specifications).length > 0 && (
                 <div className="mb-6">
@@ -389,7 +377,7 @@ export default function ProductDetailsPage() {
               )}
 
               {/* Quantity & Add to Cart */}
-              <div className="mt-auto space-y-4">
+              <div className="mt-8 space-y-4">
                 <div className="flex items-center gap-4">
                   <label className="text-sm font-medium text-gray-700">Quantity:</label>
                   <div className="flex items-center border-2 border-gray-300 rounded-lg focus-within:border-green-500">
@@ -450,6 +438,18 @@ export default function ProductDetailsPage() {
               </div>
             </div>
           </div>
+
+          {/* Full-width Description */}
+          {product.description && (
+            <div className="border-t border-gray-100 px-6 lg:px-10 pb-10">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Product Description</h2>
+              <div className="bg-white/90 rounded-xl p-5 sm:p-6 border border-gray-200 shadow-sm">
+                <div className="text-base sm:text-lg text-gray-700 leading-relaxed whitespace-pre-line bangla-body">
+                  {product.description}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Related Products */}
