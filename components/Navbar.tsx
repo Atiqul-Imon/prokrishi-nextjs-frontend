@@ -193,7 +193,7 @@ function Navbar() {
     <>
       <header className="sticky top-0 z-[100] bg-gradient-to-r from-white/95 via-green-50/40 to-white/95 backdrop-blur-lg border-b border-green-200/60 shadow-xl shadow-green-100/30 transition-all duration-300">
         {/* Container with consistent viewport width */}
-        <div className="container mx-auto px-2 sm:px-3 md:px-4 lg:px-6 w-full max-w-7xl">
+        <div className="container mx-auto px-2 sm:px-3 md:px-4 lg:px-6 w-full 3xl:max-w-7xl 3xl:mx-auto">
           <div className="flex items-center justify-between py-2.5 sm:py-3 md:py-4 gap-2 sm:gap-3">
         {/* Left: Logo and Mobile Menu Icon */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 min-w-0">

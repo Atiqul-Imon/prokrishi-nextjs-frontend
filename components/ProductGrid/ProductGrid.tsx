@@ -18,7 +18,7 @@ function ProductGrid() {
       ) : error ? (
         <div className="text-center text-red-600 py-16">{error?.message || "Failed to load products"}</div>
       ) : (
-        <div className="product-grid max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
+        <div className="product-grid w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center 3xl:max-w-7xl 3xl:mx-auto">
           {products.map((product: any) => (
             <ProductCard
               key={product._id}

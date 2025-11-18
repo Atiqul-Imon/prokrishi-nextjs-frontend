@@ -131,8 +131,8 @@ const AccountPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-20 to-yellow-20">
+      <div className="w-full p-4 sm:p-6 lg:p-8 3xl:max-w-7xl 3xl:mx-auto">
         {/* Inline Messages */}
         <div className="mb-4 space-y-2">
           {messages.map((msg) => (

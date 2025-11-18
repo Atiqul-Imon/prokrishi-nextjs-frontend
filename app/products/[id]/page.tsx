@@ -138,7 +138,7 @@ export default function ProductDetailsPage() {
   if (isLoading) {
     return (
       <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-12 3xl:max-w-7xl 3xl:mx-auto">
           <div className="animate-pulse space-y-8">
             <div className="h-8 bg-gray-200 rounded w-32"></div>
             <div className="grid md:grid-cols-2 gap-10">
@@ -219,7 +219,7 @@ export default function ProductDetailsPage() {
 
   return (
     <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8 3xl:max-w-7xl 3xl:mx-auto">
         {/* Inline Messages */}
         <div className="mb-4 space-y-2">
           {messages.map((msg) => (
