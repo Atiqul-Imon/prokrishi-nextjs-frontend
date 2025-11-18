@@ -5,15 +5,12 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   ShoppingCart,
-  Check,
   X,
   Plus,
   Minus,
   ShieldCheck,
   Truck,
   Package,
-  ArrowLeft,
-  Eye,
   Share2,
   ZoomIn,
   Star,
@@ -140,7 +137,7 @@ export default function ProductDetailsPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="bg-gray-50 min-h-screen pb-20 md:pb-0">
+      <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="animate-pulse space-y-8">
             <div className="h-8 bg-gray-200 rounded w-32"></div>
@@ -161,7 +158,7 @@ export default function ProductDetailsPage() {
   // Error state
   if (error) {
     return (
-      <div className="bg-gray-50 min-h-screen pb-20 md:pb-0 flex items-center justify-center">
+      <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0 flex items-center justify-center">
         <div className="text-center max-w-md px-4">
           <div className="text-red-600 mb-4">
             <X className="w-16 h-16 mx-auto" />
@@ -190,7 +187,7 @@ export default function ProductDetailsPage() {
   // Not found state
   if (!product) {
     return (
-      <div className="bg-gray-50 min-h-screen pb-20 md:pb-0 flex items-center justify-center">
+      <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0 flex items-center justify-center">
         <div className="text-center max-w-md px-4">
           <div className="text-gray-400 mb-4">
             <Package className="w-16 h-16 mx-auto" />
@@ -212,27 +209,6 @@ export default function ProductDetailsPage() {
   const measurementDisplay = formatMeasurement(product.measurement, product.unit);
   const pricePerUnitDisplay = formatPricePerUnit(product.price, product.measurement, product.unit);
 
-  const stockStatus = isOutOfStock
-    ? {
-        text: "Out of Stock",
-        icon: <X className="w-5 h-5" />,
-        color: "text-red-600 bg-red-50 border-red-200",
-        bgColor: "bg-red-50",
-      }
-    : product.stock <= (product.lowStockThreshold || 5)
-      ? {
-          text: `Only ${product.stock} ${product.unit} left`,
-          icon: <Check className="w-5 h-5" />,
-          color: "text-yellow-600 bg-yellow-50 border-yellow-200",
-          bgColor: "bg-yellow-50",
-        }
-      : {
-          text: "In Stock",
-          icon: <Check className="w-5 h-5" />,
-          color: "text-green-600 bg-green-50 border-green-200",
-          bgColor: "bg-green-50",
-        };
-
   // Breadcrumbs
   const breadcrumbs = [
     { name: "Home", href: "/" },
@@ -242,7 +218,7 @@ export default function ProductDetailsPage() {
   ];
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 md:pb-0">
+    <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Inline Messages */}
         <div className="mb-4 space-y-2">
@@ -322,12 +298,6 @@ export default function ProductDetailsPage() {
 
               {/* Product Stats */}
               <div className="mt-4 flex items-center gap-6 text-sm text-gray-600">
-                {product.views > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-4 h-4" />
-                    <span>{product.views} views</span>
-                  </div>
-                )}
                 {product.sold > 0 && (
                   <div className="flex items-center gap-2">
                     <ShoppingCart className="w-4 h-4" />
@@ -391,18 +361,15 @@ export default function ProductDetailsPage() {
                 )}
               </div>
 
-              {/* Stock Status */}
-              <div className={`border rounded-lg p-4 mb-6 ${stockStatus.bgColor} ${stockStatus.color} border`}>
-                <div className="flex items-center gap-2 font-semibold">
-                  {stockStatus.icon}
-                  <span>{stockStatus.text}</span>
-                </div>
-              </div>
-
               {/* Description */}
               {product.description && (
-                <div className="prose prose-sm max-w-none text-gray-600 mb-6">
-                  <p className="whitespace-pre-line">{product.description}</p>
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Product Description</h2>
+                  <div className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
+                    <div className="text-base sm:text-lg text-gray-700 leading-relaxed whitespace-pre-line bangla-body">
+                      {product.description}
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -459,7 +426,7 @@ export default function ProductDetailsPage() {
                 <button
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-4 px-6 rounded-lg font-bold text-lg transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-white py-4 px-6 rounded-lg font-bold text-lg transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {isOutOfStock ? "Out of Stock" : "Add to Cart"}

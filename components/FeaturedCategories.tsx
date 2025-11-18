@@ -50,8 +50,8 @@ const FeaturedCategories = () => {
 
   if (loading) {
     return (
-      <section className="py-12 bg-gradient-to-br from-green-50 to-emerald-50">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-6 sm:py-8 lg:py-12 bg-gradient-to-br from-amber-20 to-yellow-20 w-full">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 w-full">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
             <p className="text-gray-600 mt-4">Loading categories...</p>
@@ -63,8 +63,8 @@ const FeaturedCategories = () => {
 
   if (error) {
     return (
-      <section className="py-12 bg-gradient-to-br from-green-50 to-emerald-50">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-6 sm:py-8 lg:py-12 bg-gradient-to-br from-amber-20 to-yellow-20 w-full">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 w-full">
           <div className="text-center text-red-500">{error}</div>
         </div>
       </section>
@@ -76,23 +76,12 @@ const FeaturedCategories = () => {
   }
 
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-green-50 to-emerald-50 w-full">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 w-full">
-        
+    <section className="py-6 sm:py-8 lg:py-12 bg-gradient-to-br from-amber-20 to-yellow-20 w-full">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 w-full">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 sm:gap-5 md:gap-6 justify-center">
           {categories.map((category) => (
             <CategoryCard key={category._id} category={category} />
           ))}
-        </div>
-
-        {/* View All Categories Link */}
-        <div className="text-center mt-8 sm:mt-10">
-          <Link
-            href="/products"
-            className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 text-base sm:text-lg"
-          >
-            সব বিভাগ দেখুন
-          </Link>
         </div>
       </div>
     </section>

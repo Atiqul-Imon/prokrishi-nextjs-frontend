@@ -1,4 +1,4 @@
-import { Marcellus, PT_Serif, Noto_Sans_Bengali } from "next/font/google";
+import { Marcellus, PT_Serif, Noto_Sans_Bengali, Tiro_Bangla } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -26,6 +26,11 @@ const notoSansBengali = Noto_Sans_Bengali({
   subsets: ["bengali"],
   variable: "--font-noto-sans-bengali",
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"]
+});
+const tiroBangla = Tiro_Bangla({
+  subsets: ["bengali"],
+  weight: "400",
+  variable: "--font-tiro-bangla"
 });
 
 export const metadata = {
@@ -99,7 +104,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
       </head>
-      <body className={`${marcellus.variable} ${ptSerif.variable} ${notoSansBengali.variable} min-h-screen flex flex-col bg-gray-100`}>
+      <body className={`${marcellus.variable} ${ptSerif.variable} ${notoSansBengali.variable} ${tiroBangla.variable} min-h-screen flex flex-col bg-gradient-to-br from-amber-20 to-yellow-20`}>
         <SWRProvider>
           <AuthProvider>
             <CartProvider>
@@ -107,7 +112,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <div className="w-full">
                 <Navbar />
               </div>
-              <main className="flex-grow flex justify-center bg-gray-100 pb-16 md:pb-0">
+              <main className="flex-grow flex justify-center bg-gradient-to-br from-amber-20 to-yellow-20 pb-16 md:pb-0">
                 <ContentContainer>
                   {children}
                 </ContentContainer>

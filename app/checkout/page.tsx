@@ -237,7 +237,7 @@ export default function CheckoutPage() {
 
   if (cart.length === 0 && !cartLoading) {
     return (
-      <div className="text-center min-h-[60vh] flex flex-col items-center justify-center bg-gray-50 px-4">
+      <div className="text-center min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-br from-amber-20 to-yellow-20 px-4">
         <ShoppingCart className="w-16 h-16 text-gray-300 mb-6" />
         <h2 className="text-2xl font-semibold mb-4 text-gray-700">
           Your Cart is Empty
@@ -257,7 +257,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen pb-20 md:pb-0">
+    <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0">
       <div className="container mx-auto px-4 py-8 md:py-12">
         <CheckoutProgress currentStep={checkoutStep} />
 

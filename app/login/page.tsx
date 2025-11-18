@@ -83,7 +83,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 py-12 px-4">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-amber-20 to-yellow-20 py-12 px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">

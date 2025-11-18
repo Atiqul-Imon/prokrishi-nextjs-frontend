@@ -109,7 +109,7 @@ function CartPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8 pb-20 md:pb-8">
+    <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen py-8 pb-20 md:pb-8">
       <div className="max-w-6xl mx-auto p-4 sm:p-6">
         {/* Inline Messages */}
         <div className="mb-4 space-y-2">

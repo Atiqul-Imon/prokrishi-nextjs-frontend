@@ -46,7 +46,7 @@ export default function ProductsPage() {
   }, [products, selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
+    <div className="min-h-screen bg-gradient-to-br from-amber-20 to-yellow-20 pb-20 md:pb-0">
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         {/* Header */}
         <div className="mb-4 sm:mb-6 md:mb-8">

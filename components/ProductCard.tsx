@@ -70,13 +70,13 @@ function ProductCard({ product }: { product: any }) {
 
       {/* Content */}
       <div className="p-2 sm:p-3 flex flex-col flex-grow">
-        <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-2 line-clamp-2 hover:text-primary transition-colors bangla-title">
+        <h3 className="text-base sm:text-lg font-semibold text-primary-800 mb-2 leading-snug tracking-tight line-clamp-2 hover:text-primary transition-colors bangla-title text-left">
           <Link href={`/products/${_id}`}>{name}</Link>
         </h3>
 
         {/* Description - Show on mobile with larger text */}
         {(shortDescription || description) && (
-          <p className="text-xs sm:text-sm text-gray-500 mb-2 line-clamp-1 bangla-body">
+          <p className="text-sm sm:text-base text-gray-700 bg-primary-50/50 rounded-lg py-1.5 mb-2 line-clamp-2 bangla-body text-left leading-relaxed">
             {shortDescription || (description && description.length > 100 ? description.substring(0, 100) + '...' : description)}
           </p>
         )}
@@ -104,7 +104,7 @@ function ProductCard({ product }: { product: any }) {
           <button
             onClick={handleAddToCart}
             disabled={!inStock}
-            className="w-full bg-green-900 text-white font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-md flex items-center justify-center hover:bg-green-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
+            className="w-full bg-amber-600 text-white font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-md flex items-center justify-center hover:bg-amber-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
           >
             <span className="text-sm sm:text-base">{inStock ? "Add to Cart" : "Out of Stock"}</span>
           </button>
