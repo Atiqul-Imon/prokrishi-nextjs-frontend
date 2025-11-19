@@ -42,19 +42,56 @@ export function CartProvider({ children }: CartProviderProps) {
   }, [cart, loading]);
 
   // Add item to cart
-  function addToCart(product: Product, qty = 1) {
+  function addToCart(product: Product, qty = 1, variantId?: string) {
     try {
       setCart((prev) => {
         const id = product.id || product._id;
-        const idx = prev.findIndex((item) => (item.id || item._id) === id);
+        
+        // Find matching item (same product and same variant)
+        const idx = prev.findIndex((item) => {
+          const itemId = item.id || item._id;
+          const itemVariantId = item.variantId;
+          
+          // Must match product ID
+          if (itemId !== id) return false;
+          
+          // If product has variants, must match variant ID
+          if (product.hasVariants) {
+            return itemVariantId === variantId;
+          }
+          
+          // For non-variant products, no variant should be set
+          return !itemVariantId;
+        });
+        
         if (idx > -1) {
           const updated = [...prev];
           updated[idx].quantity += qty;
-          // Removed toast notification for quantity update
           return updated;
         }
-        // Removed toast notification for adding to cart
-        return [...prev, { ...product, id: id, quantity: qty }];
+        
+        // Create new cart item with variant info if applicable
+        const newItem: CartItem = {
+          ...product,
+          id: id,
+          quantity: qty,
+        };
+        
+        if (product.hasVariants && variantId) {
+          const variant = product.variants?.find((v) => v._id === variantId);
+          if (variant) {
+            newItem.variantId = variantId;
+            newItem.variantSnapshot = variant;
+            // Override price and stock with variant values
+            newItem.price = variant.price;
+            newItem.stock = variant.stock;
+            newItem.measurement = variant.measurement;
+            newItem.unit = variant.unit;
+            newItem.measurementIncrement = variant.measurementIncrement;
+          }
+        }
+        
+        return [...prev, newItem];
       });
       // Open sidebar when item is added
       setIsSidebarOpen(true);
@@ -63,25 +100,41 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }
 
-  function updateQuantity(id: string, quantity: number) {
+  function updateQuantity(id: string, quantity: number, variantId?: string) {
     try {
       if (quantity < 1) {
-        removeFromCart(id);
+        removeFromCart(id, variantId);
         return;
       }
       setCart((prev) =>
-        prev.map((item) =>
-          (item.id || item._id) === id ? { ...item, quantity } : item
-        )
+        prev.map((item) => {
+          const itemId = item.id || item._id;
+          const itemVariantId = item.variantId;
+          
+          // Match by product ID and variant ID
+          if (itemId === id && itemVariantId === variantId) {
+            return { ...item, quantity };
+          }
+          return item;
+        })
       );
     } catch (error) {
       console.error("Error updating quantity:", error);
     }
   }
 
-  function removeFromCart(id: string) {
+  function removeFromCart(id: string, variantId?: string) {
     try {
-      setCart((prev) => prev.filter((item) => (item.id || item._id) !== id));
+      setCart((prev) =>
+        prev.filter((item) => {
+          const itemId = item.id || item._id;
+          const itemVariantId = item.variantId;
+          
+          // Remove if product ID matches and variant ID matches (or both are undefined)
+          if (itemId !== id) return true;
+          return itemVariantId !== variantId;
+        })
+      );
     } catch (error) {
       console.error("Error removing from cart:", error);
     }
@@ -97,7 +150,11 @@ export function CartProvider({ children }: CartProviderProps) {
 
   // Memoize expensive calculations to prevent recalculation on every render
   const cartTotal = useMemo(
-    () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    () => cart.reduce((sum, item) => {
+      // Use variant price if available, otherwise use product price
+      const price = item.variantSnapshot?.price || item.price;
+      return sum + price * item.quantity;
+    }, 0),
     [cart]
   );
   

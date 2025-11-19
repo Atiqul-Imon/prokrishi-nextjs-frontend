@@ -13,24 +13,47 @@ export interface User {
   updatedAt: string;
 }
 
+export interface ProductVariant {
+  _id: string;
+  label: string;
+  sku?: string;
+  price: number;
+  stock: number;
+  measurement: number;
+  unit: 'pcs' | 'kg' | 'g' | 'l' | 'ml';
+  measurementIncrement?: number;
+  status?: 'active' | 'inactive' | 'out_of_stock';
+  isDefault?: boolean;
+  image?: string;
+}
+
 export interface Product {
   _id: string;
   id?: string; // For cart compatibility
   name: string;
   description: string;
   shortDescription?: string;
-  price: number;
+  price: number; // Legacy field, kept for backward compatibility
   image: string;
   category: string | Category;
-  stock: number;
+  stock: number; // Legacy field, kept for backward compatibility
   sku: string;
-  measurement: number;
-  unit: string;
+  measurement: number; // Legacy field, kept for backward compatibility
+  unit: string; // Legacy field, kept for backward compatibility
   minOrderQuantity?: number;
-  measurementIncrement?: number;
+  measurementIncrement?: number; // Legacy field, kept for backward compatibility
   displayMeasurement?: string; // Virtual field from backend
   pricePerUnit?: number; // Virtual field from backend
   status: 'active' | 'inactive' | 'out_of_stock';
+  // Variant support
+  hasVariants?: boolean;
+  variants?: ProductVariant[];
+  defaultVariantId?: string;
+  variantSummary?: {
+    minPrice: number;
+    maxPrice: number;
+    totalStock: number;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -69,6 +92,8 @@ export interface OrderItem {
   quantity: number;
   price: number;
   image?: string;
+  variantId?: string;
+  variantSnapshot?: ProductVariant;
 }
 
 export interface Address {
@@ -86,6 +111,8 @@ export interface Address {
 
 export interface CartItem extends Product {
   quantity: number;
+  variantId?: string;
+  variantSnapshot?: ProductVariant;
 }
 
 export interface DashboardStats {

@@ -11,14 +11,14 @@ function ProductGrid() {
   const products = data?.products || [];
 
   return (
-    <section className="py-10 px-4 bg-gray-100">
+    <section className="py-10 px-4 sm:px-6 lg:px-8 bg-gray-100 2xl:px-12 3xl:px-0 3xl:max-w-[50vw] 3xl:mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-center">Our Products</h2>
       {isLoading ? (
         <div className="text-center py-16 text-gray-500">Loading...</div>
       ) : error ? (
         <div className="text-center text-red-600 py-16">{error?.message || "Failed to load products"}</div>
       ) : (
-        <div className="product-grid w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center 3xl:max-w-7xl 3xl:mx-auto">
+        <div className="product-grid w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
           {products.map((product: any) => (
             <ProductCard
               key={product._id}

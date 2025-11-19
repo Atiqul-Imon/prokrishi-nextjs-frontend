@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { getResourceList } from "@/app/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { ProductVariant } from "@/types/models";
+import { Plus, X, Trash2 } from "lucide-react";
 
 // Define a schema for validation
 const productSchema = z.object({
@@ -59,6 +61,8 @@ export default function ProductForm({ initial, onSave, loading }) {
   const [catLoading, setCatLoading] = useState(true);
   const [catError, setCatError] = useState("");
   const [formInitialized, setFormInitialized] = useState(false);
+  const [hasVariants, setHasVariants] = useState(false);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
 
   useEffect(() => {
     // If there's initial data, reset the form with it (only once)
@@ -70,6 +74,16 @@ export default function ProductForm({ initial, onSave, loading }) {
       };
       console.log("Form data to set:", formData);
       reset(formData);
+      
+      // Initialize variants if product has them
+      if (initial.hasVariants && initial.variants && initial.variants.length > 0) {
+        setHasVariants(true);
+        setVariants(initial.variants);
+      } else {
+        setHasVariants(false);
+        setVariants([]);
+      }
+      
       setFormInitialized(true);
     }
   }, [initial, reset, formInitialized]);
@@ -101,6 +115,25 @@ export default function ProductForm({ initial, onSave, loading }) {
       delete formData.image; // Don't send empty image field
     }
     
+    // Add variants if enabled
+    if (hasVariants && variants.length > 0) {
+      formData.variants = variants.map((v) => ({
+        label: v.label,
+        sku: v.sku,
+        price: v.price,
+        stock: v.stock,
+        measurement: v.measurement,
+        unit: v.unit,
+        measurementIncrement: v.measurementIncrement || 0.01,
+        status: v.status || 'active',
+        isDefault: v.isDefault || false,
+        image: v.image,
+      }));
+    } else {
+      // If variants were removed, explicitly set to empty array
+      formData.variants = [];
+    }
+    
     // Clean up form data
     Object.keys(formData).forEach(key => {
       if (formData[key] === '' || formData[key] === null) {
@@ -111,6 +144,44 @@ export default function ProductForm({ initial, onSave, loading }) {
     console.log("Submitting form data:", formData);
     onSave?.(formData);
   }
+
+  const addVariant = () => {
+    const newVariant: ProductVariant = {
+      _id: `temp-${Date.now()}`,
+      label: "",
+      price: 0,
+      stock: 0,
+      measurement: 1,
+      unit: "pcs",
+      measurementIncrement: 0.01,
+      status: "active",
+      isDefault: variants.length === 0, // First variant is default
+    };
+    setVariants([...variants, newVariant]);
+  };
+
+  const removeVariant = (index: number) => {
+    const updated = variants.filter((_, i) => i !== index);
+    // Ensure at least one default variant remains
+    if (updated.length > 0 && !updated.some((v) => v.isDefault)) {
+      updated[0].isDefault = true;
+    }
+    setVariants(updated);
+  };
+
+  const updateVariant = (index: number, field: keyof ProductVariant, value: any) => {
+    const updated = [...variants];
+    updated[index] = { ...updated[index], [field]: value };
+    
+    // If setting isDefault to true, unset others
+    if (field === 'isDefault' && value === true) {
+      updated.forEach((v, i) => {
+        if (i !== index) v.isDefault = false;
+      });
+    }
+    
+    setVariants(updated);
+  };
 
   const Input = ({ name, label, error, multilang = false, ...props }) => (
     <div>
@@ -239,86 +310,316 @@ export default function ProductForm({ initial, onSave, loading }) {
           </div>
         </div>
 
-        {/* Pricing & Inventory Section */}
+        {/* Variants Toggle */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-            Pricing & Inventory
+            Product Variants
           </h3>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Input
-              name="price"
-              type="number"
-              label="Price (৳)"
-              placeholder="99.99"
-              step="0.01"
-              error={errors.price}
+          <div className="flex items-center">
+            <input
+              id="hasVariants"
+              type="checkbox"
+              checked={hasVariants}
+              onChange={(e) => {
+                setHasVariants(e.target.checked);
+                if (!e.target.checked) {
+                  setVariants([]);
+                } else if (variants.length === 0) {
+                  // Add a default variant when enabling variants
+                  addVariant();
+                }
+              }}
+              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
             />
-            <Input
-              name="stock"
-              type="number"
-              label="Stock Quantity"
-              placeholder="100"
-              error={errors.stock}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Input
-              name="measurement"
-              type="number"
-              label="Measurement"
-              placeholder="e.g., 500"
-              error={errors.measurement}
-            />
-            <div>
-              <label
-                htmlFor="unit"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Unit
-              </label>
-              <select
-                id="unit"
-                {...register("unit")}
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="pcs">Pieces (pcs)</option>
-                <option value="kg">Kilograms (kg)</option>
-                <option value="g">Grams (g)</option>
-                <option value="l">Liters (l)</option>
-                <option value="ml">Milliliters (ml)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Input
-              name="lowStockThreshold"
-              type="number"
-              label="Low Stock Threshold"
-              placeholder="5"
-              error={errors.lowStockThreshold}
-            />
-            <div>
-              <label
-                htmlFor="status"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Status
-              </label>
-              <select
-                id="status"
-                {...register("status")}
-                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="out_of_stock">Out of Stock</option>
-              </select>
-            </div>
+            <label
+              htmlFor="hasVariants"
+              className="ml-2 block text-sm text-gray-700"
+            >
+              Enable Product Variants (e.g., different sizes, weights, prices)
+            </label>
           </div>
         </div>
+
+        {/* Variants Management */}
+        {hasVariants && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Variants
+              </h3>
+              <button
+                type="button"
+                onClick={addVariant}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Variant
+              </button>
+            </div>
+
+            {variants.length === 0 ? (
+              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                <p>No variants added. Click "Add Variant" to create one.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {variants.map((variant, index) => (
+                  <div
+                    key={variant._id || index}
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-medium text-gray-900">
+                        Variant {index + 1}
+                      </h4>
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={variant.isDefault || false}
+                            onChange={(e) =>
+                              updateVariant(index, "isDefault", e.target.checked)
+                            }
+                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                          />
+                          <span className="text-gray-700">Default</span>
+                        </label>
+                        {variants.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeVariant(index)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Label *
+                        </label>
+                        <input
+                          type="text"
+                          value={variant.label}
+                          onChange={(e) =>
+                            updateVariant(index, "label", e.target.value)
+                          }
+                          placeholder="e.g., Small, 500g, 1kg"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          SKU
+                        </label>
+                        <input
+                          type="text"
+                          value={variant.sku || ""}
+                          onChange={(e) =>
+                            updateVariant(index, "sku", e.target.value)
+                          }
+                          placeholder="Optional SKU"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Price (৳) *
+                        </label>
+                        <input
+                          type="number"
+                          value={variant.price}
+                          onChange={(e) =>
+                            updateVariant(index, "price", parseFloat(e.target.value) || 0)
+                          }
+                          step="0.01"
+                          min="0"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Stock *
+                        </label>
+                        <input
+                          type="number"
+                          value={variant.stock}
+                          onChange={(e) =>
+                            updateVariant(index, "stock", parseInt(e.target.value) || 0)
+                          }
+                          min="0"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Measurement *
+                        </label>
+                        <input
+                          type="number"
+                          value={variant.measurement}
+                          onChange={(e) =>
+                            updateVariant(index, "measurement", parseFloat(e.target.value) || 1)
+                          }
+                          step="0.01"
+                          min="0.01"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Unit *
+                        </label>
+                        <select
+                          value={variant.unit}
+                          onChange={(e) =>
+                            updateVariant(index, "unit", e.target.value)
+                          }
+                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                          <option value="pcs">Pieces (pcs)</option>
+                          <option value="kg">Kilograms (kg)</option>
+                          <option value="g">Grams (g)</option>
+                          <option value="l">Liters (l)</option>
+                          <option value="ml">Milliliters (ml)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Measurement Increment
+                        </label>
+                        <input
+                          type="number"
+                          value={variant.measurementIncrement || 0.01}
+                          onChange={(e) =>
+                            updateVariant(index, "measurementIncrement", parseFloat(e.target.value) || 0.01)
+                          }
+                          step="0.01"
+                          min="0.01"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Status
+                        </label>
+                        <select
+                          value={variant.status || "active"}
+                          onChange={(e) =>
+                            updateVariant(index, "status", e.target.value)
+                          }
+                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                          <option value="out_of_stock">Out of Stock</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Pricing & Inventory Section - Only show if no variants */}
+        {!hasVariants && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+              Pricing & Inventory
+            </h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Input
+                name="price"
+                type="number"
+                label="Price (৳)"
+                placeholder="99.99"
+                step="0.01"
+                error={errors.price}
+              />
+              <Input
+                name="stock"
+                type="number"
+                label="Stock Quantity"
+                placeholder="100"
+                error={errors.stock}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Input
+                name="measurement"
+                type="number"
+                label="Measurement"
+                placeholder="e.g., 500"
+                error={errors.measurement}
+              />
+              <div>
+                <label
+                  htmlFor="unit"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Unit
+                </label>
+                <select
+                  id="unit"
+                  {...register("unit")}
+                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="pcs">Pieces (pcs)</option>
+                  <option value="kg">Kilograms (kg)</option>
+                  <option value="g">Grams (g)</option>
+                  <option value="l">Liters (l)</option>
+                  <option value="ml">Milliliters (ml)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Input
+                name="lowStockThreshold"
+                type="number"
+                label="Low Stock Threshold"
+                placeholder="5"
+                error={errors.lowStockThreshold}
+              />
+              <div>
+                <label
+                  htmlFor="status"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Status
+                </label>
+                <select
+                  id="status"
+                  {...register("status")}
+                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="out_of_stock">Out of Stock</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Product Options Section */}
         <div className="space-y-4">

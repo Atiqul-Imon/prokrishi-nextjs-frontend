@@ -25,6 +25,7 @@ import { formatMeasurement, formatPricePerUnit } from "@/app/utils/measurement";
 import ProductCard from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/LoadingSkeleton";
 import { getRelatedProducts } from "@/app/utils/api";
+import { ProductVariant } from "@/types/models";
 
 export default function ProductDetailsPage() {
   const params = useParams();
@@ -36,11 +37,25 @@ export default function ProductDetailsPage() {
   const [imageZoomed, setImageZoomed] = useState(false);
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const { messages, showMessage, removeMessage, success, error: showError } = useInlineMessage();
 
   // Fetch product data
   const { data, error, isLoading, mutate } = useProductData<any>(id ? `/product/${id}` : null);
   const product = data?.product;
+
+  // Initialize selected variant when product loads
+  React.useEffect(() => {
+    if (product?.hasVariants && product.variants && product.variants.length > 0) {
+      // Set default variant or first variant
+      const defaultVariant = product.variants.find((v: ProductVariant) => v.isDefault) || product.variants[0];
+      setSelectedVariant(defaultVariant);
+      setQuantity(defaultVariant.measurementIncrement || 1);
+    } else if (product && !product.hasVariants) {
+      setSelectedVariant(null);
+      setQuantity(product.measurementIncrement || 1);
+    }
+  }, [product]);
 
   // Fetch related products
   React.useEffect(() => {
@@ -61,6 +76,9 @@ export default function ProductDetailsPage() {
 
   // Calculate quantity increment based on unit type
   const quantityIncrement = useMemo(() => {
+    if (selectedVariant) {
+      return selectedVariant.measurementIncrement || 1;
+    }
     if (!product) return 1;
     if (product.unit === "pcs") return 1;
     if (product.measurementIncrement) return product.measurementIncrement;
@@ -70,34 +88,42 @@ export default function ProductDetailsPage() {
     if (product.unit === "l") return 0.5;
     if (product.unit === "ml") return 100;
     return 0.1;
-  }, [product]);
+  }, [product, selectedVariant]);
 
   // Format quantity display
   const formatQuantity = (qty: number) => {
-    if (product?.unit === "pcs") return Math.floor(qty).toString();
+    const unit = selectedVariant?.unit || product?.unit;
+    if (unit === "pcs") return Math.floor(qty).toString();
     if (qty % 1 === 0) return qty.toString();
     return qty.toFixed(2);
   };
 
   const handleAddToCart = () => {
     if (!product) return;
-    if (product.stock < quantity) {
-      showError("Not enough stock available.", 5000);
+    
+    const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
+    const currentUnit = selectedVariant ? selectedVariant.unit : product.unit;
+    const variantId = selectedVariant?._id;
+    
+    if (currentStock < quantity) {
+      showError(`Not enough stock available. Available: ${currentStock} ${currentUnit}`, 5000);
       return;
     }
     if (quantity > 0) {
-      addToCart(product, quantity);
-      success(`${formatQuantity(quantity)} ${product.unit} added to cart!`, 5000);
+      addToCart(product, quantity, variantId);
+      success(`${formatQuantity(quantity)} ${currentUnit} added to cart!`, 5000);
     }
   };
 
   const incrementQuantity = () => {
     if (!product) return;
+    const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
+    const currentUnit = selectedVariant ? selectedVariant.unit : product.unit;
     const newQuantity = quantity + quantityIncrement;
-    if (newQuantity <= product.stock) {
+    if (newQuantity <= currentStock) {
       setQuantity(newQuantity);
     } else {
-      showError(`Maximum available stock is ${product.stock} ${product.unit}`, 5000);
+      showError(`Maximum available stock is ${currentStock} ${currentUnit}`, 5000);
     }
   };
 
@@ -108,11 +134,14 @@ export default function ProductDetailsPage() {
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value) || quantityIncrement;
-    if (product && value > 0 && value <= product.stock) {
+    const currentStock = selectedVariant ? selectedVariant.stock : product?.stock;
+    const currentUnit = selectedVariant ? selectedVariant.unit : product?.unit;
+    
+    if (product && value > 0 && value <= (currentStock || 0)) {
       setQuantity(value);
-    } else if (product && value > product.stock) {
-      showError(`Maximum available stock is ${product.stock} ${product.unit}`, 5000);
-      setQuantity(product.stock);
+    } else if (product && value > (currentStock || 0)) {
+      showError(`Maximum available stock is ${currentStock} ${currentUnit}`, 5000);
+      setQuantity(currentStock || 0);
     }
   };
 
@@ -138,19 +167,21 @@ export default function ProductDetailsPage() {
   if (isLoading) {
     return (
       <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-12 3xl:max-w-7xl 3xl:mx-auto">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-gray-200 rounded w-32"></div>
-            <div className="grid md:grid-cols-2 gap-10">
-              <div className="h-96 bg-gray-200 rounded-xl"></div>
-              <div className="space-y-4">
-                <div className="h-10 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-24 bg-gray-200 rounded"></div>
+        <section className="w-full py-12">
+          <div className="container mx-auto w-full px-3 sm:px-4 lg:px-6">
+            <div className="animate-pulse space-y-8">
+              <div className="h-8 bg-gray-200 rounded w-32"></div>
+              <div className="grid md:grid-cols-2 gap-10">
+                <div className="h-96 bg-gray-200 rounded-xl"></div>
+                <div className="space-y-4">
+                  <div className="h-10 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-24 bg-gray-200 rounded"></div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     );
   }
@@ -205,9 +236,14 @@ export default function ProductDetailsPage() {
     );
   }
 
-  const isOutOfStock = product.stock === 0;
-  const measurementDisplay = formatMeasurement(product.measurement, product.unit);
-  const pricePerUnitDisplay = formatPricePerUnit(product.price, product.measurement, product.unit);
+  const currentPrice = selectedVariant ? selectedVariant.price : product.price;
+  const currentMeasurement = selectedVariant ? selectedVariant.measurement : product.measurement;
+  const currentUnit = selectedVariant ? selectedVariant.unit : product.unit;
+  const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
+  
+  const isOutOfStock = currentStock === 0;
+  const measurementDisplay = formatMeasurement(currentMeasurement, currentUnit);
+  const pricePerUnitDisplay = formatPricePerUnit(currentPrice, currentMeasurement, currentUnit);
 
   // Breadcrumbs
   const breadcrumbs = [
@@ -219,7 +255,8 @@ export default function ProductDetailsPage() {
 
   return (
     <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8 3xl:max-w-7xl 3xl:mx-auto">
+      <section className="w-full py-8">
+        <div className="container mx-auto w-full px-3 sm:px-4 lg:px-6">
         {/* Inline Messages */}
         <div className="mb-4 space-y-2">
           {messages.map((msg) => (
@@ -348,18 +385,49 @@ export default function ProductDetailsPage() {
               <div className="my-6">
                 <div className="flex items-baseline gap-3">
                   <span className="text-4xl font-bold text-gray-900">
-                    ৳{product.price.toLocaleString()}
+                    ৳{currentPrice.toLocaleString()}
                   </span>
-                  {product.unit !== "pcs" && (
+                  {currentUnit !== "pcs" && (
                     <span className="text-xl font-medium text-gray-600">
                       / {measurementDisplay.displayText}
                     </span>
                   )}
                 </div>
-                {product.unit !== "pcs" && (
+                {currentUnit !== "pcs" && (
                   <p className="text-sm text-gray-500 mt-1">{pricePerUnitDisplay}</p>
                 )}
+                {product.hasVariants && product.variantSummary && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Price range: ৳{product.variantSummary.minPrice.toLocaleString()} - ৳{product.variantSummary.maxPrice.toLocaleString()}
+                  </p>
+                )}
               </div>
+
+              {/* Variant Selector */}
+              {product.hasVariants && product.variants && product.variants.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Select Option</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {product.variants.map((variant: ProductVariant) => (
+                      <button
+                        key={variant._id}
+                        onClick={() => {
+                          setSelectedVariant(variant);
+                          setQuantity(variant.measurementIncrement || 1);
+                        }}
+                        className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors ${
+                          selectedVariant?._id === variant._id
+                            ? "border-amber-600 bg-amber-50 text-amber-800"
+                            : "border-gray-300 bg-white text-gray-700 hover:border-amber-400 hover:text-amber-700"
+                        } ${variant.status === 'out_of_stock' || variant.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={variant.status === 'out_of_stock' || variant.stock === 0}
+                      >
+                        {variant.label} ({formatMeasurement(variant.measurement, variant.unit).displayText})
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Specifications */}
               {product.specifications && Object.keys(product.specifications).length > 0 && (
@@ -394,21 +462,21 @@ export default function ProductDetailsPage() {
                       value={formatQuantity(quantity)}
                       onChange={handleQuantityChange}
                       min={quantityIncrement}
-                      max={product.stock}
+                      max={currentStock}
                       step={quantityIncrement}
                       disabled={isOutOfStock}
                       className="w-20 text-center font-semibold text-lg border-0 focus:ring-0 focus:outline-none disabled:bg-transparent"
                     />
                     <button
                       onClick={incrementQuantity}
-                      disabled={isOutOfStock || quantity >= product.stock}
+                      disabled={isOutOfStock || quantity >= currentStock}
                       className="p-3 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
                       aria-label="Increase quantity"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
-                  <span className="text-sm text-gray-500">{product.unit}</span>
+                    <span className="text-sm text-gray-500">{currentUnit}</span>
                 </div>
 
                 <button
@@ -471,7 +539,8 @@ export default function ProductDetailsPage() {
             )}
           </section>
         )}
-      </div>
+        </div>
+      </section>
     </div>
   );
 }
