@@ -45,11 +45,11 @@ export default function ProductTable({
     <Card>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
+          <table className="min-w-full divide-y divide-white/10">
+            <thead className="bg-gray-100 border-b border-gray-300">
               <tr>
                 {onSelect && (
-                  <th className="px-4 py-3 text-left">
+                  <th className="px-6 py-4 text-left">
                     <input
                       type="checkbox"
                       checked={allSelected}
@@ -57,40 +57,40 @@ export default function ProductTable({
                         if (input) input.indeterminate = someSelected && !allSelected;
                       }}
                       onChange={(e) => onSelectAll?.(e.target.checked)}
-                      className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer"
+                      className="w-5 h-5 text-amber-600 border-gray-400 rounded focus:ring-amber-500 cursor-pointer bg-white"
                     />
                   </th>
                 )}
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                   Image
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                   SKU
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                   Category
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                   Price
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                   Stock
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                   Featured
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
+            <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
                   <td
@@ -106,12 +106,12 @@ export default function ProductTable({
                     colSpan={onSelect ? 10 : 9}
                     className="px-4 py-12 text-center"
                   >
-                    <div className="flex flex-col items-center justify-center">
-                      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                        <Package className="w-8 h-8 text-slate-400" />
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl flex items-center justify-center mb-4 border border-gray-300 shadow-xl">
+                        <Package className="w-10 h-10 text-gray-600" />
                       </div>
-                      <p className="text-lg font-semibold text-slate-900 mb-1">No products found</p>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-lg font-black text-gray-900 mb-1">No products found</p>
+                      <p className="text-sm text-gray-700">
                         Try adjusting your search or filters
                       </p>
                     </div>
@@ -133,7 +133,7 @@ export default function ProductTable({
           </table>
         </div>
         {pagination && pagination.totalPages > 1 && onPageChange && (
-          <div className="border-t border-slate-200 p-4">
+          <div className="border-t border-gray-200 p-6 bg-gray-50">
             <Pagination
               currentPage={pagination.currentPage}
               totalPages={pagination.totalPages}

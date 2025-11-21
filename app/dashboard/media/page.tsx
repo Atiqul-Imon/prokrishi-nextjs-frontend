@@ -27,7 +27,6 @@ import {
   MediaStats
 } from '@/app/utils/mediaApi';
 import { Card, CardContent, CardHeader } from '../components/Card';
-import { Breadcrumbs } from '../components/Breadcrumbs';
 import { MetricCard } from '../components/MetricCard';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 
@@ -36,6 +35,7 @@ export default function MediaGallery() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [stats, setStats] = useState<MediaStats | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<MediaFilters>({
     page: 1,
     limit: 20,
@@ -62,11 +62,29 @@ export default function MediaGallery() {
   const fetchMedia = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await getAllMedia(filters);
       setMediaFiles(response.mediaFiles);
       setPagination(response.pagination);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching media:', error);
+      // Extract error message from response
+      let errorMessage = 'Failed to fetch media files';
+      if (error.response?.data) {
+        errorMessage = error.response.data.message || error.response.data.error || errorMessage;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      setError(errorMessage);
+      // Don't let API errors cause redirects - just show empty state
+      setMediaFiles([]);
+      setPagination({
+        currentPage: 1,
+        totalPages: 1,
+        totalFiles: 0,
+        hasNext: false,
+        hasPrev: false
+      });
     } finally {
       setLoading(false);
     }
@@ -77,8 +95,10 @@ export default function MediaGallery() {
     try {
       const statsData = await getMediaStats();
       setStats(statsData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching stats:', error);
+      // Don't let API errors cause redirects - just set null stats
+      setStats(null);
     }
   }, []);
 
@@ -173,15 +193,8 @@ export default function MediaGallery() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumbs */}
-      <Breadcrumbs items={[{ label: "Media Gallery", href: "/dashboard/media" }]} />
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Media Gallery</h1>
-          <p className="text-slate-600 mt-1 font-medium">Manage your media files and assets</p>
-        </div>
+      {/* Upload Button */}
+      <div className="flex justify-end">
         <button
           onClick={() => setShowUploadModal(true)}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
@@ -331,6 +344,26 @@ export default function MediaGallery() {
         onCancel={() => setDeleteConfirm(null)}
       />
 
+      {/* Error Message */}
+      {error && (
+        <Card>
+          <CardContent>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-amber-900 mb-1">Media Service Error</h3>
+                <p className="text-sm text-amber-700">{error}</p>
+                {error.includes('ImageKit') || error.includes('not configured') && (
+                  <p className="text-xs text-amber-600 mt-2">
+                    Please configure ImageKit environment variables in the backend.
+                  </p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Media Grid/List */}
       {loading ? (
         <Card>
@@ -347,9 +380,9 @@ export default function MediaGallery() {
               <ImagePlus className="w-12 h-12 text-slate-400 mx-auto mb-4" />
               <h3 className="text-sm font-semibold text-slate-900 mb-1">No media files found</h3>
               <p className="text-sm text-slate-600 mb-4">
-                {filters.search ? "Try adjusting your search" : "Upload your first media file to get started"}
+                {filters.search ? "Try adjusting your search" : error ? "Media service is currently unavailable" : "Upload your first media file to get started"}
               </p>
-              {!filters.search && (
+              {!filters.search && !error && (
                 <button
                   onClick={() => setShowUploadModal(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
@@ -398,32 +431,33 @@ export default function MediaGallery() {
                 />
                 
                 {viewMode === 'grid' ? (
-                  <>
-                    <div className="aspect-square bg-slate-100 relative overflow-hidden">
+                  <div className="aspect-square bg-slate-100 relative overflow-hidden">
+                    {file.thumbnailUrl ? (
+                      <img
+                        src={file.thumbnailUrl}
+                        alt={file.name || 'Media file'}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-3xl">{getFileIcon(file.format)}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center p-3">
+                    <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0 overflow-hidden">
                       {file.thumbnailUrl ? (
                         <img
                           src={file.thumbnailUrl}
-                          alt={file.name}
+                          alt={file.name || 'Media file'}
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-3xl">{getFileIcon(file.format)}</span>
-                        </div>
+                        <span className="text-2xl">{getFileIcon(file.format)}</span>
                       )}
                     </div>
-                    <div className="p-2">
-                      <p className="text-xs font-medium text-slate-900 truncate mb-0.5">{file.name}</p>
-                      <p className="text-xs text-slate-500">{formatFileSize(file.size)}</p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-center p-3">
-                    <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
-                      <span className="text-2xl">{getFileIcon(file.format)}</span>
-                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-900 truncate">{file.name}</p>
                       <p className="text-xs text-slate-500">
                         {formatFileSize(file.size)} • {file.format.toUpperCase()}
                       </p>

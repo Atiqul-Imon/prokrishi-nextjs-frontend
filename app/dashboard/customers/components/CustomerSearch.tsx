@@ -31,7 +31,8 @@ export const CustomerSearch = ({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query, onSearch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
     const newFilters: FilterState = { ...filters, [key]: value };

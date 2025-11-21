@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Card, CardHeader, CardContent } from "../components/Card";
-import { Breadcrumbs } from "../components/Breadcrumbs";
 import {
   Settings as SettingsIcon,
   Store,
@@ -35,14 +34,6 @@ export default function DashboardSettingsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumbs */}
-      <Breadcrumbs items={[{ label: "Settings", href: "/dashboard/settings" }]} />
-
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
-        <p className="text-slate-600 mt-1 font-medium">Manage your store settings and preferences</p>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Settings Navigation */}

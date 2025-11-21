@@ -11,21 +11,21 @@ interface ProductStatusBadgeProps {
 const statusConfig = {
   active: {
     label: "Active",
-    color: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
     icon: CheckCircle,
-    iconColor: "text-emerald-600",
+    iconColor: "text-emerald-400",
   },
   inactive: {
     label: "Inactive",
-    color: "bg-amber-100 text-amber-700 border-amber-200",
+    color: "bg-amber-500/20 text-amber-400 border-amber-500/30",
     icon: XCircle,
-    iconColor: "text-amber-600",
+    iconColor: "text-amber-400",
   },
   out_of_stock: {
     label: "Out of Stock",
-    color: "bg-rose-100 text-rose-700 border-rose-200",
+    color: "bg-rose-500/20 text-rose-400 border-rose-500/30",
     icon: AlertCircle,
-    iconColor: "text-rose-600",
+    iconColor: "text-rose-400",
   },
 };
 
@@ -36,7 +36,7 @@ export default function ProductStatusBadge({ status, size = "md" }: ProductStatu
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 ${sizeClasses} rounded-lg border font-semibold ${config.color}`}
+      className={`inline-flex items-center gap-1.5 ${sizeClasses} rounded-xl border font-bold ${config.color} shadow-lg`}
     >
       <Icon size={size === "sm" ? 12 : 14} className={config.iconColor} />
       {config.label}

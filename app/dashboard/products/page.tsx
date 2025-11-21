@@ -14,8 +14,7 @@ import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Card, CardHeader, CardContent } from "../components/Card";
-import { Breadcrumbs } from "../components/Breadcrumbs";
-import { Plus, RefreshCw, Download } from "lucide-react";
+import { Plus, RefreshCw, Download, Search, X } from "lucide-react";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -33,9 +32,18 @@ export default function ProductsPage() {
   const [pageSize] = useState(20);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const { messages, success, error: showError, removeMessage } = useInlineMessage();
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -158,9 +166,6 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumbs */}
-      <Breadcrumbs items={[{ label: "Products", href: "/dashboard/products" }]} />
-
       {/* Inline Messages */}
       <div className="space-y-2">
         {messages.map((msg) => (
@@ -196,41 +201,65 @@ export default function ProductsPage() {
         onCancel={() => setBulkDeleteConfirm(false)}
       />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Products</h1>
-          <p className="text-slate-600 mt-1 font-medium">Manage your product inventory</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setRefresh((r) => r + 1)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-medium transition-colors"
-          >
-            <RefreshCw size={18} />
-            Refresh
-          </button>
-          <Link
-            href="/dashboard/products/add"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
-          >
-            <Plus size={18} />
-            Add Product
-          </Link>
-        </div>
-      </div>
-
       {/* Error Message */}
       {error && (
-        <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 text-rose-700 font-medium">
+        <div className="bg-rose-50 border border-rose-300 rounded-2xl p-4 text-rose-700 font-bold">
           {error}
         </div>
       )}
 
-      {/* Search and Filters */}
+      {/* Search and Action Buttons */}
       <Card>
         <CardContent>
-          <ProductSearch onSearch={setSearchQuery} />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            {/* Search Bar - Smaller */}
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search products by name, SKU..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 bg-white text-gray-900 placeholder-gray-500 text-sm transition-all"
+                />
+                {searchInput && (
+                  <button
+                    onClick={() => {
+                      setSearchInput("");
+                      setSearchQuery("");
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-900 transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setRefresh((r) => r + 1)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50 text-gray-700 hover:text-gray-900 font-semibold text-sm transition-all"
+              >
+                <RefreshCw size={16} />
+                Refresh
+              </button>
+              <Link
+                href="/dashboard/products/add"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold hover:shadow-xl hover:shadow-amber-500/40 hover:scale-105 transition-all shadow-lg shadow-amber-500/30 text-sm"
+              >
+                <Plus size={16} />
+                Add Product
+              </Link>
+            </div>
+          </div>
+          
+          {/* Filters Section */}
+          <div className="mt-4">
+            <ProductSearch onSearch={setSearchQuery} showSearchBar={false} />
+          </div>
         </CardContent>
       </Card>
 

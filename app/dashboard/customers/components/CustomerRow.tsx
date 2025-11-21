@@ -25,40 +25,40 @@ export const CustomerRow = ({ customer, onView, isSelected = false, onSelect }: 
 
   const getRoleBadgeColor = (role: string) => {
     if (role === "admin" || role === "super_admin") {
-      return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
     }
-    return "bg-blue-100 text-blue-700 border-blue-200";
+    return "bg-blue-500/20 text-blue-400 border-blue-500/30";
   };
 
   return (
     <tr
-      className={`border-b border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer ${
-        isSelected ? "bg-emerald-50/50" : ""
+      className={`border-b border-gray-200 hover:bg-gray-50 transition-all cursor-pointer ${
+        isSelected ? "bg-amber-50 border-amber-200" : ""
       }`}
       onClick={handleRowClick}
     >
       {/* Checkbox */}
       {onSelect && (
-        <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
           <input
             type="checkbox"
             checked={isSelected}
             onChange={handleSelect}
-            className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer"
+            className="w-5 h-5 text-amber-600 border-gray-400 rounded focus:ring-amber-500 cursor-pointer bg-white"
           />
         </td>
       )}
 
       {/* Customer Info */}
-      <td className="px-4 py-4">
+      <td className="px-6 py-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center border border-emerald-200 flex-shrink-0">
-            <User size={18} className="text-emerald-600" />
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center border border-amber-300 flex-shrink-0 shadow-lg">
+            <User size={20} className="text-amber-700" />
           </div>
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-slate-900 truncate">{customer.name}</div>
+            <div className="text-sm font-bold text-gray-900 truncate">{customer.name}</div>
             {customer.email && (
-              <div className="text-xs text-slate-500 truncate flex items-center gap-1 mt-0.5">
+              <div className="text-xs text-gray-600 truncate flex items-center gap-1 mt-0.5">
                 <Mail size={12} />
                 {customer.email}
               </div>
@@ -68,21 +68,21 @@ export const CustomerRow = ({ customer, onView, isSelected = false, onSelect }: 
       </td>
 
       {/* Phone */}
-      <td className="px-4 py-4">
+      <td className="px-6 py-4">
         {customer.phone ? (
-          <div className="text-sm text-slate-700 flex items-center gap-1.5">
-            <Phone size={14} className="text-slate-400" />
+          <div className="text-sm text-gray-800 flex items-center gap-1.5 font-semibold">
+            <Phone size={14} className="text-gray-600" />
             {customer.phone}
           </div>
         ) : (
-          <span className="text-sm text-slate-400 italic">—</span>
+          <span className="text-sm text-gray-600 italic">—</span>
         )}
       </td>
 
       {/* Role */}
-      <td className="px-4 py-4">
+      <td className="px-6 py-4">
         <span
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${getRoleBadgeColor(
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border shadow-lg ${getRoleBadgeColor(
             customer.role || "user"
           )}`}
         >
@@ -96,9 +96,9 @@ export const CustomerRow = ({ customer, onView, isSelected = false, onSelect }: 
       </td>
 
       {/* Joined Date */}
-      <td className="px-4 py-4">
-        <div className="text-sm text-slate-700 flex items-center gap-1.5">
-          <Calendar size={14} className="text-slate-400" />
+      <td className="px-6 py-4">
+        <div className="text-sm text-gray-800 flex items-center gap-1.5 font-semibold">
+          <Calendar size={14} className="text-gray-600" />
           {new Date(customer.createdAt).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
@@ -108,14 +108,14 @@ export const CustomerRow = ({ customer, onView, isSelected = false, onSelect }: 
       </td>
 
       {/* Actions */}
-      <td className="px-4 py-4">
+      <td className="px-6 py-4">
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <Link
             href={`/dashboard/customers/${customer._id}`}
-            className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+            className="p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-all border border-transparent hover:border-amber-300"
             title="View Details"
           >
-            <Eye size={16} />
+            <Eye size={18} />
           </Link>
         </div>
       </td>

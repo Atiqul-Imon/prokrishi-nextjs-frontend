@@ -7,9 +7,10 @@ interface CardProps {
   className?: string;
   padding?: "none" | "sm" | "md" | "lg";
   hover?: boolean;
+  gradient?: boolean;
 }
 
-export function Card({ children, className = "", padding = "md", hover = false }: CardProps) {
+export function Card({ children, className = "", padding = "md", hover = false, gradient = false }: CardProps) {
   const paddingClasses = {
     none: "",
     sm: "p-4",
@@ -19,7 +20,9 @@ export function Card({ children, className = "", padding = "md", hover = false }
 
   return (
     <div
-      className={`bg-white rounded-2xl border border-slate-200 shadow-sm ${paddingClasses[padding]} ${hover ? "hover:shadow-md transition-shadow" : ""} ${className}`}
+      className={`bg-white rounded-2xl shadow-lg ${paddingClasses[padding]} ${
+        hover ? "hover:shadow-xl hover:scale-[1.01] transition-all duration-300" : ""
+      } ${gradient ? "bg-gradient-to-br from-white via-gray-50 to-white" : ""} ${className}`}
     >
       {children}
     </div>
@@ -35,10 +38,10 @@ interface CardHeaderProps {
 
 export function CardHeader({ title, description, actions, className = "" }: CardHeaderProps) {
   return (
-    <div className={`px-6 py-4 border-b border-slate-200 flex items-center justify-between ${className}`}>
+    <div className={`px-6 py-5 flex items-center justify-between bg-gradient-to-r from-gray-50 to-transparent rounded-t-2xl ${className}`}>
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-        {description && <p className="text-sm text-slate-500 mt-1">{description}</p>}
+        <h2 className="text-xl font-black text-gray-900">{title}</h2>
+        {description && <p className="text-sm text-gray-700 mt-1.5 font-medium">{description}</p>}
       </div>
       {actions && <div className="flex-shrink-0">{actions}</div>}
     </div>
@@ -61,11 +64,10 @@ interface CardFooterProps {
 
 export function CardFooter({ children, className = "" }: CardFooterProps) {
   return (
-    <div className={`px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-2xl flex justify-end items-center ${className}`}>
+    <div className={`px-6 py-4 bg-gray-50 rounded-b-2xl flex justify-end items-center ${className}`}>
       {children}
     </div>
   );
 }
 
 export default Card;
-

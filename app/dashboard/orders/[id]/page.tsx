@@ -31,7 +31,7 @@ const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
     pending: { bg: "bg-yellow-100", text: "text-yellow-800", icon: Clock },
     confirmed: { bg: "bg-blue-100", text: "text-blue-800", icon: CheckCircle },
-    processing: { bg: "bg-purple-100", text: "text-purple-800", icon: Package },
+    processing: { bg: "bg-amber-100", text: "text-amber-800", icon: Package },
     shipped: { bg: "bg-cyan-100", text: "text-cyan-800", icon: Truck },
     delivered: { bg: "bg-green-100", text: "text-green-800", icon: CheckCircle },
     cancelled: { bg: "bg-red-100", text: "text-red-800", icon: X },

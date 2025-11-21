@@ -52,91 +52,91 @@ export default function ProductRow({
 
   return (
     <tr
-      className={`border-b border-slate-200 hover:bg-slate-50 transition-colors ${
-        isSelected ? "bg-emerald-50/50" : ""
+      className={`border-b border-gray-200 hover:bg-gray-50 transition-all cursor-pointer ${
+        isSelected ? "bg-amber-50 border-amber-200" : ""
       }`}
       onClick={handleRowClick}
     >
       {/* Checkbox */}
       {onSelect && (
-        <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
           <input
             type="checkbox"
             checked={isSelected}
             onChange={handleSelect}
-            className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer"
+            className="w-5 h-5 text-amber-600 border-gray-400 rounded focus:ring-amber-500 cursor-pointer bg-white"
           />
         </td>
       )}
 
       {/* Image */}
-      <td className="px-4 py-4">
-        <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-slate-200 bg-slate-100">
+      <td className="px-6 py-4">
+        <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-gray-300 bg-gray-100 shadow-lg">
           {product.image ? (
             <Image
               src={product.image}
               alt={product.name}
               fill
               className="object-cover"
-              sizes="48px"
+              sizes="56px"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Package size={20} className="text-slate-400" />
+              <Package size={24} className="text-gray-600" />
             </div>
           )}
         </div>
       </td>
 
       {/* Name */}
-      <td className="px-4 py-4">
+      <td className="px-6 py-4">
         <div>
-          <div className="font-semibold text-slate-900 mb-1">{product.name}</div>
+          <div className="font-bold text-gray-900 mb-1">{product.name}</div>
           {product.shortDescription && (
-            <div className="text-xs text-slate-500 line-clamp-1">{product.shortDescription}</div>
+            <div className="text-xs text-gray-600 line-clamp-1">{product.shortDescription}</div>
           )}
         </div>
       </td>
 
       {/* SKU */}
-      <td className="px-4 py-4">
-        <div className="text-sm text-slate-600 font-mono">{product.sku || "—"}</div>
+      <td className="px-6 py-4">
+        <div className="text-sm text-gray-700 font-mono">{product.sku || "—"}</div>
       </td>
 
       {/* Category */}
-      <td className="px-4 py-4">
-        <div className="text-sm text-slate-700">
+      <td className="px-6 py-4">
+        <div className="text-sm text-gray-800">
           {product.category?.name || (
-            <span className="text-slate-400 italic">Uncategorized</span>
+            <span className="text-gray-600 italic">Uncategorized</span>
           )}
         </div>
       </td>
 
       {/* Price */}
-      <td className="px-4 py-4">
-        <div className="font-semibold text-slate-900">
+      <td className="px-6 py-4">
+        <div className="font-bold text-gray-900">
           ৳{product.price?.toFixed(2) || "0.00"}
         </div>
         {product.hasVariants && product.variantSummary && (
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-gray-700">
             ৳{product.variantSummary.minPrice} - ৳{product.variantSummary.maxPrice}
           </div>
         )}
       </td>
 
       {/* Stock */}
-      <td className="px-4 py-4">
+      <td className="px-6 py-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-700">
+          <span className="text-sm font-semibold text-gray-800">
             {stock} {product.unit || "pcs"}
           </span>
           {isLowStock && (
-            <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full border border-amber-200">
+            <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full border border-amber-300">
               Low
             </span>
           )}
           {isOutOfStock && (
-            <span className="px-2 py-0.5 bg-rose-100 text-rose-700 text-xs font-semibold rounded-full border border-rose-200">
+            <span className="px-2.5 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full border border-rose-300">
               Out
             </span>
           )}
@@ -149,23 +149,23 @@ export default function ProductRow({
       </td>
 
       {/* Featured */}
-      <td className="px-4 py-4">
+      <td className="px-6 py-4">
         <button
           onClick={handleToggleFeatured}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
             product.isFeatured
-              ? "bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-200"
-              : "bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200"
+              ? "bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 border border-emerald-300 hover:from-emerald-200 hover:to-teal-200 shadow-lg"
+              : "bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200 hover:text-gray-900"
           }`}
         >
           {product.isFeatured ? (
             <>
-              <Star size={12} />
+              <Star size={14} className="fill-emerald-600" />
               Featured
             </>
           ) : (
             <>
-              <StarOff size={12} />
+              <StarOff size={14} />
               Not Featured
             </>
           )}
@@ -173,21 +173,21 @@ export default function ProductRow({
       </td>
 
       {/* Actions */}
-      <td className="px-4 py-4">
+      <td className="px-6 py-4">
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <Link
             href={`/dashboard/products/edit/${product._id}`}
-            className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+            className="p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-all border border-transparent hover:border-amber-300"
             title="Edit"
           >
-            <Edit size={16} />
+            <Edit size={18} />
           </Link>
           <button
             onClick={() => onDelete(product._id)}
-            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+            className="p-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-all border border-transparent hover:border-rose-300"
             title="Delete"
           >
-            <Trash2 size={16} />
+            <Trash2 size={18} />
           </button>
         </div>
       </td>

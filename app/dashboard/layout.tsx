@@ -3,7 +3,7 @@
 import { useAuth } from "../context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, ReactNode, useState } from "react";
-import Topbar from "./components/Tobbar";
+import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 
 interface DashboardLayoutProps {
@@ -31,11 +31,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-100">
-        <div className="loader ease-linear rounded-full border-8 border-t-8 border-emerald-100 h-28 w-28"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-gray-100/50 to-gray-50">
+        <div className="relative">
+          <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-800 h-32 w-32"></div>
+          <div className="absolute inset-0 rounded-full border-8 border-transparent border-t-amber-600 animate-spin"></div>
+        </div>
         <style>{`
           .loader {
-            border-top-color: #059669;
+            border-top-color: #f59e0b;
             animation: spinner 1.5s linear infinite;
           }
           @keyframes spinner {
@@ -63,22 +66,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         Skip to main content
       </a>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 text-slate-900 flex">
+      <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-gray-100/50 to-gray-50 text-gray-900 flex overflow-hidden font-roboto relative">
         {/* Desktop sidebar */}
-        <aside className="hidden lg:flex">
-          <Sidebar />
-        </aside>
+        <Sidebar />
 
         {/* Mobile sidebar */}
         <Sidebar isMobile isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        <div className="flex-1 flex flex-col min-h-screen">
-          <Topbar onToggleSidebar={() => setSidebarOpen(true)} />
+        <div className="flex-1 flex flex-col min-h-screen overflow-hidden lg:ml-72 xl:ml-80">
+          <Header onToggleSidebar={() => setSidebarOpen(true)} />
           <main
             id="dashboard-main"
-            className="flex-1 overflow-x-hidden overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 bg-transparent"
+            className="flex-1 overflow-x-hidden overflow-y-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 bg-transparent"
           >
-            <div className="w-full max-w-7xl mx-auto space-y-6">
+            <div className="w-full max-w-full space-y-4 sm:space-y-6">
               {children}
             </div>
           </main>

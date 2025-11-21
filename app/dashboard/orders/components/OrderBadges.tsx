@@ -30,9 +30,9 @@ const orderStatusConfig = {
   },
   processing: {
     label: "Processing",
-    color: "bg-purple-100 text-purple-700 border-purple-200",
+    color: "bg-amber-100 text-amber-700 border-amber-200",
     icon: Package,
-    iconColor: "text-purple-600",
+    iconColor: "text-amber-600",
   },
   shipped: {
     label: "Shipped",

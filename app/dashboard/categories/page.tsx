@@ -12,7 +12,6 @@ import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Card, CardContent } from "../components/Card";
-import { Breadcrumbs } from "../components/Breadcrumbs";
 import { MetricCard } from "../components/MetricCard";
 import { CategoryCard } from "./components/CategoryCard";
 
@@ -133,9 +132,6 @@ export default function CategoriesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumbs */}
-      <Breadcrumbs items={[{ label: "Categories", href: "/dashboard/categories" }]} />
-
       {/* Inline Messages */}
       <div className="space-y-2">
         {loadingMessage && <InlineMessage type="info" message={loadingMessage} />}
@@ -165,30 +161,6 @@ export default function CategoriesPage() {
         onCancel={() => setDeleteConfirm(null)}
       />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Categories</h1>
-          <p className="text-slate-600 mt-1 font-medium">Manage your product categories</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={fetchCategories}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-medium transition-colors disabled:opacity-50"
-          >
-            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-            Refresh
-          </button>
-          <Link
-            href="/dashboard/categories/add"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
-          >
-            <Plus size={18} />
-            Add Category
-          </Link>
-        </div>
-      </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -219,18 +191,18 @@ export default function CategoriesPage() {
       <Card>
         <CardContent>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search categories by name or description..."
-              className="w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-slate-900"
+              className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 bg-white text-gray-900 placeholder-gray-500 transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-900 transition-colors"
               >
                 <X size={18} />
               </button>
@@ -244,7 +216,7 @@ export default function CategoriesPage() {
         <Card>
           <CardContent>
             <div className="text-center py-12">
-              <div className="text-slate-600 font-medium">Loading categories...</div>
+              <div className="text-gray-700 font-bold">Loading categories...</div>
             </div>
           </CardContent>
         </Card>
@@ -252,8 +224,8 @@ export default function CategoriesPage() {
         <Card>
           <CardContent>
             <div className="text-center py-12">
-              <div className="text-rose-600 text-lg font-semibold mb-2">Error Loading Categories</div>
-              <div className="text-slate-600">{error}</div>
+              <div className="text-rose-600 text-lg font-black mb-2">Error Loading Categories</div>
+              <div className="text-gray-700">{error}</div>
             </div>
           </CardContent>
         </Card>
@@ -261,11 +233,11 @@ export default function CategoriesPage() {
         <Card>
           <CardContent>
             <div className="text-center py-12">
-              <Tag className="mx-auto h-12 w-12 text-slate-400 mb-4" />
-              <h3 className="text-sm font-semibold text-slate-900 mb-1">
+              <Tag className="mx-auto h-16 w-16 text-gray-500 mb-4" />
+              <h3 className="text-sm font-black text-gray-900 mb-1">
                 {searchQuery ? "No categories found" : "No categories yet"}
               </h3>
-              <p className="text-sm text-slate-600 mb-4">
+              <p className="text-sm text-gray-700 mb-4">
                 {searchQuery
                   ? "Try adjusting your search query"
                   : "Get started by creating your first category"}
@@ -273,7 +245,7 @@ export default function CategoriesPage() {
               {!searchQuery && (
                 <Link
                   href="/dashboard/categories/add"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 text-white font-black hover:shadow-xl hover:shadow-amber-500/40 hover:scale-105 transition-all shadow-lg"
                 >
                   <Plus size={18} />
                   Add Category

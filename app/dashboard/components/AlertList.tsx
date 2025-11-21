@@ -22,25 +22,28 @@ interface AlertListProps {
 const alertConfig = {
   low_stock: {
     icon: AlertTriangle,
-    color: "bg-amber-100 text-amber-600",
-    borderColor: "border-amber-200",
+    color: "bg-amber-500/20 text-amber-400",
+    borderColor: "border-amber-500/30",
+    gradient: "from-amber-500 to-orange-500",
   },
   out_of_stock: {
     icon: Package,
-    color: "bg-rose-100 text-rose-600",
-    borderColor: "border-rose-200",
+    color: "bg-rose-500/20 text-rose-400",
+    borderColor: "border-rose-500/30",
+    gradient: "from-rose-500 to-pink-500",
   },
   trending_down: {
     icon: TrendingDown,
-    color: "bg-blue-100 text-blue-600",
-    borderColor: "border-blue-200",
+    color: "bg-blue-500/20 text-blue-400",
+    borderColor: "border-blue-500/30",
+    gradient: "from-blue-500 to-cyan-500",
   },
 };
 
 const severityConfig = {
-  low: "border-l-2",
-  medium: "border-l-4",
-  high: "border-l-4 border-rose-400",
+  low: "border-l-2 border-blue-500/50",
+  medium: "border-l-4 border-amber-500/50",
+  high: "border-l-4 border-rose-500",
 };
 
 export const AlertList = ({ alerts, loading = false }: AlertListProps) => {
@@ -51,7 +54,7 @@ export const AlertList = ({ alerts, loading = false }: AlertListProps) => {
         <CardContent>
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-16 bg-slate-200 rounded-lg animate-pulse" />
+              <div key={i} className="h-16 bg-gray-700/50 rounded-lg animate-pulse" />
             ))}
           </div>
         </CardContent>
@@ -64,12 +67,12 @@ export const AlertList = ({ alerts, loading = false }: AlertListProps) => {
       <Card>
         <CardHeader title="Alerts & Notifications" />
         <CardContent>
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-emerald-200">
-              <Package size={24} className="text-emerald-600" />
+          <div className="text-center py-12">
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border-2 border-emerald-500/30 shadow-lg">
+              <Package size={28} className="text-emerald-400" />
             </div>
-            <p className="text-sm font-semibold text-emerald-600 mb-1">All clear!</p>
-            <p className="text-xs text-slate-500">No alerts at this time</p>
+            <p className="text-sm font-black text-emerald-600 mb-1">All clear!</p>
+            <p className="text-xs text-gray-700">No alerts at this time</p>
           </div>
         </CardContent>
       </Card>
@@ -84,7 +87,7 @@ export const AlertList = ({ alerts, loading = false }: AlertListProps) => {
         actions={
           <Link
             href="/dashboard/products"
-            className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+            className="text-sm font-bold text-amber-600 hover:text-amber-700 transition-colors"
           >
             View all →
           </Link>
@@ -99,17 +102,17 @@ export const AlertList = ({ alerts, loading = false }: AlertListProps) => {
 
             const content = (
               <div
-                className={`p-4 rounded-lg border ${config.borderColor} ${severity} bg-white hover:shadow-sm transition-all ${
+                className={`p-4 rounded-xl border ${config.borderColor} ${severity} bg-gradient-to-br ${config.color.replace('text-', 'from-').replace('/20', '/10')} to-transparent hover:shadow-lg hover:scale-[1.01] transition-all ${
                   alert.href ? "cursor-pointer" : ""
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${config.color}`}>
-                    <Icon size={18} />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${config.gradient} shadow-lg`}>
+                    <Icon size={18} className="text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-900 mb-1">{alert.title}</p>
-                    <p className="text-xs text-slate-600">{alert.description}</p>
+                    <p className="text-sm font-semibold text-gray-900 mb-1">{alert.title}</p>
+                    <p className="text-xs text-gray-700">{alert.description}</p>
                   </div>
                 </div>
               </div>

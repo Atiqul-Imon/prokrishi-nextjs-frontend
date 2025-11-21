@@ -1,4 +1,4 @@
-import { Marcellus, PT_Serif, Noto_Sans_Bengali, Tiro_Bangla } from "next/font/google";
+import { Marcellus, PT_Serif, Noto_Sans_Bengali, Tiro_Bangla, Roboto } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import ContentContainer from "@/components/ContentContainer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CartSidebarWrapper from "@/components/CartSidebarWrapper";
+import ConditionalLayout from "./ConditionalLayout";
 import { ReactNode } from "react";
 
 const marcellus = Marcellus({ 
@@ -31,6 +32,11 @@ const tiroBangla = Tiro_Bangla({
   subsets: ["bengali"],
   weight: "400",
   variable: "--font-tiro-bangla"
+});
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700", "900"],
+  variable: "--font-roboto"
 });
 
 export const metadata = {
@@ -104,28 +110,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
       </head>
-      <body className={`${marcellus.variable} ${ptSerif.variable} ${notoSansBengali.variable} ${tiroBangla.variable} min-h-screen flex flex-col bg-gradient-to-br from-amber-20 to-yellow-20`}>
+      <body className={`${marcellus.variable} ${ptSerif.variable} ${notoSansBengali.variable} ${tiroBangla.variable} ${roboto.variable} min-h-screen flex flex-col bg-gradient-to-br from-amber-20 to-yellow-20`}>
         <SWRProvider>
           <AuthProvider>
             <CartProvider>
-              <CartSidebarWrapper />
-              <div className="w-full">
-                <Navbar />
-              </div>
-              <main className="flex-grow flex justify-center bg-gradient-to-br from-amber-20 to-yellow-20 pb-16 md:pb-0">
-                <ContentContainer>
-                  {children}
-                </ContentContainer>
-              </main>
-              <div className="w-full">
-                <Footer />
-              </div>
-              {/* Chat Widget - Hidden on mobile, shown on desktop */}
-              <div className="hidden md:block">
-                <ChatWidget />
-              </div>
-              {/* Mobile Bottom Navigation - Rendered last to ensure it's on top */}
-              <MobileBottomNav />
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
             </CartProvider>
           </AuthProvider>
         </SWRProvider>

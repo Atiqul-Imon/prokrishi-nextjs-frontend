@@ -14,50 +14,66 @@ interface MetricCardProps {
     isPositive?: boolean;
   };
   href?: string;
-  color?: "blue" | "emerald" | "purple" | "amber" | "rose";
+  color?: "blue" | "emerald" | "purple" | "amber" | "rose" | "cyan" | "violet";
   loading?: boolean;
 }
 
 const colorConfig = {
   blue: {
-    bg: "bg-blue-50",
-    border: "border-blue-200",
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-600",
-    trendPositive: "text-blue-600",
-    trendNegative: "text-blue-400",
+    gradient: "from-blue-500 to-cyan-500",
+    bg: "from-blue-500/10 to-cyan-500/10",
+    border: "border-blue-500/30",
+    text: "text-blue-400",
+    iconBg: "from-blue-500 to-cyan-500",
+    shadow: "shadow-blue-500/30",
   },
   emerald: {
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
-    iconBg: "bg-emerald-100",
-    iconColor: "text-emerald-600",
-    trendPositive: "text-emerald-600",
-    trendNegative: "text-emerald-400",
+    gradient: "from-emerald-500 to-teal-500",
+    bg: "from-emerald-500/10 to-teal-500/10",
+    border: "border-emerald-500/30",
+    text: "text-emerald-400",
+    iconBg: "from-emerald-500 to-teal-500",
+    shadow: "shadow-emerald-500/30",
   },
   purple: {
-    bg: "bg-purple-50",
-    border: "border-purple-200",
-    iconBg: "bg-purple-100",
-    iconColor: "text-purple-600",
-    trendPositive: "text-purple-600",
-    trendNegative: "text-purple-400",
+    gradient: "from-amber-500 to-orange-500",
+    bg: "from-amber-500/10 to-orange-500/10",
+    border: "border-amber-500/30",
+    text: "text-amber-400",
+    iconBg: "from-amber-500 to-orange-500",
+    shadow: "shadow-amber-500/30",
   },
   amber: {
-    bg: "bg-amber-50",
-    border: "border-amber-200",
-    iconBg: "bg-amber-100",
-    iconColor: "text-amber-600",
-    trendPositive: "text-amber-600",
-    trendNegative: "text-amber-400",
+    gradient: "from-amber-500 to-orange-500",
+    bg: "from-amber-500/10 to-orange-500/10",
+    border: "border-amber-500/30",
+    text: "text-amber-400",
+    iconBg: "from-amber-500 to-orange-500",
+    shadow: "shadow-amber-500/30",
   },
   rose: {
-    bg: "bg-rose-50",
-    border: "border-rose-200",
-    iconBg: "bg-rose-100",
-    iconColor: "text-rose-600",
-    trendPositive: "text-rose-600",
-    trendNegative: "text-rose-400",
+    gradient: "from-rose-500 to-pink-500",
+    bg: "from-rose-500/10 to-pink-500/10",
+    border: "border-rose-500/30",
+    text: "text-rose-400",
+    iconBg: "from-rose-500 to-pink-500",
+    shadow: "shadow-rose-500/30",
+  },
+  cyan: {
+    gradient: "from-cyan-500 to-blue-500",
+    bg: "from-cyan-500/10 to-blue-500/10",
+    border: "border-cyan-500/30",
+    text: "text-cyan-400",
+    iconBg: "from-cyan-500 to-blue-500",
+    shadow: "shadow-cyan-500/30",
+  },
+  violet: {
+    gradient: "from-amber-500 to-orange-500",
+    bg: "from-amber-500/10 to-orange-500/10",
+    border: "border-amber-500/30",
+    text: "text-amber-400",
+    iconBg: "from-amber-500 to-orange-500",
+    shadow: "shadow-amber-500/30",
   },
 };
 
@@ -67,67 +83,53 @@ export const MetricCard = ({
   icon: Icon,
   trend,
   href,
-  color = "emerald",
+  color = "amber",
   loading = false,
 }: MetricCardProps) => {
   const colors = colorConfig[color];
 
   const content = (
     <div
-      className={`group relative bg-white rounded-xl border ${colors.border} p-6 hover:shadow-md transition-all duration-200 ${
+      className={`group relative bg-white rounded-2xl border ${colors.border} p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ${colors.shadow} shadow-lg ${
         href ? "cursor-pointer" : ""
       }`}
     >
-      <div className="flex items-start justify-between">
+      {/* Glow effect on hover */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 rounded-2xl blur-2xl transition-opacity duration-300`}></div>
+      
+      <div className="relative flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-600 mb-1">{title}</p>
+          <p className="text-xs font-black text-gray-700 mb-3 uppercase tracking-widest">{title}</p>
           {loading ? (
-            <div className="h-8 w-24 bg-slate-200 rounded animate-pulse mt-2" />
+            <div className="h-12 w-40 bg-gray-200 rounded-xl animate-pulse mt-2" />
           ) : (
-            <p className="text-3xl font-bold text-slate-900 mt-2">{value}</p>
+            <p className="text-4xl font-black text-gray-900 mt-2">
+              {value}
+            </p>
           )}
           {trend && !loading && (
-            <div className="flex items-center gap-1.5 mt-3">
+            <div className="flex items-center gap-2 mt-4">
               {trend.value > 0 ? (
-                <TrendingUp
-                  size={16}
-                  className={trend.isPositive ? colors.trendPositive : colors.trendNegative}
-                />
+                <TrendingUp size={18} className={trend.isPositive ? colors.text : "text-gray-400"} />
               ) : trend.value < 0 ? (
-                <TrendingDown
-                  size={16}
-                  className={trend.isPositive ? colors.trendNegative : colors.trendPositive}
-                />
+                <TrendingDown size={18} className={trend.isPositive ? "text-gray-400" : colors.text} />
               ) : (
-                <Minus size={16} className="text-slate-400" />
+                <Minus size={18} className="text-gray-400" />
               )}
-              <span
-                className={`text-sm font-medium ${
-                  trend.value > 0
-                    ? trend.isPositive
-                      ? colors.trendPositive
-                      : colors.trendNegative
-                    : trend.value < 0
-                    ? trend.isPositive
-                      ? colors.trendNegative
-                      : colors.trendPositive
-                    : "text-slate-500"
-                }`}
-              >
+              <span className={`text-sm font-bold ${trend.value > 0 ? (trend.isPositive ? colors.text : "text-gray-400") : trend.value < 0 ? (trend.isPositive ? "text-gray-400" : colors.text) : "text-gray-400"}`}>
                 {Math.abs(trend.value)}%
               </span>
-              <span className="text-sm text-slate-500">{trend.label}</span>
+              <span className="text-xs text-gray-700 font-medium">{trend.label}</span>
             </div>
           )}
         </div>
-        <div
-          className={`ml-4 flex-shrink-0 w-12 h-12 rounded-xl ${colors.iconBg} ${colors.iconColor} flex items-center justify-center border ${colors.border}`}
-        >
-          <Icon size={24} />
+        <div className={`ml-4 flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br ${colors.iconBg} flex items-center justify-center shadow-2xl ${colors.shadow}`}>
+          <Icon size={28} className="text-white" />
         </div>
       </div>
+      
       {href && (
-        <div className="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-emerald-300 transition-colors pointer-events-none" />
+        <div className={`absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-${color}-500/50 transition-colors pointer-events-none`} />
       )}
     </div>
   );
@@ -138,4 +140,3 @@ export const MetricCard = ({
 
   return content;
 };
-

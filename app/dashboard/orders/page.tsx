@@ -22,7 +22,6 @@ import { InlineMessage } from "@/components/InlineMessage";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { MetricCard } from "../components/MetricCard";
 import { Card, CardContent } from "../components/Card";
-import { Breadcrumbs } from "../components/Breadcrumbs";
 import { OrderRow } from "./components/OrderRow";
 import { OrderFilters } from "./components/OrderFilters";
 import { OrderBulkActions } from "./components/OrderBulkActions";
@@ -55,12 +54,14 @@ const OrdersPage = () => {
       setOrders(response.orders || []);
       setPagination(response.pagination);
     } catch (err: any) {
-      setError(err.message || "Failed to fetch orders");
-      showError("Failed to fetch orders", 5000);
+      const errorMsg = err.message || "Failed to fetch orders";
+      setError(errorMsg);
+      showError(errorMsg, 5000);
     } finally {
       setLoading(false);
     }
-  }, [filters, showError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -137,13 +138,13 @@ const OrdersPage = () => {
     }
   };
 
-  const handleFilterChange = (key: string, value: any) => {
+  const handleFilterChange = useCallback((key: string, value: any) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value,
       page: key !== "page" ? 1 : value, // Reset to page 1 when other filters change
     }));
-  };
+  }, []);
 
   const handlePageChange = (page: number) => {
     handleFilterChange("page", page);
@@ -182,9 +183,6 @@ const OrdersPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumbs */}
-      <Breadcrumbs items={[{ label: "Orders", href: "/dashboard/orders" }]} />
-
       {/* Inline Messages */}
       <div className="space-y-2">
         {messages.map((msg) => (
@@ -220,26 +218,6 @@ const OrdersPage = () => {
         onCancel={() => setBulkDeleteConfirm(false)}
       />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Order Management</h1>
-          <p className="text-slate-600 mt-1 font-medium">Manage and track all customer orders</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => fetchOrders()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-medium transition-colors"
-          >
-            <RefreshCw size={18} />
-            Refresh
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-medium transition-colors">
-            <Download size={18} />
-            Export
-          </button>
-        </div>
-      </div>
 
       {/* Statistics Cards */}
       {stats && (
@@ -248,7 +226,7 @@ const OrdersPage = () => {
             title="Total Orders"
             value={stats.totalOrders?.toLocaleString() || "0"}
             icon={ShoppingCart}
-            color="blue"
+            color="cyan"
             trend={{ value: 0, label: "all time", isPositive: true }}
             loading={statsLoading}
           />
@@ -271,7 +249,7 @@ const OrdersPage = () => {
             title="Delivered Orders"
             value={stats.statusBreakdown?.delivered || 0}
             icon={CheckCircle}
-            color="emerald"
+            color="purple"
             loading={statsLoading}
           />
         </div>
@@ -303,24 +281,24 @@ const OrdersPage = () => {
             </div>
           ) : error ? (
             <div className="text-center py-12 px-6">
-              <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Error Loading Orders</h3>
-              <p className="text-slate-600">{error}</p>
+              <AlertCircle className="w-16 h-16 text-rose-600 mx-auto mb-4" />
+              <h3 className="text-lg font-black text-gray-900 mb-2">Error Loading Orders</h3>
+              <p className="text-gray-700">{error}</p>
             </div>
           ) : orders.length === 0 ? (
             <div className="text-center py-12 px-6">
-              <ShoppingCart className="mx-auto h-12 w-12 text-slate-400 mb-4" />
-              <h3 className="text-sm font-semibold text-slate-900 mb-1">No orders found</h3>
-              <p className="text-sm text-slate-600">No orders match your current filters.</p>
+              <ShoppingCart className="mx-auto h-16 w-16 text-gray-500 mb-4" />
+              <h3 className="text-sm font-black text-gray-900 mb-1">No orders found</h3>
+              <p className="text-sm text-gray-700">No orders match your current filters.</p>
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200">
-                  <thead className="bg-slate-50">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-100 border-b border-gray-300">
                     <tr>
                       {handleSelect && (
-                        <th className="px-4 py-3 text-left">
+                        <th className="px-6 py-4 text-left">
                           <input
                             type="checkbox"
                             checked={allSelected}
@@ -328,34 +306,34 @@ const OrdersPage = () => {
                               if (input) input.indeterminate = someSelected && !allSelected;
                             }}
                             onChange={(e) => handleSelectAll(e.target.checked)}
-                            className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer"
+                            className="w-5 h-5 text-amber-600 border-gray-400 rounded focus:ring-amber-500 cursor-pointer bg-white"
                           />
                         </th>
                       )}
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                         Order ID
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                         Customer
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                         Date
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                         Total
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                         Payment
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-black text-gray-700 uppercase tracking-widest">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-slate-200">
+                  <tbody className="bg-white divide-y divide-gray-200">
                     {orders.map((order) => (
                       <OrderRow
                         key={order._id}
@@ -369,7 +347,7 @@ const OrdersPage = () => {
                 </table>
               </div>
               {pagination && pagination.totalPages > 1 && (
-                <div className="border-t border-slate-200 p-4">
+                <div className="border-t border-gray-200 p-6 bg-gray-50">
                   <Pagination
                     currentPage={pagination.currentPage}
                     totalPages={pagination.totalPages}

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3500/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3500/api';
 
 // Create axios instance with default config
 const mediaApi = axios.create({
@@ -14,7 +14,7 @@ const mediaApi = axios.create({
 // Add request interceptor to include auth token
 mediaApi.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,10 +29,12 @@ mediaApi.interceptors.request.use(
 mediaApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    // Don't redirect from interceptor - let the dashboard layout handle authentication
+    // Just log the error and let it propagate
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      console.warn('Media API authentication error:', error.response?.status);
+      // Don't clear tokens or redirect here - let the dashboard layout handle it
+      // This prevents redirect loops and allows proper error handling
     }
     return Promise.reject(error);
   }
@@ -97,7 +99,21 @@ export const getAllMedia = async (filters: MediaFilters = {}): Promise<{
     if (filters.type) params.append('type', filters.type);
 
     const response = await mediaApi.get(`/media?${params.toString()}`);
-    return response.data as { mediaFiles: MediaFile[]; pagination: MediaPagination; };
+    const data = response.data as any;
+    // Handle both success: true and direct data responses
+    if (data.success === false) {
+      throw new Error(data.message || 'Failed to fetch media files');
+    }
+    return {
+      mediaFiles: data.mediaFiles || data.data?.mediaFiles || [],
+      pagination: data.pagination || data.data?.pagination || {
+        currentPage: 1,
+        totalPages: 1,
+        totalFiles: 0,
+        hasNext: false,
+        hasPrev: false
+      }
+    };
   } catch (error) {
     console.error('Get media files error:', error);
     throw error;

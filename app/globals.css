@@ -8,6 +8,12 @@ body {
   font-family: var(--font-pt-serif), var(--font-tiro-bangla), var(--font-noto-sans-bengali), "SolaimanLipi", "Tiro Bangla", "PT Serif", serif;
 }
 
+/* Dashboard uses Roboto font */
+.font-roboto,
+[class*="dashboard"] {
+  font-family: var(--font-roboto), "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
 /* Bangla Typography Support */
 .bangla-text {
   font-family: var(--font-tiro-bangla), var(--font-noto-sans-bengali), "SolaimanLipi", "Tiro Bangla", "Noto Sans Bengali", "Kalpurush", system-ui, sans-serif;
@@ -339,9 +345,6 @@ body {
 /* Use simple borders instead of shadows */
 .shadow-sm { border: 1px solid #e5e7eb !important; }
 .shadow-md { border: 1px solid #d1d5db !important; }
-.shadow-lg { border: 1px solid #d1d5db !important; }
-.shadow-xl { border: 1px solid #d1d5db !important; }
-.shadow-2xl { border: 1px solid #d1d5db !important; }
 
 /* Optimize scroll performance - disable expensive operations */
 * {
@@ -350,6 +353,11 @@ body {
 }
 
 /* Override contain for specific elements that need it */
+/* Dashboard layout - ensure no white background shows around sidebar */
+body:has([class*="dashboard"]) {
+  background: transparent;
+}
+
 body, html, main, header, footer, nav {
   contain: none !important;
 }

@@ -65,10 +65,10 @@ export default function Pagination({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       {/* Results info */}
-      <div className="text-sm text-slate-600 font-medium">
-        Showing <span className="font-semibold text-slate-900">{startItem}</span> to{" "}
-        <span className="font-semibold text-slate-900">{endItem}</span> of{" "}
-        <span className="font-semibold text-slate-900">{totalItems}</span> products
+      <div className="text-sm text-gray-700 font-semibold">
+        Showing <span className="font-black text-gray-900">{startItem}</span> to{" "}
+        <span className="font-black text-gray-900">{endItem}</span> of{" "}
+        <span className="font-black text-gray-900">{totalItems}</span> products
       </div>
 
       {/* Pagination controls */}
@@ -77,11 +77,11 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`px-3 py-2 rounded-lg font-medium text-sm border transition-colors ${
-            currentPage === 1
-              ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-emerald-300"
-          }`}
+              className={`px-4 py-2 rounded-xl font-bold text-sm border transition-all ${
+                currentPage === 1
+                  ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-amber-500 hover:text-gray-900"
+              }`}
           aria-label="Previous page"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -94,7 +94,7 @@ export default function Pagination({
               return (
                 <span
                   key={`ellipsis-${index}`}
-                  className="px-3 py-2 text-slate-500 font-medium"
+                  className="px-3 py-2 text-gray-600 font-bold"
                 >
                   ...
                 </span>
@@ -108,10 +108,10 @@ export default function Pagination({
               <button
                 key={pageNum}
                 onClick={() => onPageChange(pageNum)}
-                className={`min-w-[40px] px-3 py-2 rounded-lg font-medium text-sm border transition-colors ${
+                className={`min-w-[44px] px-4 py-2 rounded-xl font-bold text-sm border transition-all ${
                   isActive
-                    ? "bg-emerald-600 text-white border-emerald-700 shadow-sm"
-                    : "bg-white text-slate-700 border-slate-300 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700"
+                    ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white border-amber-500/50 shadow-xl shadow-amber-500/30"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-amber-500 hover:text-gray-900"
                 }`}
                 aria-label={`Page ${pageNum}`}
                 aria-current={isActive ? "page" : undefined}
@@ -126,10 +126,10 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`px-3 py-2 rounded-lg font-medium text-sm border transition-colors ${
+          className={`px-4 py-2 rounded-xl font-bold text-sm border transition-all ${
             currentPage === totalPages
-              ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-emerald-300"
+              ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-amber-500 hover:text-gray-900"
           }`}
           aria-label="Next page"
         >
