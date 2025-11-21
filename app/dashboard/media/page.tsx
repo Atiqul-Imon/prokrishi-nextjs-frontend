@@ -4,19 +4,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Upload, 
   Search, 
-  Filter, 
   Grid, 
   List, 
   Trash2, 
   Eye, 
-  Download,
   Image as ImageIcon,
   Video,
   FileText,
-  MoreVertical,
   X,
-  Check,
-  AlertCircle
+  AlertCircle,
+  ImagePlus
 } from 'lucide-react';
 import { 
   getAllMedia, 
@@ -29,6 +26,10 @@ import {
   MediaFilters,
   MediaStats
 } from '@/app/utils/mediaApi';
+import { Card, CardContent, CardHeader } from '../components/Card';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { MetricCard } from '../components/MetricCard';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 export default function MediaGallery() {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
@@ -171,171 +172,207 @@ export default function MediaGallery() {
   };
 
   return (
-    <div className="p-6">
+    <div className="space-y-6">
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: "Media Gallery", href: "/dashboard/media" }]} />
+
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Media Gallery</h1>
-        <p className="text-gray-600">Manage your media files and assets</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Media Gallery</h1>
+          <p className="text-slate-600 mt-1 font-medium">Manage your media files and assets</p>
+        </div>
+        <button
+          onClick={() => setShowUploadModal(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
+        >
+          <Upload size={18} />
+          Upload Media
+        </button>
       </div>
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <ImageIcon className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-gray-600">Total Files</p>
-                <p className="text-lg font-semibold">{stats.totalFiles}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <ImageIcon className="w-5 h-5 text-green-600" />
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-gray-600">Images</p>
-                <p className="text-lg font-semibold">{stats.imageCount}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Video className="w-5 h-5 text-purple-600" />
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-gray-600">Videos</p>
-                <p className="text-lg font-semibold">{stats.videoCount}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <FileText className="w-5 h-5 text-orange-600" />
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-gray-600">Documents</p>
-                <p className="text-lg font-semibold">{stats.documentCount}</p>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <MetricCard
+            title="Total Files"
+            value={stats.totalFiles?.toLocaleString() || "0"}
+            icon={ImageIcon}
+            color="blue"
+            loading={loading}
+          />
+          <MetricCard
+            title="Images"
+            value={stats.imageCount?.toLocaleString() || "0"}
+            icon={ImageIcon}
+            color="emerald"
+            loading={loading}
+          />
+          <MetricCard
+            title="Videos"
+            value={stats.videoCount?.toLocaleString() || "0"}
+            icon={Video}
+            color="purple"
+            loading={loading}
+          />
+          <MetricCard
+            title="Documents"
+            value={stats.documentCount?.toLocaleString() || "0"}
+            icon={FileText}
+            color="amber"
+            loading={loading}
+          />
         </div>
       )}
 
       {/* Controls */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search media..."
-                value={filters.search}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            
-            <select
-              value={filters.type}
-              onChange={(e) => handleFilterChange('type', e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Types</option>
-              <option value="image">Images</option>
-              <option value="video">Videos</option>
-              <option value="document">Documents</option>
-            </select>
-            
-            <select
-              value={`${filters.sort}-${filters.order}`}
-              onChange={(e) => {
-                const [sort, order] = e.target.value.split('-');
-                handleFilterChange('sort', sort);
-                handleFilterChange('order', order);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="createdAt-desc">Newest First</option>
-              <option value="createdAt-asc">Oldest First</option>
-              <option value="name-asc">Name A-Z</option>
-              <option value="name-desc">Name Z-A</option>
-              <option value="size-desc">Largest First</option>
-              <option value="size-asc">Smallest First</option>
-            </select>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            {selectedFiles.length > 0 && (
-              <button
-                onClick={handleBulkDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+      <Card>
+        <CardContent>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* Search and Filters */}
+            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search media..."
+                  value={filters.search}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-slate-900"
+                />
+              </div>
+              
+              <select
+                value={filters.type}
+                onChange={(e) => handleFilterChange('type', e.target.value)}
+                className="px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-900"
               >
-                <Trash2 className="w-4 h-4" />
-                Delete ({selectedFiles.length})
-              </button>
-            )}
-            
-            <button
-              onClick={() => setShowUploadModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-            >
-              <Upload className="w-4 h-4" />
-              Upload
-            </button>
-            
-            <div className="flex border border-gray-300 rounded-lg">
+                <option value="all">All Types</option>
+                <option value="image">Images</option>
+                <option value="video">Videos</option>
+                <option value="document">Documents</option>
+              </select>
+              
+              <select
+                value={`${filters.sort}-${filters.order}`}
+                onChange={(e) => {
+                  const [sort, order] = e.target.value.split('-');
+                  handleFilterChange('sort', sort);
+                  handleFilterChange('order', order);
+                }}
+                className="px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-900"
+              >
+                <option value="createdAt-desc">Newest First</option>
+                <option value="createdAt-asc">Oldest First</option>
+                <option value="name-asc">Name A-Z</option>
+                <option value="name-desc">Name Z-A</option>
+                <option value="size-desc">Largest First</option>
+                <option value="size-asc">Smallest First</option>
+              </select>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="flex border border-slate-200 rounded-xl overflow-hidden">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
+                className={`p-2.5 transition-colors ${
+                  viewMode === 'grid' 
+                    ? 'bg-emerald-100 text-emerald-600' 
+                    : 'text-slate-600 hover:bg-slate-50'
+                }`}
               >
-                <Grid className="w-4 h-4" />
+                <Grid size={18} />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
+                className={`p-2.5 transition-colors ${
+                  viewMode === 'list' 
+                    ? 'bg-emerald-100 text-emerald-600' 
+                    : 'text-slate-600 hover:bg-slate-50'
+                }`}
               >
-                <List className="w-4 h-4" />
+                <List size={18} />
               </button>
             </div>
           </div>
-        </div>
-      </div>
+
+          {/* Bulk Actions */}
+          {selectedFiles.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
+              <span className="text-sm font-semibold text-slate-900">
+                {selectedFiles.length} {selectedFiles.length === 1 ? 'file' : 'files'} selected
+              </span>
+              <button
+                onClick={handleBulkDelete}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-600 text-white font-medium hover:bg-rose-700 transition-colors"
+              >
+                <Trash2 size={16} />
+                Delete Selected
+              </button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        title="Delete Media"
+        message="Are you sure you want to delete this media file? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={() => {
+          if (deleteConfirm) {
+            handleDelete(deleteConfirm);
+            setDeleteConfirm(null);
+          }
+        }}
+        onCancel={() => setDeleteConfirm(null)}
+      />
 
       {/* Media Grid/List */}
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
+        <Card>
+          <CardContent>
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+            </div>
+          </CardContent>
+        </Card>
       ) : mediaFiles.length === 0 ? (
-        <div className="text-center py-12">
-          <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No media files found</p>
-        </div>
+        <Card>
+          <CardContent>
+            <div className="text-center py-12">
+              <ImagePlus className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-sm font-semibold text-slate-900 mb-1">No media files found</h3>
+              <p className="text-sm text-slate-600 mb-4">
+                {filters.search ? "Try adjusting your search" : "Upload your first media file to get started"}
+              </p>
+              {!filters.search && (
+                <button
+                  onClick={() => setShowUploadModal(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
+                >
+                  <Upload size={18} />
+                  Upload Media
+                </button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <>
           {/* Select All */}
-          <div className="mb-4">
-            <label className="flex items-center">
+          <div className="flex items-center justify-between mb-4">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={selectedFiles.length === mediaFiles.length && mediaFiles.length > 0}
                 onChange={handleSelectAll}
-                className="mr-2"
+                className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
               />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm font-medium text-slate-700">
                 Select All ({selectedFiles.length}/{mediaFiles.length})
               </span>
             </label>
@@ -349,33 +386,45 @@ export default function MediaGallery() {
             {mediaFiles.map((file) => (
               <div
                 key={file.id}
-                className={`relative group border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow ${
-                  selectedFiles.includes(file.id) ? 'ring-2 ring-blue-500' : ''
+                className={`relative group bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all ${
+                  selectedFiles.includes(file.id) ? 'ring-2 ring-emerald-500 border-emerald-300' : ''
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={selectedFiles.includes(file.id)}
                   onChange={() => handleFileSelect(file.id)}
-                  className="absolute top-2 left-2 z-10"
+                  className="absolute top-2 left-2 z-10 w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
                 />
                 
                 {viewMode === 'grid' ? (
-                  <div className="aspect-square">
-                    <img
-                      src={file.thumbnailUrl}
-                      alt={file.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  <>
+                    <div className="aspect-square bg-slate-100 relative overflow-hidden">
+                      {file.thumbnailUrl ? (
+                        <img
+                          src={file.thumbnailUrl}
+                          alt={file.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-3xl">{getFileIcon(file.format)}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-2">
+                      <p className="text-xs font-medium text-slate-900 truncate mb-0.5">{file.name}</p>
+                      <p className="text-xs text-slate-500">{formatFileSize(file.size)}</p>
+                    </div>
+                  </>
                 ) : (
                   <div className="flex items-center p-3">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                       <span className="text-2xl">{getFileIcon(file.format)}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-semibold text-slate-900 truncate">{file.name}</p>
+                      <p className="text-xs text-slate-500">
                         {formatFileSize(file.size)} • {file.format.toUpperCase()}
                       </p>
                     </div>
@@ -383,55 +432,56 @@ export default function MediaGallery() {
                 )}
                 
                 {/* Actions */}
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                   <div className="flex gap-1">
                     <button
                       onClick={() => window.open(file.url, '_blank')}
-                      className="p-1 bg-white rounded shadow-sm hover:bg-gray-50"
+                      className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-slate-50 border border-slate-200"
+                      title="View"
                     >
-                      <Eye className="w-3 h-3" />
+                      <Eye size={14} />
                     </button>
                     <button
                       onClick={() => setDeleteConfirm(file.id)}
-                      className="p-1 bg-white rounded shadow-sm hover:bg-gray-50 text-red-600"
+                      className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-rose-50 border border-slate-200 text-rose-600"
+                      title="Delete"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
-                
-                {viewMode === 'grid' && (
-                  <div className="p-2">
-                    <p className="text-xs text-gray-600 truncate">{file.name}</p>
-                    <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
-                  </div>
-                )}
               </div>
             ))}
           </div>
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-center mt-6 gap-2">
-              <button
-                onClick={() => handleFilterChange('page', pagination.currentPage - 1)}
-                disabled={!pagination.hasPrev}
-                className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              
-              <span className="px-4 py-2 text-sm text-gray-600">
-                Page {pagination.currentPage} of {pagination.totalPages}
-              </span>
-              
-              <button
-                onClick={() => handleFilterChange('page', pagination.currentPage + 1)}
-                disabled={!pagination.hasNext}
-                className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
+            <div className="mt-6">
+              <Card>
+                <CardContent>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handleFilterChange('page', pagination.currentPage - 1)}
+                      disabled={!pagination.hasPrev}
+                      className="px-4 py-2 border border-slate-200 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 font-medium text-slate-700 transition-colors"
+                    >
+                      Previous
+                    </button>
+                    
+                    <span className="px-4 py-2 text-sm font-medium text-slate-600">
+                      Page {pagination.currentPage} of {pagination.totalPages}
+                    </span>
+                    
+                    <button
+                      onClick={() => handleFilterChange('page', pagination.currentPage + 1)}
+                      disabled={!pagination.hasNext}
+                      className="px-4 py-2 border border-slate-200 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 font-medium text-slate-700 transition-colors"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
         </>
@@ -439,94 +489,68 @@ export default function MediaGallery() {
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Upload Media</h3>
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Files
-                </label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => setUploadFiles(Array.from(e.target.files || []))}
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tags (comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={uploadTags}
-                  onChange={(e) => setUploadTags(e.target.value)}
-                  placeholder="e.g., product, banner, logo"
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                />
-              </div>
-              
-              <div className="flex justify-end gap-2">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-200">
+            <CardHeader
+              title="Upload Media"
+              actions={
                 <button
                   onClick={() => setShowUploadModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
+                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                 >
-                  Cancel
+                  <X size={20} />
                 </button>
-                <button
-                  onClick={handleUpload}
-                  disabled={uploading || uploadFiles.length === 0}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
-                >
-                  {uploading ? 'Uploading...' : 'Upload'}
-                </button>
+              }
+            />
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Select Files
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) => setUploadFiles(Array.from(e.target.files || []))}
+                    className="w-full border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-900"
+                  />
+                  {uploadFiles.length > 0 && (
+                    <p className="mt-2 text-sm text-slate-600">
+                      {uploadFiles.length} {uploadFiles.length === 1 ? 'file' : 'files'} selected
+                    </p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Tags (comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={uploadTags}
+                    onChange={(e) => setUploadTags(e.target.value)}
+                    placeholder="e.g., product, banner, logo"
+                    className="w-full border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-900"
+                  />
+                </div>
+                
+                <div className="flex justify-end gap-3 pt-4">
+                  <button
+                    onClick={() => setShowUploadModal(false)}
+                    className="px-4 py-2 border border-slate-200 rounded-xl hover:bg-slate-50 font-medium text-slate-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpload}
+                    disabled={uploading || uploadFiles.length === 0}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed font-semibold hover:bg-emerald-700 transition-colors"
+                  >
+                    {uploading ? 'Uploading...' : 'Upload'}
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex items-center mb-4">
-              <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-              <h3 className="text-lg font-semibold">Delete Media</h3>
-            </div>
-            
-            <p className="text-gray-600 mb-4">
-              Are you sure you want to delete this media file? This action cannot be undone.
-            </p>
-            
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 border border-gray-300 rounded-lg"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  handleDelete(deleteConfirm);
-                  setDeleteConfirm(null);
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg"
-              >
-                Delete
-              </button>
-            </div>
+            </CardContent>
           </div>
         </div>
       )}

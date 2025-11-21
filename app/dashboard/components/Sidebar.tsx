@@ -11,9 +11,10 @@ import {
   BarChart2,
   Settings,
   User,
-  LogOut,
   Home,
   Image,
+  X,
+  ChevronRight,
 } from "lucide-react";
 
 const navItems = [
@@ -29,47 +30,51 @@ const navItems = [
 ];
 
 interface SidebarProps {
-  current?: string;
+  isMobile?: boolean;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export default function Sidebar({ current }: SidebarProps) {
+export default function Sidebar({ isMobile = false, isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
 
-  return (
-    <aside className="bg-slate-900 border-r-2 border-slate-800 min-h-screen w-64 sm:w-72 flex flex-col">
+  const sidebarContent = (
+    <>
       {/* Logo Section */}
-      <div className="p-5 sm:p-6 border-b-2 border-slate-800">
-        <Link href="/" className="flex items-center space-x-3">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-600 rounded-lg flex items-center justify-center border-2 border-emerald-500">
-            <span className="text-white font-bold text-lg sm:text-xl">P</span>
+      <div className="p-6 border-b border-slate-200">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+            <span className="text-white font-bold text-lg">P</span>
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl font-bold text-white">Prokrishi</h1>
-            <p className="text-xs text-slate-400 font-medium">Admin Panel</p>
+            <h1 className="text-lg font-bold text-slate-900">Prokrishi</h1>
+            <p className="text-xs text-slate-500 font-medium">Admin Panel</p>
           </div>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 sm:p-4 overflow-y-auto">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-1">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium ${
+                  onClick={isMobile ? onClose : undefined}
+                  className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all ${
                     isActive
-                      ? "bg-emerald-600 text-white border-l-4 border-emerald-400"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white border-l-4 border-transparent"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
-                  <item.icon 
-                    size={20} 
-                    className={isActive ? "text-white" : "text-slate-400"}
+                  <item.icon
+                    size={20}
+                    className={isActive ? "text-emerald-600" : "text-slate-400 group-hover:text-slate-600"}
                   />
-                  <span className="font-medium text-sm sm:text-base">{item.label}</span>
+                  <span className="text-sm font-medium flex-1">{item.label}</span>
+                  {isActive && <ChevronRight size={16} className="text-emerald-600" />}
                 </Link>
               </li>
             );
@@ -78,18 +83,64 @@ export default function Sidebar({ current }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t-2 border-slate-800">
+      <div className="p-4 border-t border-slate-200 bg-slate-50">
         <Link
           href="/"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white border-l-4 border-transparent"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:text-slate-900 transition-colors"
         >
           <Home size={20} className="text-slate-400" />
-          <span className="font-medium text-sm sm:text-base">Back to Site</span>
+          <span className="text-sm font-medium">Back to Site</span>
         </Link>
-        <div className="mt-4 text-xs text-slate-500 text-center font-medium">
-          &copy; {new Date().getFullYear()} Prokrishi. All rights reserved.
+        <div className="mt-4 text-xs text-slate-400 text-center">
+          &copy; {new Date().getFullYear()} Prokrishi
         </div>
       </div>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        {isOpen && (
+          <div
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
+            onClick={onClose}
+          />
+        )}
+        <aside
+          className={`fixed top-0 left-0 h-full w-72 bg-white border-r border-slate-200 z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
+            isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between p-4 border-b border-slate-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">P</span>
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-slate-900">Prokrishi</h1>
+                <p className="text-xs text-slate-500">Admin</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              aria-label="Close menu"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <div className="h-[calc(100vh-80px)] overflow-y-auto">
+            {sidebarContent}
+          </div>
+        </aside>
+      </>
+    );
+  }
+
+  return (
+    <aside className="hidden lg:flex w-72 bg-white border-r border-slate-200 flex-col h-screen sticky top-0">
+      {sidebarContent}
     </aside>
   );
 }

@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import ProductTable from "./ProductTable";
+import { ProductSearch } from "./components/ProductSearch";
+import { BulkActions } from "./components/BulkActions";
 import {
   getAllProducts,
   deleteProduct,
@@ -11,6 +13,9 @@ import {
 import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Card, CardHeader, CardContent } from "../components/Card";
+import { Breadcrumbs } from "../components/Breadcrumbs";
+import { Plus, RefreshCw, Download } from "lucide-react";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -27,39 +32,48 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const { messages, success, error: showError, removeMessage } = useInlineMessage();
 
-  useEffect(() => {
-    async function fetchProducts() {
-      setLoading(true);
-      setError("");
-      try {
-        const result = await getAllProducts({ page: currentPage, limit: pageSize });
-        setProducts(result.products || []);
-        const paginationData = result.pagination || {
-          currentPage: 1,
-          totalPages: 1,
-          totalProducts: 0,
-          hasNext: false,
-          hasPrev: false,
-        };
-        setPagination({
-          currentPage: paginationData.currentPage || 1,
-          totalPages: paginationData.totalPages || 1,
-          totalProducts: paginationData.totalProducts || 0,
-          hasNext: paginationData.hasNext || false,
-          hasPrev: paginationData.hasPrev || false,
-        });
-      } catch (err: any) {
-        setError(err.message || "Error fetching products");
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const params: any = { page: currentPage, limit: pageSize };
+      if (searchQuery) {
+        params.search = searchQuery;
       }
+      const result = await getAllProducts(params);
+      setProducts(result.products || []);
+      const paginationData = result.pagination || {
+        currentPage: 1,
+        totalPages: 1,
+        totalProducts: 0,
+        hasNext: false,
+        hasPrev: false,
+      };
+      setPagination({
+        currentPage: paginationData.currentPage || 1,
+        totalPages: paginationData.totalPages || 1,
+        totalProducts: paginationData.totalProducts || 0,
+        hasNext: paginationData.hasNext || false,
+        hasPrev: paginationData.hasPrev || false,
+      });
+    } catch (err: any) {
+      setError(err.message || "Error fetching products");
+    } finally {
       setLoading(false);
     }
+  }, [currentPage, pageSize, searchQuery]);
+
+  useEffect(() => {
     fetchProducts();
-  }, [refresh, currentPage, pageSize]);
+  }, [fetchProducts, refresh]);
 
   // Handler for delete
-  function handleDelete(id) {
+  function handleDelete(id: string) {
     setDeleteConfirm(id);
   }
 
@@ -73,6 +87,11 @@ export default function ProductsPage() {
       } else {
         setRefresh((r) => r + 1);
       }
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(deleteConfirm);
+        return next;
+      });
       success("Product deleted successfully!", 5000);
       setDeleteConfirm(null);
     } catch (err: any) {
@@ -81,8 +100,28 @@ export default function ProductsPage() {
     }
   }
 
+  // Handler for bulk delete
+  async function handleBulkDelete() {
+    if (selectedIds.size === 0) return;
+    setBulkDeleteConfirm(true);
+  }
+
+  async function confirmBulkDelete() {
+    try {
+      const deletePromises = Array.from(selectedIds).map((id) => deleteProduct(id));
+      await Promise.all(deletePromises);
+      setSelectedIds(new Set());
+      setRefresh((r) => r + 1);
+      success(`${selectedIds.size} products deleted successfully!`, 5000);
+      setBulkDeleteConfirm(false);
+    } catch (err: any) {
+      showError(err.message || "Failed to delete products", 5000);
+      setBulkDeleteConfirm(false);
+    }
+  }
+
   // Handler for toggle featured
-  async function handleToggleFeatured(id) {
+  async function handleToggleFeatured(id: string) {
     try {
       await toggleProductFeatured(id);
       setRefresh((r) => r + 1);
@@ -92,10 +131,38 @@ export default function ProductsPage() {
     }
   }
 
+  // Handler for select/deselect
+  function handleSelect(id: string, selected: boolean) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (selected) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  function handleSelectAll(selected: boolean) {
+    if (selected) {
+      setSelectedIds(new Set(products.map((p: any) => p._id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  }
+
+  function handleClearSelection() {
+    setSelectedIds(new Set());
+  }
+
   return (
-    <div>
+    <div className="space-y-6">
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: "Products", href: "/dashboard/products" }]} />
+
       {/* Inline Messages */}
-      <div className="mb-4 space-y-2">
+      <div className="space-y-2">
         {messages.map((msg) => (
           <InlineMessage
             key={msg.id}
@@ -106,7 +173,7 @@ export default function ProductsPage() {
         ))}
       </div>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation Dialogs */}
       <ConfirmDialog
         isOpen={deleteConfirm !== null}
         title="Delete Product"
@@ -118,30 +185,65 @@ export default function ProductsPage() {
         onCancel={() => setDeleteConfirm(null)}
       />
 
-      <div className="flex items-center justify-between mb-6">
+      <ConfirmDialog
+        isOpen={bulkDeleteConfirm}
+        title="Delete Multiple Products"
+        message={`Are you sure you want to delete ${selectedIds.size} product(s)? This action cannot be undone.`}
+        confirmText="Delete All"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setBulkDeleteConfirm(false)}
+      />
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Products</h1>
           <p className="text-slate-600 mt-1 font-medium">Manage your product inventory</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setRefresh((r) => r + 1)}
-            className="bg-blue-600 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-blue-700 flex items-center gap-2 border-2 border-blue-700"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-medium transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
+            <RefreshCw size={18} />
             Refresh
           </button>
           <Link
             href="/dashboard/products/add"
-            className="bg-emerald-600 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-emerald-700 border-2 border-emerald-700"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
           >
-            + Add Product
+            <Plus size={18} />
+            Add Product
           </Link>
         </div>
       </div>
-      {error && <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 text-red-700 font-medium mb-4">{error}</div>}
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 text-rose-700 font-medium">
+          {error}
+        </div>
+      )}
+
+      {/* Search and Filters */}
+      <Card>
+        <CardContent>
+          <ProductSearch onSearch={setSearchQuery} />
+        </CardContent>
+      </Card>
+
+      {/* Bulk Actions */}
+      {selectedIds.size > 0 && (
+        <BulkActions
+          selectedCount={selectedIds.size}
+          onDelete={handleBulkDelete}
+          onClearSelection={handleClearSelection}
+        />
+      )}
+
+      {/* Product Table */}
       <ProductTable
         products={products}
         loading={loading}
@@ -149,6 +251,9 @@ export default function ProductsPage() {
         onToggleFeatured={handleToggleFeatured}
         pagination={pagination}
         onPageChange={setCurrentPage}
+        selectedIds={selectedIds}
+        onSelect={handleSelect}
+        onSelectAll={handleSelectAll}
       />
     </div>
   );

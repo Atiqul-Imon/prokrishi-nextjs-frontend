@@ -63,12 +63,12 @@ export default function Pagination({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg border-2 border-slate-200 p-4">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       {/* Results info */}
       <div className="text-sm text-slate-600 font-medium">
-        Showing <span className="font-bold text-slate-900">{startItem}</span> to{" "}
-        <span className="font-bold text-slate-900">{endItem}</span> of{" "}
-        <span className="font-bold text-slate-900">{totalItems}</span> products
+        Showing <span className="font-semibold text-slate-900">{startItem}</span> to{" "}
+        <span className="font-semibold text-slate-900">{endItem}</span> of{" "}
+        <span className="font-semibold text-slate-900">{totalItems}</span> products
       </div>
 
       {/* Pagination controls */}
@@ -77,10 +77,10 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`px-3 py-2 rounded-lg font-bold text-sm border-2 transition-colors ${
+          className={`px-3 py-2 rounded-lg font-medium text-sm border transition-colors ${
             currentPage === 1
               ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-              : "bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 hover:border-blue-400"
+              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-emerald-300"
           }`}
           aria-label="Previous page"
         >
@@ -108,10 +108,10 @@ export default function Pagination({
               <button
                 key={pageNum}
                 onClick={() => onPageChange(pageNum)}
-                className={`min-w-[40px] px-3 py-2 rounded-lg font-bold text-sm border-2 transition-colors ${
+                className={`min-w-[40px] px-3 py-2 rounded-lg font-medium text-sm border transition-colors ${
                   isActive
-                    ? "bg-blue-600 text-white border-blue-700"
-                    : "bg-white text-slate-700 border-slate-300 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700"
+                    ? "bg-emerald-600 text-white border-emerald-700 shadow-sm"
+                    : "bg-white text-slate-700 border-slate-300 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700"
                 }`}
                 aria-label={`Page ${pageNum}`}
                 aria-current={isActive ? "page" : undefined}
@@ -126,10 +126,10 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`px-3 py-2 rounded-lg font-bold text-sm border-2 transition-colors ${
+          className={`px-3 py-2 rounded-lg font-medium text-sm border transition-colors ${
             currentPage === totalPages
               ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-              : "bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 hover:border-blue-400"
+              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-emerald-300"
           }`}
           aria-label="Next page"
         >

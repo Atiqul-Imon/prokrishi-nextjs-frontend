@@ -2,28 +2,29 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { getResourceList } from "@/app/utils/api";
-import { User, Mail, Phone, Calendar, Shield, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { User, Users, TrendingUp, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
 import { useDebounce } from "use-debounce";
-
-function formatDate(dateString) {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
+import { Card, CardContent } from "../components/Card";
+import { Breadcrumbs } from "../components/Breadcrumbs";
+import { MetricCard } from "../components/MetricCard";
+import { CustomerRow } from "./components/CustomerRow";
+import { CustomerSearch } from "./components/CustomerSearch";
+import { TableSkeleton } from "../components/SkeletonLoader";
+import Pagination from "../products/Pagination";
 
 export default function CustomersPage() {
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [pagination, setPagination] = useState<any>({});
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [filters, setFilters] = useState<any>({ role: "all" });
   const { messages, error: showError, removeMessage } = useInlineMessage();
 
   const router = useRouter();
@@ -32,7 +33,10 @@ export default function CustomersPage() {
     setLoading(true);
     setError("");
     try {
-      const query = `?page=${page}&limit=10&search=${debouncedSearchTerm}`;
+      let query = `?page=${page}&limit=20&search=${debouncedSearchTerm}`;
+      if (filters.role && filters.role !== "all") {
+        query += `&role=${filters.role}`;
+      }
       const data = await getResourceList("user", query);
       setCustomers(data.data || []);
       setPagination(data.pagination || {});
@@ -40,60 +44,59 @@ export default function CustomersPage() {
       const errorMessage = err.message || "Error loading customers";
       setError(errorMessage);
       showError(errorMessage, 5000);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, [page, debouncedSearchTerm]);
+  }, [page, debouncedSearchTerm, filters, showError]);
 
   useEffect(() => {
     fetchCustomers();
   }, [fetchCustomers]);
 
-  const handleRowClick = (id) => {
+  const handleRowClick = (id: string) => {
     router.push(`/dashboard/customers/${id}`);
   };
 
-  const TableRow = ({ customer }) => (
-    <tr
-      className="border-b hover:bg-gray-50 cursor-pointer transition-colors duration-200"
-      onClick={() => handleRowClick(customer._id)}
-    >
-      <td className="px-6 py-4">
-        <div className="flex items-center">
-          <div className="h-10 w-10 flex-shrink-0 bg-gray-200 rounded-full flex items-center justify-center">
-            <User className="h-6 w-6 text-gray-500" />
-          </div>
-          <div className="ml-4">
-            <div className="text-sm font-medium text-gray-900">
-              {customer.name}
-            </div>
-            <div className="text-sm text-gray-500">{customer.email}</div>
-          </div>
-        </div>
-      </td>
-      <td className="px-6 py-4">
-        <div className="text-sm text-gray-900">{customer.phone}</div>
-      </td>
-      <td className="px-6 py-4">
-        <span
-          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            customer.role === "admin" || customer.role === "super_admin"
-              ? "bg-green-100 text-green-800"
-              : "bg-blue-100 text-blue-800"
-          }`}
-        >
-          {customer.role}
-        </span>
-      </td>
-      <td className="px-6 py-4 text-sm text-gray-500">
-        {formatDate(customer.createdAt)}
-      </td>
-    </tr>
-  );
+  const handleSelect = (id: string, selected: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (selected) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    if (selected) {
+      setSelectedIds(new Set(customers.map((c) => c._id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleFilterChange = (newFilters: any) => {
+    setFilters(newFilters);
+    setPage(1); // Reset to first page when filters change
+  };
+
+  // Calculate stats
+  const totalCustomers = pagination.total || customers.length;
+  const adminCount = customers.filter((c) => c.role === "admin" || c.role === "super_admin").length;
+  const customerCount = customers.filter((c) => c.role === "user").length;
+
+  const allSelected = customers.length > 0 && customers.every((c) => selectedIds.has(c._id));
+  const someSelected = customers.some((c) => selectedIds.has(c._id));
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="space-y-6">
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: "Customers", href: "/dashboard/customers" }]} />
+
       {/* Inline Messages */}
-      <div className="mb-4 space-y-2">
+      <div className="space-y-2">
         {messages.map((msg) => (
           <InlineMessage
             key={msg.id}
@@ -104,107 +107,130 @@ export default function CustomersPage() {
         ))}
       </div>
 
-      <div className="mb-6 md:flex md:items-center md:justify-between">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
-            <p className="text-gray-500 mt-1">
-              View and manage your registered customers.
-            </p>
-        </div>
-        <div className="mt-4 md:mt-0">
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                    type="text"
-                    placeholder="Search by name..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                />
-            </div>
+          <h1 className="text-3xl font-bold text-slate-900">Customers</h1>
+          <p className="text-slate-600 mt-1 font-medium">View and manage your registered customers</p>
         </div>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Name / Email
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Phone
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Role
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Joined
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {loading && (
-                <tr>
-                  <td colSpan={4} className="text-center py-10">
-                    <div className="flex justify-center items-center">
-                        <span className="text-gray-500">Loading customers...</span>
-                    </div>
-                  </td>
-                </tr>
-              )}
-              {error && (
-                <tr>
-                  <td colSpan={4} className="text-center py-10 text-red-500">
-                    {error}
-                  </td>
-                </tr>
-              )}
-              {!loading &&
-                !error &&
-                customers.length > 0 &&
-                customers.map((customer) => (
-                  <TableRow key={customer._id} customer={customer} />
-                ))}
-              {!loading && !error && customers.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="text-center py-10 text-gray-500">
-                    No customers found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        {pagination && pagination.totalPages > 1 && (
-            <div className="px-6 py-4 flex items-center justify-between border-t">
-                <div className="text-sm text-gray-700">
-                    Page {pagination.page} of {pagination.totalPages} ({pagination.total} total results)
-                </div>
-                <div className="flex items-center gap-2">
-                    <button onClick={() => setPage(page - 1)} disabled={page <= 1} className="p-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100">
-                        <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button onClick={() => setPage(page + 1)} disabled={page >= pagination.totalPages} className="p-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100">
-                        <ChevronRight className="w-5 h-5" />
-                    </button>
-                </div>
-            </div>
-        )}
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <MetricCard
+          title="Total Customers"
+          value={totalCustomers.toLocaleString()}
+          icon={Users}
+          color="blue"
+          loading={loading}
+        />
+        <MetricCard
+          title="Regular Customers"
+          value={customerCount.toLocaleString()}
+          icon={User}
+          color="emerald"
+          loading={loading}
+        />
+        <MetricCard
+          title="Administrators"
+          value={adminCount.toLocaleString()}
+          icon={TrendingUp}
+          color="purple"
+          loading={loading}
+        />
       </div>
+
+      {/* Search and Filters */}
+      <Card>
+        <CardContent>
+          <CustomerSearch
+            onSearch={setSearchTerm}
+            onFilterChange={handleFilterChange}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Customers Table */}
+      <Card>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-12">
+              <TableSkeleton />
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 px-6">
+              <div className="text-rose-600 text-lg font-semibold mb-2">Error Loading Customers</div>
+              <div className="text-slate-600">{error}</div>
+            </div>
+          ) : customers.length === 0 ? (
+            <div className="text-center py-12 px-6">
+              <User className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+              <h3 className="text-sm font-semibold text-slate-900 mb-1">No customers found</h3>
+              <p className="text-sm text-slate-600">No customers match your current filters.</p>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-200">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      {handleSelect && (
+                        <th className="px-4 py-3 text-left">
+                          <input
+                            type="checkbox"
+                            checked={allSelected}
+                            ref={(input) => {
+                              if (input) input.indeterminate = someSelected && !allSelected;
+                            }}
+                            onChange={(e) => handleSelectAll(e.target.checked)}
+                            className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer"
+                          />
+                        </th>
+                      )}
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Customer
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Phone
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Role
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Joined
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-slate-200">
+                    {customers.map((customer) => (
+                      <CustomerRow
+                        key={customer._id}
+                        customer={customer}
+                        onView={handleRowClick}
+                        isSelected={selectedIds.has(customer._id)}
+                        onSelect={handleSelect}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {pagination && pagination.totalPages > 1 && (
+                <div className="border-t border-slate-200 p-4">
+                  <Pagination
+                    currentPage={pagination.page || page}
+                    totalPages={pagination.totalPages || 1}
+                    totalItems={pagination.total || customers.length}
+                    onPageChange={setPage}
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

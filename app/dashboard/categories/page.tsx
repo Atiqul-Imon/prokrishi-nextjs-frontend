@@ -1,44 +1,50 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   getResourceList,
   deleteCategory,
   updateCategory,
 } from "@/app/utils/api";
-import { Plus, Edit, Trash2, Star, RefreshCw } from "lucide-react";
+import { Plus, RefreshCw, Tag, Search, X } from "lucide-react";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-
-// Enhanced toggle switch component
-const ToggleSwitch = ({ checked, onChange, disabled = false }) => (
-  <label className={`relative inline-flex items-center ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
-    <input
-      type="checkbox"
-      checked={checked}
-      onChange={onChange}
-      disabled={disabled}
-      className="sr-only peer"
-    />
-    <div className={`w-11 h-6 rounded-full transition-all duration-200 peer peer-focus:ring-4 peer-focus:ring-green-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
-      checked 
-        ? 'bg-green-600 shadow-lg shadow-green-200' 
-        : 'bg-gray-200 hover:bg-gray-300'
-    } ${disabled ? 'opacity-50' : ''}`}></div>
-  </label>
-);
+import { Card, CardContent } from "../components/Card";
+import { Breadcrumbs } from "../components/Breadcrumbs";
+import { MetricCard } from "../components/MetricCard";
+import { CategoryCard } from "./components/CategoryCard";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [togglingCategories, setTogglingCategories] = useState<Set<string>>(new Set());
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
   const { messages, success, error: showError, removeMessage } = useInlineMessage();
+
+  // Filter categories based on search
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery.trim()) return categories;
+    const query = searchQuery.toLowerCase();
+    return categories.filter(
+      (cat) =>
+        cat.name.toLowerCase().includes(query) ||
+        (cat.description && cat.description.toLowerCase().includes(query))
+    );
+  }, [categories, searchQuery]);
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    return {
+      total: categories.length,
+      featured: categories.filter((c) => c.isFeatured).length,
+      withImage: categories.filter((c) => c.image).length,
+    };
+  }, [categories]);
 
   async function fetchCategories() {
     setLoading(true);
@@ -124,71 +130,15 @@ export default function CategoriesPage() {
     }
   }
 
-  const CategoryCard = ({ category }) => (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden group transition-all hover:shadow-xl relative">
-      {category.isFeatured && (
-        <div className="absolute top-2 right-2 bg-yellow-400 text-white p-1 rounded-full z-10">
-          <Star size={16} />
-        </div>
-      )}
-
-      <Link href={`/dashboard/categories/edit/${category._id}`}>
-        <div className="relative h-40 w-full">
-          <Image
-            src={category.image || "/placeholder.svg"} // Use a placeholder if no image
-            alt={category.name}
-            layout="fill"
-            objectFit="cover"
-            className="transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
-      </Link>
-      <div className="p-4">
-        <h3 className="font-bold text-lg capitalize">{category.name}</h3>
-        <p className="text-gray-600 text-sm truncate h-10">
-          {category.description || "No description"}
-        </p>
-
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center gap-2">
-            <ToggleSwitch
-              checked={category.isFeatured}
-              onChange={() => handleToggleFeatured(category)}
-              disabled={togglingCategories.has(category._id)}
-            />
-            <span className="text-sm text-gray-600">
-              Featured
-              {togglingCategories.has(category._id) && (
-                <span className="ml-2 text-xs text-gray-400">Updating...</span>
-              )}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/dashboard/categories/edit/${category._id}`}
-              className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
-            >
-              <Edit size={18} />
-            </Link>
-            <button
-              onClick={() => handleDelete(category._id, category.name)}
-              className="p-2 rounded-full hover:bg-red-50 text-red-600"
-            >
-              <Trash2 size={18} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
-    <div>
+    <div className="space-y-6">
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[{ label: "Categories", href: "/dashboard/categories" }]} />
+
       {/* Inline Messages */}
-      <div className="mb-4 space-y-2">
-        {loadingMessage && (
-          <InlineMessage type="info" message={loadingMessage} />
-        )}
+      <div className="space-y-2">
+        {loadingMessage && <InlineMessage type="info" message={loadingMessage} />}
         {messages.map((msg) => (
           <InlineMessage
             key={msg.id}
@@ -203,52 +153,146 @@ export default function CategoriesPage() {
       <ConfirmDialog
         isOpen={deleteConfirm !== null}
         title="Delete Category"
-        message={deleteConfirm ? `Are you sure you want to delete category "${deleteConfirm.name}"? This action cannot be undone.` : ""}
+        message={
+          deleteConfirm
+            ? `Are you sure you want to delete category "${deleteConfirm.name}"? This action cannot be undone.`
+            : ""
+        }
         confirmText="Delete"
         cancelText="Cancel"
         type="danger"
         onConfirm={confirmDelete}
         onCancel={() => setDeleteConfirm(null)}
       />
-      <div className="flex items-center justify-between mb-6">
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Categories</h1>
-          <p className="text-gray-500">Manage your product categories.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Categories</h1>
+          <p className="text-slate-600 mt-1 font-medium">Manage your product categories</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={fetchCategories}
             disabled={loading}
-            className="bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-medium transition-colors disabled:opacity-50"
           >
-            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
-            <span>Refresh</span>
+            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+            Refresh
           </button>
           <Link
             href="/dashboard/categories/add"
-            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
           >
-            <Plus size={20} />
-            <span>Add Category</span>
+            <Plus size={18} />
+            Add Category
           </Link>
         </div>
       </div>
 
-      {loading && (
-        <div className="text-center py-10">Loading categories...</div>
-      )}
-      {error && <div className="text-center py-10 text-red-500">{error}</div>}
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <MetricCard
+          title="Total Categories"
+          value={stats.total}
+          icon={Tag}
+          color="blue"
+          loading={loading}
+        />
+        <MetricCard
+          title="Featured Categories"
+          value={stats.featured}
+          icon={Tag}
+          color="amber"
+          loading={loading}
+        />
+        <MetricCard
+          title="With Images"
+          value={stats.withImage}
+          icon={Tag}
+          color="emerald"
+          loading={loading}
+        />
+      </div>
 
-      {!loading && !error && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {categories.length === 0 ? (
-            <div className="col-span-full text-center text-gray-500 py-10">
-              <p>No categories found.</p>
-              <p className="mt-2">Click "Add Category" to get started.</p>
+      {/* Search */}
+      <Card>
+        <CardContent>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search categories by name or description..."
+              className="w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-slate-900"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Categories Grid */}
+      {loading ? (
+        <Card>
+          <CardContent>
+            <div className="text-center py-12">
+              <div className="text-slate-600 font-medium">Loading categories...</div>
             </div>
-          ) : (
-            categories.map((c) => <CategoryCard key={c._id} category={c} />)
-          )}
+          </CardContent>
+        </Card>
+      ) : error ? (
+        <Card>
+          <CardContent>
+            <div className="text-center py-12">
+              <div className="text-rose-600 text-lg font-semibold mb-2">Error Loading Categories</div>
+              <div className="text-slate-600">{error}</div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : filteredCategories.length === 0 ? (
+        <Card>
+          <CardContent>
+            <div className="text-center py-12">
+              <Tag className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+              <h3 className="text-sm font-semibold text-slate-900 mb-1">
+                {searchQuery ? "No categories found" : "No categories yet"}
+              </h3>
+              <p className="text-sm text-slate-600 mb-4">
+                {searchQuery
+                  ? "Try adjusting your search query"
+                  : "Get started by creating your first category"}
+              </p>
+              {!searchQuery && (
+                <Link
+                  href="/dashboard/categories/add"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
+                >
+                  <Plus size={18} />
+                  Add Category
+                </Link>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredCategories.map((category) => (
+            <CategoryCard
+              key={category._id}
+              category={category}
+              onToggleFeatured={handleToggleFeatured}
+              onDelete={handleDelete}
+              isToggling={togglingCategories.has(category._id)}
+            />
+          ))}
         </div>
       )}
     </div>
