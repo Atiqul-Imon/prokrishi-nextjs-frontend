@@ -68,10 +68,17 @@ export default function MediaGallery() {
       setPagination(response.pagination);
     } catch (error: any) {
       console.error('Error fetching media:', error);
-      // Extract error message from response
+      // Extract error message from response with better logging
       let errorMessage = 'Failed to fetch media files';
       if (error.response?.data) {
-        errorMessage = error.response.data.message || error.response.data.error || errorMessage;
+        const responseData = error.response.data;
+        errorMessage = responseData.message || responseData.error || errorMessage;
+        console.error('Backend error response:', {
+          status: error.response.status,
+          message: responseData.message,
+          error: responseData.error,
+          fullData: responseData
+        });
       } else if (error.message) {
         errorMessage = error.message;
       }

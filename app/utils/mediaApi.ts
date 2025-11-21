@@ -114,9 +114,17 @@ export const getAllMedia = async (filters: MediaFilters = {}): Promise<{
         hasPrev: false
       }
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get media files error:', error);
-    throw error;
+    // Extract and throw a more descriptive error
+    const errorMessage = error.response?.data?.message 
+      || error.response?.data?.error 
+      || error.message 
+      || 'Failed to fetch media files';
+    const enhancedError = new Error(errorMessage);
+    (enhancedError as any).response = error.response;
+    (enhancedError as any).status = error.response?.status;
+    throw enhancedError;
   }
 };
 
