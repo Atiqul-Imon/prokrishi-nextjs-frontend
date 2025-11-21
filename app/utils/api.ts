@@ -254,12 +254,30 @@ export async function createProduct(productData: any): Promise<ProductResponse> 
  */
 export async function updateProduct(id: string, productData: any): Promise<ProductResponse> {
   const formData = new FormData();
+  
+  // Only append fields that have values (optimize payload)
   for (const key in productData) {
-    if (key === "image" && !(productData[key] instanceof File)) {
+    const value = productData[key];
+    
+    // Skip image if it's not a File object
+    if (key === "image" && !(value instanceof File)) {
       continue;
     }
-    if (productData[key] !== null && productData[key] !== undefined) {
-      formData.append(key, productData[key]);
+    
+    // Skip null, undefined, and empty strings
+    if (value === null || value === undefined || value === '') {
+      continue;
+    }
+    
+    // Handle arrays (like variants)
+    if (Array.isArray(value)) {
+      formData.append(key, JSON.stringify(value));
+    } else if (typeof value === 'object' && !(value instanceof File)) {
+      // Stringify objects (but not Files)
+      formData.append(key, JSON.stringify(value));
+    } else {
+      // Handle primitives and Files
+      formData.append(key, value);
     }
   }
 

@@ -105,21 +105,31 @@ export default function ProductForm({ initial, onSave, loading }) {
   }, []);
 
   function onSubmit(data) {
-    console.log("Form submitted with data:", data);
-    const formData = { ...data };
+    // Prevent double submission
+    if (loading) {
+      return;
+    }
+
+    const formData: any = {};
     
-    // Handle image file
-    if (data.image && data.image[0]) {
-      formData.image = data.image[0]; // Extract the file from the FileList
-    } else {
-      delete formData.image; // Don't send empty image field
+    // Only include fields that have values or are explicitly needed
+    if (data.name) formData.name = data.name;
+    if (data.category) formData.category = data.category;
+    if (data.description !== undefined) formData.description = data.description || '';
+    if (data.shortDescription !== undefined) formData.shortDescription = data.shortDescription || '';
+    if (data.status) formData.status = data.status;
+    if (data.isFeatured !== undefined) formData.isFeatured = data.isFeatured;
+    
+    // Handle image file - only include if a new file is selected
+    if (data.image && data.image[0] && data.image[0] instanceof File) {
+      formData.image = data.image[0];
     }
     
     // Add variants if enabled
     if (hasVariants && variants.length > 0) {
       formData.variants = variants.map((v) => ({
         label: v.label,
-        sku: v.sku,
+        sku: v.sku || undefined,
         price: v.price,
         stock: v.stock,
         measurement: v.measurement,
@@ -127,21 +137,26 @@ export default function ProductForm({ initial, onSave, loading }) {
         measurementIncrement: v.measurementIncrement || 0.01,
         status: v.status || 'active',
         isDefault: v.isDefault || false,
-        image: v.image,
-      }));
+        image: v.image || undefined,
+      })).filter(v => v.label); // Remove variants without labels
     } else {
       // If variants were removed, explicitly set to empty array
       formData.variants = [];
+      // Include pricing fields for non-variant products
+      if (data.price !== undefined) formData.price = data.price;
+      if (data.stock !== undefined) formData.stock = data.stock;
+      if (data.measurement !== undefined) formData.measurement = data.measurement;
+      if (data.unit) formData.unit = data.unit;
+      if (data.lowStockThreshold !== undefined) formData.lowStockThreshold = data.lowStockThreshold;
     }
     
-    // Clean up form data
+    // Remove empty strings and null values
     Object.keys(formData).forEach(key => {
-      if (formData[key] === '' || formData[key] === null) {
+      if (formData[key] === '' || formData[key] === null || formData[key] === undefined) {
         delete formData[key];
       }
     });
     
-    console.log("Submitting form data:", formData);
     onSave?.(formData);
   }
 
@@ -195,11 +210,12 @@ export default function ProductForm({ initial, onSave, loading }) {
         id={name}
         {...register(name)}
         {...props}
+        disabled={loading}
         className={`w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 ${
           multilang ? 'bangla-text' : ''
         } ${
           error ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-300"
-        }`}
+        } ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
       />
       {error && (
         <span className="text-red-600 text-sm mt-1 block">{error.message}</span>
@@ -208,7 +224,19 @@ export default function ProductForm({ initial, onSave, loading }) {
   );
 
   return (
-    <div className="bg-white rounded-lg shadow-sm w-full max-w-5xl mx-auto">
+    <div className="bg-white rounded-lg shadow-sm w-full max-w-5xl mx-auto relative">
+      {/* Loading overlay */}
+      {loading && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
+          <div className="text-center">
+            <svg className="animate-spin h-8 w-8 text-green-600 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p className="text-green-600 font-medium">{initial ? "Updating product..." : "Saving product..."}</p>
+          </div>
+        </div>
+      )}
       <form
         className="p-4 md:p-6 space-y-6"
         onSubmit={handleSubmit(onSubmit)}
@@ -257,7 +285,8 @@ export default function ProductForm({ initial, onSave, loading }) {
               <select
                 id="category"
                 {...register("category")}
-                className={`w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.category ? "border-red-500" : "border-gray-300"}`}
+                disabled={loading}
+                className={`w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.category ? "border-red-500" : "border-gray-300"} ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
               >
                 <option value="">Select a category</option>
                 {categories.map((cat) => (
@@ -285,7 +314,8 @@ export default function ProductForm({ initial, onSave, loading }) {
               id="shortDescription"
               {...register("shortDescription")}
               placeholder="Brief product summary... বা পণ্যের সংক্ষিপ্ত বর্ণনা... (max 100 characters, supports both English and Bangla)"
-              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bangla-text"
+              disabled={loading}
+              className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bangla-text ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
               maxLength={100}
             />
             {errors.shortDescription && (
@@ -304,7 +334,8 @@ export default function ProductForm({ initial, onSave, loading }) {
               id="description"
               {...register("description")}
               placeholder="Detailed product description... বা পণ্যের বিস্তারিত বর্ণনা... (supports both English and Bangla)"
-              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bangla-text resize-y"
+              disabled={loading}
+              className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bangla-text resize-y ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
               rows={8}
             />
           </div>
@@ -330,7 +361,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                   addVariant();
                 }
               }}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              disabled={loading}
+              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label
               htmlFor="hasVariants"
@@ -351,7 +383,8 @@ export default function ProductForm({ initial, onSave, loading }) {
               <button
                 type="button"
                 onClick={addVariant}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4" />
                 Add Variant
@@ -381,7 +414,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                             onChange={(e) =>
                               updateVariant(index, "isDefault", e.target.checked)
                             }
-                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                            disabled={loading}
+                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                           />
                           <span className="text-gray-700">Default</span>
                         </label>
@@ -389,7 +423,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                           <button
                             type="button"
                             onClick={() => removeVariant(index)}
-                            className="text-red-600 hover:text-red-700"
+                            disabled={loading}
+                            className="text-red-600 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -409,7 +444,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                             updateVariant(index, "label", e.target.value)
                           }
                           placeholder="e.g., Small, 500g, 1kg"
-                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          disabled={loading}
+                          className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                           required
                         />
                       </div>
@@ -425,7 +461,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                             updateVariant(index, "sku", e.target.value)
                           }
                           placeholder="Optional SKU"
-                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          disabled={loading}
+                          className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                         />
                       </div>
 
@@ -441,7 +478,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                           }
                           step="0.01"
                           min="0"
-                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          disabled={loading}
+                          className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                           required
                         />
                       </div>
@@ -457,7 +495,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                             updateVariant(index, "stock", parseInt(e.target.value) || 0)
                           }
                           min="0"
-                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          disabled={loading}
+                          className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                           required
                         />
                       </div>
@@ -474,7 +513,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                           }
                           step="0.01"
                           min="0.01"
-                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          disabled={loading}
+                          className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                           required
                         />
                       </div>
@@ -488,7 +528,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                           onChange={(e) =>
                             updateVariant(index, "unit", e.target.value)
                           }
-                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          disabled={loading}
+                          className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                         >
                           <option value="pcs">Pieces (pcs)</option>
                           <option value="kg">Kilograms (kg)</option>
@@ -510,7 +551,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                           }
                           step="0.01"
                           min="0.01"
-                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          disabled={loading}
+                          className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                         />
                       </div>
 
@@ -523,7 +565,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                           onChange={(e) =>
                             updateVariant(index, "status", e.target.value)
                           }
-                          className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          disabled={loading}
+                          className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                         >
                           <option value="active">Active</option>
                           <option value="inactive">Inactive</option>
@@ -581,7 +624,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                 <select
                   id="unit"
                   {...register("unit")}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  disabled={loading}
+                  className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                 >
                   <option value="pcs">Pieces (pcs)</option>
                   <option value="kg">Kilograms (kg)</option>
@@ -610,7 +654,8 @@ export default function ProductForm({ initial, onSave, loading }) {
                 <select
                   id="status"
                   {...register("status")}
-                  className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  disabled={loading}
+                  className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -632,7 +677,8 @@ export default function ProductForm({ initial, onSave, loading }) {
               id="isFeatured"
               type="checkbox"
               {...register("isFeatured")}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              disabled={loading}
+              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label
               htmlFor="isFeatured"
@@ -678,7 +724,8 @@ export default function ProductForm({ initial, onSave, loading }) {
               {...register("image")}
               type="file"
               accept="image/*"
-              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 border border-gray-300 rounded-lg p-2"
+              disabled={loading}
+              className={`w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 border border-gray-300 rounded-lg p-2 ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
             />
             {errors.image && (
               <span className="text-red-600 text-sm mt-1">

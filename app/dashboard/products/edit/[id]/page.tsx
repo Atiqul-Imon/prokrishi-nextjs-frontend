@@ -49,16 +49,15 @@ export default function EditProductPage() {
     try {
       await updateProduct(id!, formData);
       success("Product updated successfully!", 3000);
-      // Force a full page refresh to ensure data is updated
+      // Use router.push for better navigation (softer redirect)
       setTimeout(() => {
-        window.location.href = "/dashboard/products";
-      }, 2000);
+        router.push("/dashboard/products");
+      }, 1500);
     } catch (err: any) {
       const errorMessage = err.message || "Failed to update product.";
       showError(errorMessage, 5000);
       console.error("Update error:", err);
-    } finally {
-      setSaving(false);
+      setSaving(false); // Only set to false on error, success will redirect
     }
   }
 
