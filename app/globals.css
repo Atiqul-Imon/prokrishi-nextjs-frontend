@@ -408,6 +408,13 @@ main {
   overflow: visible;
 }
 
+/* Dashboard main should be scrollable */
+#dashboard-main {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
 /* Prevent layout shifts */
 img, video {
   max-width: 100%;
