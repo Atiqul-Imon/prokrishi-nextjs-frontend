@@ -8,8 +8,10 @@ import { InlineMessage } from "@/components/InlineMessage";
 import { Card, CardHeader, CardContent } from "../../components/Card";
 import { RefreshCw, Search, X, Eye, Filter } from "lucide-react";
 import { FishOrder } from "@/types/models";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function FishOrdersPage() {
+  const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<FishOrder[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -66,8 +68,11 @@ export default function FishOrdersPage() {
   }, [currentPage, searchQuery, filterStatus, filterPaymentStatus]);
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders, refresh]);
+    // Only fetch orders when auth is ready and user is authenticated
+    if (!authLoading && user) {
+      fetchOrders();
+    }
+  }, [fetchOrders, refresh, authLoading, user]);
 
   function getStatusColor(status: string) {
     switch (status) {

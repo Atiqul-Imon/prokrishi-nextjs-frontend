@@ -26,10 +26,22 @@ fishApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+      // Only redirect if not already in dashboard (dashboard layout handles auth)
+      const isDashboardRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/dashboard');
+      const isLoginRoute = typeof window !== 'undefined' && window.location.pathname.includes('/login');
+      
+      // Don't redirect or clear tokens if we're in dashboard - let the dashboard layout handle it
+      if (isDashboardRoute) {
+        // Just reject the error, don't redirect or clear tokens
+        return Promise.reject(error);
+      }
+      
+      if (!isLoginRoute) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
