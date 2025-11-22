@@ -129,17 +129,12 @@ export interface FishSizeCategory {
   _id: string;
   label: string;
   pricePerKg: number;
+  stock: number;
   minWeight?: number;
   maxWeight?: number;
   sku?: string;
   status: 'active' | 'inactive' | 'out_of_stock';
   isDefault?: boolean;
-  inventory?: {
-    available: number;
-    reserved: number;
-    sold: number;
-    total: number;
-  };
 }
 
 export interface FishProduct {
@@ -168,27 +163,6 @@ export interface FishProduct {
   updatedAt: string;
 }
 
-export interface FishInventory {
-  _id: string;
-  fishProduct: string | FishProduct;
-  sizeCategoryId: string;
-  actualWeight: number;
-  status: 'available' | 'reserved' | 'sold' | 'expired' | 'damaged';
-  purchaseDate?: string;
-  expiryDate?: string;
-  location?: string;
-  costPrice?: number;
-  reservedForOrder?: string;
-  soldToOrder?: string;
-  notes?: string;
-  sizeCategory?: {
-    label: string;
-    pricePerKg: number;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface FishOrderItem {
   _id?: string;
   fishProduct: string | FishProduct;
@@ -199,7 +173,7 @@ export interface FishOrderItem {
   actualWeight?: number;
   pricePerKg: number;
   totalPrice: number;
-  inventoryItems: string[];
+  stockDeducted?: number;
   notes?: string;
 }
 

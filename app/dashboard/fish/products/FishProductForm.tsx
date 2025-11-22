@@ -76,6 +76,7 @@ export default function FishProductForm({
           _id: cat._id || undefined,
           label: cat.label,
           pricePerKg: cat.pricePerKg,
+          stock: cat.stock !== undefined ? cat.stock : 0,
           minWeight: cat.minWeight,
           maxWeight: cat.maxWeight,
           sku: cat.sku,
@@ -92,14 +93,23 @@ export default function FishProductForm({
       setCatLoading(true);
       try {
         const data = await getResourceList("category");
-        setCategories(data.categories || data);
+        const categoriesList = data.categories || data;
+        setCategories(categoriesList);
+        
+        // Auto-select "মাছ" category if not editing
+        if (!initial?._id) {
+          const machhCategory = categoriesList.find((cat: any) => cat.name === "মাছ");
+          if (machhCategory) {
+            setValue("category", machhCategory._id);
+          }
+        }
       } catch (err) {
         console.error("Failed to load categories:", err);
       }
       setCatLoading(false);
     }
     fetchCategories();
-  }, []);
+  }, [initial, setValue]);
 
   function addSizeCategory() {
     setSizeCategories([
@@ -108,6 +118,7 @@ export default function FishProductForm({
         _id: undefined,
         label: "",
         pricePerKg: 0,
+        stock: 0,
         status: "active",
         isDefault: sizeCategories.length === 0,
       },
@@ -165,13 +176,14 @@ export default function FishProductForm({
       "sizeCategories",
       JSON.stringify(
         sizeCategories.map((cat) => ({
-          label: cat.label.trim(),
-          pricePerKg: Number(cat.pricePerKg),
-          minWeight: cat.minWeight ? Number(cat.minWeight) : undefined,
-          maxWeight: cat.maxWeight ? Number(cat.maxWeight) : undefined,
-          sku: cat.sku?.trim() || undefined,
-          status: cat.status,
-          isDefault: cat.isDefault || false,
+        label: cat.label.trim(),
+        pricePerKg: Number(cat.pricePerKg),
+        stock: cat.stock !== undefined ? Number(cat.stock) : 0,
+        minWeight: cat.minWeight ? Number(cat.minWeight) : undefined,
+        maxWeight: cat.maxWeight ? Number(cat.maxWeight) : undefined,
+        sku: cat.sku?.trim() || undefined,
+        status: cat.status,
+        isDefault: cat.isDefault || false,
         }))
       )
     );
@@ -215,7 +227,8 @@ export default function FishProductForm({
           ) : (
             <select
               {...register("category", { required: "Category is required" })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              disabled={!initial?._id}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
               <option value="">Select a category</option>
               {categories.map((cat: any) => (
@@ -224,6 +237,9 @@ export default function FishProductForm({
                 </option>
               ))}
             </select>
+          )}
+          {!initial?._id && (
+            <p className="mt-1 text-xs text-gray-500">Automatically set to "মাছ" category</p>
           )}
           {errors.category && (
             <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
@@ -321,7 +337,7 @@ export default function FishProductForm({
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">
                       Label *
@@ -353,6 +369,27 @@ export default function FishProductForm({
                           parseFloat(e.target.value) || 0
                         )
                       }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Stock *
+                    </label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={cat.stock !== undefined ? cat.stock : ""}
+                      onChange={(e) =>
+                        updateSizeCategory(
+                          index,
+                          "stock",
+                          parseInt(e.target.value) || 0
+                        )
+                      }
+                      placeholder="0"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
                     />
                   </div>

@@ -17,7 +17,6 @@ import {
   Sparkles,
   ChevronRight,
   Fish,
-  Warehouse,
   ShoppingCart,
 } from "lucide-react";
 import { useState } from "react";
@@ -36,7 +35,6 @@ const navItems = [
 
 const fishNavItems = [
   { label: "Fish Products", href: "/dashboard/fish/products", icon: Fish, gradient: "from-blue-500 to-cyan-500" },
-  { label: "Fish Inventory", href: "/dashboard/fish/inventory", icon: Warehouse, gradient: "from-emerald-500 to-teal-500" },
   { label: "Fish Orders", href: "/dashboard/fish/orders", icon: ShoppingCart, gradient: "from-amber-500 to-orange-500" },
 ];
 

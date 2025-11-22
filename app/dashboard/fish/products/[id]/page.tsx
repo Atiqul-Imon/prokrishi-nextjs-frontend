@@ -199,12 +199,10 @@ export default function ViewFishProductPage() {
                           {cat.status}
                         </span>
                       </div>
-                      {cat.inventory && (
+                      {cat.stock !== undefined && (
                         <div className="mt-2 pt-2 border-t">
                           <div className="text-xs text-gray-500">
-                            <div>Available: {cat.inventory.available}</div>
-                            <div>Reserved: {cat.inventory.reserved}</div>
-                            <div>Sold: {cat.inventory.sold}</div>
+                            <div>Stock: {cat.stock}</div>
                           </div>
                         </div>
                       )}

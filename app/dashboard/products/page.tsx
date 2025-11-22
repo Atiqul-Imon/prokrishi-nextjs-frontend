@@ -6,7 +6,7 @@ import ProductTable from "./ProductTable";
 import { ProductSearch } from "./components/ProductSearch";
 import { BulkActions } from "./components/BulkActions";
 import {
-  getAllProducts,
+  getAdminProducts,
   deleteProduct,
   toggleProductFeatured,
 } from "@/app/utils/api";
@@ -53,7 +53,7 @@ export default function ProductsPage() {
       if (searchQuery) {
         params.search = searchQuery;
       }
-      const result = await getAllProducts(params);
+      const result = await getAdminProducts(params);
       setProducts(result.products || []);
       const paginationData = result.pagination || {
         currentPage: 1,

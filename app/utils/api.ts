@@ -298,6 +298,7 @@ export async function updateProduct(id: string, productData: any): Promise<Produ
 /**
  * Get all products with pagination.
  */
+// Public endpoint - includes fish products
 export async function getAllProducts(params?: { page?: number; limit?: number; search?: string; category?: string; sort?: string; order?: 'asc' | 'desc' }): Promise<ProductsResponse> {
   try {
     const queryParams = new URLSearchParams();
@@ -314,6 +315,31 @@ export async function getAllProducts(params?: { page?: number; limit?: number; s
     if (params?.order) queryParams.append('order', params.order);
     
     const res = await api.get<ProductsResponse>(`/product?${queryParams.toString()}`);
+    return res.data;
+  } catch (err: any) {
+    throw new Error(
+      err.response?.data?.message || err.message || "Failed to get products",
+    );
+  }
+}
+
+// Admin endpoint - excludes fish products (fish products managed separately)
+export async function getAdminProducts(params?: { page?: number; limit?: number; search?: string; category?: string; sort?: string; order?: 'asc' | 'desc' }): Promise<ProductsResponse> {
+  try {
+    const queryParams = new URLSearchParams();
+    
+    // Add cache busting parameter
+    queryParams.append('t', Date.now().toString());
+    
+    // Add pagination and filter parameters
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.sort) queryParams.append('sort', params.sort);
+    if (params?.order) queryParams.append('order', params.order);
+    
+    const res = await api.get<ProductsResponse>(`/product/admin?${queryParams.toString()}`);
     return res.data;
   } catch (err: any) {
     throw new Error(

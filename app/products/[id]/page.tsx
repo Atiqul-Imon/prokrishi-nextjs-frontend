@@ -417,8 +417,8 @@ export default function ProductDetailsPage() {
                         }}
                         className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors ${
                           selectedVariant?._id === variant._id
-                            ? "border-amber-600 bg-amber-50 text-amber-800"
-                            : "border-gray-300 bg-white text-gray-700 hover:border-amber-400 hover:text-amber-700"
+                            ? "border-green-600 bg-green-50 text-green-800"
+                            : "border-gray-300 bg-white text-gray-700 hover:border-green-400 hover:text-green-700"
                         } ${variant.status === 'out_of_stock' || variant.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                         disabled={variant.status === 'out_of_stock' || variant.stock === 0}
                       >
