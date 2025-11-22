@@ -187,26 +187,49 @@ export default function CategoriesPage() {
         />
       </div>
 
-      {/* Search */}
+      {/* Search and Action Buttons */}
       <Card>
         <CardContent>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search categories by name or description..."
-              className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 bg-white text-gray-900 placeholder-gray-500 transition-all"
-            />
-            {searchQuery && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            {/* Search Bar */}
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search categories by name or description..."
+                  className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 bg-white text-gray-900 placeholder-gray-500 transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-900 transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-900 transition-colors"
+                onClick={() => fetchCategories()}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50 text-gray-700 hover:text-gray-900 font-semibold text-sm transition-all"
               >
-                <X size={18} />
+                <RefreshCw size={16} />
+                Refresh
               </button>
-            )}
+              <Link
+                href="/dashboard/categories/add"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold hover:shadow-xl hover:shadow-amber-500/40 hover:scale-105 transition-all shadow-lg shadow-amber-500/30 text-sm"
+              >
+                <Plus size={16} />
+                Add Category
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>
