@@ -77,7 +77,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <Header onToggleSidebar={() => setSidebarOpen(true)} />
           <main
             id="dashboard-main"
-            className="flex-1 overflow-x-hidden overflow-y-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 bg-transparent"
+            className="flex-1 overflow-x-hidden overflow-y-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 bg-transparent scroll-smooth"
+            style={{ scrollBehavior: 'smooth' }}
           >
             <div className="w-full max-w-full space-y-4 sm:space-y-6">
               {children}
