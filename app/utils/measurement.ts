@@ -11,29 +11,13 @@ export interface MeasurementDisplay {
 }
 
 /**
- * Format measurement for display with proper unit conversion
+ * Format measurement for display without unit conversion
  */
 export function formatMeasurement(measurement: number, unit: string): MeasurementDisplay {
   const isFractional = measurement < 1;
   
-  // Convert to smaller units for better display
-  if (unit === 'kg' && measurement < 0.1) {
-    const grams = Math.round(measurement * 1000);
-    return {
-      value: grams,
-      unit: 'g',
-      displayText: `${grams}g`,
-      isFractional: true
-    };
-  } else if (unit === 'l' && measurement < 0.1) {
-    const ml = Math.round(measurement * 1000);
-    return {
-      value: ml,
-      unit: 'ml',
-      displayText: `${ml}ml`,
-      isFractional: true
-    };
-  } else if (measurement >= 1) {
+  // Display measurement as-is without conversion
+  if (measurement >= 1) {
     return {
       value: measurement,
       unit,
@@ -63,14 +47,8 @@ export function getPricePerUnit(price: number, measurement: number, unit: string
 export function formatPricePerUnit(price: number, measurement: number, unit: string): string {
   const pricePerUnit = getPricePerUnit(price, measurement, unit);
   
-  // Convert to smaller units for better display
-  if (unit === 'kg' && measurement < 0.1) {
-    return `৳${(pricePerUnit * 1000).toFixed(2)}/kg`;
-  } else if (unit === 'l' && measurement < 0.1) {
-    return `৳${(pricePerUnit * 1000).toFixed(2)}/l`;
-  } else {
-    return `৳${pricePerUnit.toFixed(2)}/${unit}`;
-  }
+  // Display price per unit without conversion
+  return `৳${pricePerUnit.toFixed(2)}/${unit}`;
 }
 
 /**

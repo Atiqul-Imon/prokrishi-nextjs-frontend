@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
 import { getProductImageUrl } from "@/utils/imageOptimizer";
-import { formatMeasurement, formatPricePerUnit } from "@/app/utils/measurement";
+import { formatMeasurement } from "@/app/utils/measurement";
 
 function ProductCard({ product }: { product: any }) {
   const { addToCart } = useCart();
@@ -22,8 +22,6 @@ function ProductCard({ product }: { product: any }) {
     price,
     category,
     stock,
-    description,
-    shortDescription,
     measurement,
     unit,
   } = product;
@@ -40,11 +38,6 @@ function ProductCard({ product }: { product: any }) {
   const measurementDisplay = useMemo(() => {
     return formatMeasurement(measurement, unit);
   }, [measurement, unit]);
-  
-  // Format price per unit
-  const pricePerUnitDisplay = useMemo(() => {
-    return formatPricePerUnit(price, measurement, unit);
-  }, [price, measurement, unit]);
 
   return (
     <div className="product-card group relative border rounded-lg overflow-hidden bg-white shadow-sm h-full flex flex-col min-w-0 w-full">
@@ -69,38 +62,29 @@ function ProductCard({ product }: { product: any }) {
       </Link>
 
       {/* Content */}
-      <div className="p-2 sm:p-3 flex flex-col flex-grow">
-        <h3 className="text-base sm:text-lg font-semibold text-primary-800 mb-2 leading-snug tracking-tight line-clamp-2 hover:text-primary transition-colors bangla-title text-left">
+      <div className="p-2 sm:p-3 flex flex-col flex-grow min-h-0">
+        {/* Title - Fixed height, centered */}
+        <h3 className="text-lg sm:text-xl font-semibold text-primary-800 mb-2 leading-snug tracking-tight line-clamp-2 hover:text-primary transition-colors bangla-title text-center flex-shrink-0">
           <Link href={`/products/${_id}`}>{name}</Link>
         </h3>
-
-        {/* Description - Show on mobile with larger text */}
-        {(shortDescription || description) && (
-          <p className="text-sm sm:text-base text-gray-700 bg-primary-50/50 rounded-lg py-1.5 mb-2 line-clamp-2 bangla-body text-left leading-relaxed">
-            {shortDescription || (description && description.length > 100 ? description.substring(0, 100) + '...' : description)}
-          </p>
-        )}
         
+        {/* Spacer to push price and button to bottom */}
+        <div className="flex-grow min-h-0"></div>
 
-        {/* Price */}
-        <div className="mb-3">
-          <p className="text-base sm:text-lg font-bold text-primary">
+        {/* Price - Fixed at bottom before button, centered */}
+        <div className="mb-3 flex-shrink-0 text-center">
+          <p className="text-lg sm:text-xl font-bold text-primary">
             ৳{price}
             {unit !== "pcs" && (
-              <span className="text-sm font-normal text-gray-600">
+              <span className="text-base font-normal text-gray-600">
                 {" "}/ {measurementDisplay.displayText}
               </span>
             )}
           </p>
-          {unit !== "pcs" && (
-            <p className="text-sm text-gray-500">
-              {pricePerUnitDisplay}
-            </p>
-          )}
         </div>
 
-        {/* Add to Cart Button - Pushed to bottom */}
-        <div className="mt-auto pt-2">
+        {/* Add to Cart Button - Fixed at bottom */}
+        <div className="flex-shrink-0 pt-2">
           <button
             onClick={handleAddToCart}
             disabled={!inStock}
