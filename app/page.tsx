@@ -41,7 +41,7 @@ export default function Home() {
   }
 
   return (
-    <main>
+    <>
       <HeroSection />
 
       <FeaturedCategories />
@@ -63,7 +63,7 @@ export default function Home() {
           )}
         </div>
       </section>
-    </main>
+    </>
   );
 }
 

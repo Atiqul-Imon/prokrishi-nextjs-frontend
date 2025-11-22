@@ -382,6 +382,32 @@ body, html, main, header, footer, nav {
   -webkit-transform: translate3d(0, 0, 0);
 }
 
+/* Ensure sticky positioning works for header */
+header.sticky,
+header[class*="sticky"] {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+}
+
+/* Ensure body and html don't interfere with sticky positioning */
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Ensure main and containers don't create new stacking contexts */
+main {
+  position: relative;
+  overflow: visible;
+}
+
 /* Prevent layout shifts */
 img, video {
   max-width: 100%;
