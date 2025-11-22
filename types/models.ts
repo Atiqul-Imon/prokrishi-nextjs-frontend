@@ -124,3 +124,115 @@ export interface DashboardStats {
   topProducts?: Product[];
 }
 
+// Fish Product Interfaces
+export interface FishSizeCategory {
+  _id: string;
+  label: string;
+  pricePerKg: number;
+  minWeight?: number;
+  maxWeight?: number;
+  sku?: string;
+  status: 'active' | 'inactive' | 'out_of_stock';
+  isDefault?: boolean;
+  inventory?: {
+    available: number;
+    reserved: number;
+    sold: number;
+    total: number;
+  };
+}
+
+export interface FishProduct {
+  _id: string;
+  name: string;
+  sku?: string;
+  category: string | Category;
+  description?: string;
+  shortDescription?: string;
+  image?: string;
+  sizeCategories: FishSizeCategory[];
+  status: 'active' | 'inactive';
+  isFeatured: boolean;
+  slug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  tags?: string[];
+  views?: number;
+  lastViewedAt?: string;
+  availableStock?: number;
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FishInventory {
+  _id: string;
+  fishProduct: string | FishProduct;
+  sizeCategoryId: string;
+  actualWeight: number;
+  status: 'available' | 'reserved' | 'sold' | 'expired' | 'damaged';
+  purchaseDate?: string;
+  expiryDate?: string;
+  location?: string;
+  costPrice?: number;
+  reservedForOrder?: string;
+  soldToOrder?: string;
+  notes?: string;
+  sizeCategory?: {
+    label: string;
+    pricePerKg: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FishOrderItem {
+  _id?: string;
+  fishProduct: string | FishProduct;
+  fishProductName: string;
+  sizeCategoryId: string;
+  sizeCategoryLabel: string;
+  requestedWeight: number;
+  actualWeight?: number;
+  pricePerKg: number;
+  totalPrice: number;
+  inventoryItems: string[];
+  notes?: string;
+}
+
+export interface FishOrder {
+  _id: string;
+  user?: string | User;
+  guestInfo?: {
+    name: string;
+    email?: string;
+    phone: string;
+  };
+  isGuestOrder: boolean;
+  orderItems: FishOrderItem[];
+  shippingAddress: {
+    name: string;
+    phone: string;
+    address: string;
+    division?: string;
+    district?: string;
+    upazila?: string;
+    postalCode?: string;
+  };
+  paymentMethod: string;
+  totalPrice: number;
+  totalAmount: number;
+  status: 'pending' | 'confirmed' | 'processing' | 'prepared' | 'shipped' | 'delivered' | 'cancelled';
+  paymentStatus: 'pending' | 'completed' | 'failed' | 'cancelled';
+  orderNumber?: string;
+  notes?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
+  deliveredAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+

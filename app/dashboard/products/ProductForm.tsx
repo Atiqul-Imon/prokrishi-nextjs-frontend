@@ -468,7 +468,7 @@ export default function ProductForm({ initial, onSave, loading }) {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Price (৳) *
+                          Price per {variant.unit || 'kg'} (৳) *
                         </label>
                         <input
                           type="number"
@@ -479,9 +479,17 @@ export default function ProductForm({ initial, onSave, loading }) {
                           step="0.01"
                           min="0"
                           disabled={loading}
+                          placeholder={variant.unit === 'kg' ? "e.g., 400 (for 400 BDT per kg)" : variant.unit === 'g' ? "e.g., 0.40 (for 0.40 BDT per gram)" : "Price per unit"}
                           className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
                           required
                         />
+                        <p className="text-xs text-gray-500 mt-1">
+                          {variant.unit === 'kg' 
+                            ? "Enter price per kilogram. Total price will be calculated based on actual weight ordered."
+                            : variant.unit === 'g'
+                            ? "Enter price per gram. Total price will be calculated based on actual weight ordered."
+                            : "Enter price per unit. Total price = price × quantity ordered."}
+                        </p>
                       </div>
 
                       <div>

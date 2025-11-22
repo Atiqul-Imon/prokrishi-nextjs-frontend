@@ -16,6 +16,9 @@ import {
   X,
   Sparkles,
   ChevronRight,
+  Fish,
+  Warehouse,
+  ShoppingCart,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -29,6 +32,12 @@ const navItems = [
   { label: "Reports", href: "/dashboard/reports", icon: BarChart2, gradient: "from-rose-500 to-pink-500" },
   { label: "Settings", href: "/dashboard/settings", icon: Settings, gradient: "from-gray-500 to-slate-500" },
   { label: "Profile", href: "/dashboard/profile", icon: User, gradient: "from-cyan-500 to-blue-500" },
+];
+
+const fishNavItems = [
+  { label: "Fish Products", href: "/dashboard/fish/products", icon: Fish, gradient: "from-blue-500 to-cyan-500" },
+  { label: "Fish Inventory", href: "/dashboard/fish/inventory", icon: Warehouse, gradient: "from-emerald-500 to-teal-500" },
+  { label: "Fish Orders", href: "/dashboard/fish/orders", icon: ShoppingCart, gradient: "from-amber-500 to-orange-500" },
 ];
 
 interface SidebarProps {
@@ -118,6 +127,68 @@ export default function Sidebar({ isMobile = false, isOpen = false, onClose }: S
             );
           })}
         </ul>
+
+        {/* Fish Management Section */}
+        <div className="mt-8 pt-6 border-t border-gray-700/50">
+          <div className="px-4 mb-4">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Fish Management</h3>
+          </div>
+          <ul className="space-y-2">
+            {fishNavItems.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              const isHovered = hoveredItem === item.href;
+              
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={isMobile ? onClose : undefined}
+                    onMouseEnter={() => setHoveredItem(item.href)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    className={`group relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 ${
+                      isActive
+                        ? "bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-white shadow-lg shadow-amber-500/10"
+                        : "text-gray-300 hover:text-white hover:bg-gray-700/50"
+                    }`}
+                  >
+                    {/* Active indicator bar */}
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 bg-gradient-to-b from-amber-400 to-orange-400 rounded-r-full shadow-lg shadow-amber-500/50"></div>
+                    )}
+                    
+                    {/* Hover gradient effect */}
+                    {isHovered && !isActive && (
+                      <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} opacity-10 rounded-2xl blur-md`}></div>
+                    )}
+                    
+                    {/* Icon container */}
+                    <div className={`relative p-2.5 rounded-xl transition-all duration-300 ${
+                      isActive 
+                        ? `bg-gradient-to-br ${item.gradient} shadow-lg` 
+                        : "bg-gray-700/50 group-hover:bg-gray-700"
+                    }`}>
+                      <item.icon 
+                        size={20} 
+                        className={isActive ? "text-white" : "text-gray-300 group-hover:text-white"}
+                      />
+                    </div>
+                    
+                    <span className="relative text-sm font-semibold flex-1 text-white">{item.label}</span>
+                    
+                    {isActive && (
+                      <ChevronRight size={16} className="text-amber-300" />
+                    )}
+                    
+                    {/* Active glow */}
+                    {isActive && (
+                      <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} opacity-20 rounded-2xl blur-xl -z-10`}></div>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </nav>
 
       {/* Footer */}
