@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { fishProductApi } from "@/app/utils/fishApi";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
@@ -26,6 +26,7 @@ export default function FishProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const { messages, success, error: showError, removeMessage } = useInlineMessage();
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -35,6 +36,8 @@ export default function FishProductsPage() {
   }, [searchInput]);
 
   const fetchProducts = useCallback(async () => {
+    if (fetchingRef.current) return; // Prevent concurrent calls
+    fetchingRef.current = true;
     setLoading(true);
     setError("");
     try {
@@ -46,12 +49,15 @@ export default function FishProductsPage() {
       setProducts(result.fishProducts || []);
       setPagination(result.pagination || { page: 1, limit: 20, total: 0, pages: 1 });
     } catch (err: any) {
-      setError(err.message || "Error fetching fish products");
-      showError(err.message || "Error fetching fish products");
+      const errorMessage = err.message || "Error fetching fish products";
+      setError(errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
-  }, [currentPage, searchQuery, showError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, searchQuery]);
 
   useEffect(() => {
     fetchProducts();

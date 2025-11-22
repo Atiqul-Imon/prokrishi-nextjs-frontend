@@ -31,7 +31,8 @@ export default function EditFishProductPage() {
     if (id) {
       fetchProduct();
     }
-  }, [id, showError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   async function handleSave(formData: FormData) {
     setSaving(true);

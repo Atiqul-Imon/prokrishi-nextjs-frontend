@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { fishOrderApi } from "@/app/utils/fishApi";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
@@ -23,11 +23,10 @@ export default function FishOrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const [filters, setFilters] = useState({
-    status: "",
-    paymentStatus: "",
-  });
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterPaymentStatus, setFilterPaymentStatus] = useState("");
   const { messages, success, error: showError, removeMessage } = useInlineMessage();
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -37,6 +36,8 @@ export default function FishOrdersPage() {
   }, [searchInput]);
 
   const fetchOrders = useCallback(async () => {
+    if (fetchingRef.current) return; // Prevent concurrent calls
+    fetchingRef.current = true;
     setLoading(true);
     setError("");
     try {
@@ -44,22 +45,25 @@ export default function FishOrdersPage() {
       if (searchQuery) {
         params.search = searchQuery;
       }
-      if (filters.status) {
-        params.status = filters.status;
+      if (filterStatus) {
+        params.status = filterStatus;
       }
-      if (filters.paymentStatus) {
-        params.paymentStatus = filters.paymentStatus;
+      if (filterPaymentStatus) {
+        params.paymentStatus = filterPaymentStatus;
       }
       const result: any = await fishOrderApi.getAll(params);
       setOrders(result.fishOrders || []);
       setPagination(result.pagination || { page: 1, limit: 20, total: 0, pages: 1 });
     } catch (err: any) {
-      setError(err.message || "Error fetching fish orders");
-      showError(err.message || "Error fetching fish orders");
+      const errorMessage = err.message || "Error fetching fish orders";
+      setError(errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
-  }, [currentPage, searchQuery, filters, showError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, searchQuery, filterStatus, filterPaymentStatus]);
 
   useEffect(() => {
     fetchOrders();
@@ -145,8 +149,8 @@ export default function FishOrdersPage() {
                   Order Status
                 </label>
                 <select
-                  value={filters.status}
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="">All Statuses</option>
@@ -165,8 +169,8 @@ export default function FishOrdersPage() {
                   Payment Status
                 </label>
                 <select
-                  value={filters.paymentStatus}
-                  onChange={(e) => setFilters({ ...filters, paymentStatus: e.target.value })}
+                  value={filterPaymentStatus}
+                  onChange={(e) => setFilterPaymentStatus(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="">All Payment Statuses</option>

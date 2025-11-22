@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import { fishInventoryApi, fishProductApi } from "@/app/utils/fishApi";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
@@ -25,13 +25,13 @@ export default function FishInventoryPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const [filters, setFilters] = useState({
-    fishProduct: "",
-    sizeCategoryId: "",
-    status: "",
-  });
+  const [filterFishProduct, setFilterFishProduct] = useState("");
+  const [filterSizeCategoryId, setFilterSizeCategoryId] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
   const [fishProducts, setFishProducts] = useState<any[]>([]);
   const { messages, success, error: showError, removeMessage } = useInlineMessage();
+  const fetchingRef = useRef(false);
+  const prevParamsRef = useRef<string>("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -52,37 +52,67 @@ export default function FishInventoryPage() {
     fetchFishProducts();
   }, []);
 
-  const fetchInventory = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const params: any = { page: currentPage, limit: 50 };
-      if (searchQuery) {
-        params.search = searchQuery;
-      }
-      if (filters.fishProduct) {
-        params.fishProduct = filters.fishProduct;
-      }
-      if (filters.sizeCategoryId) {
-        params.sizeCategoryId = filters.sizeCategoryId;
-      }
-      if (filters.status) {
-        params.status = filters.status;
-      }
-      const result: any = await fishInventoryApi.getAll(params);
-      setInventoryItems(result.inventoryItems || []);
-      setPagination(result.pagination || { page: 1, limit: 50, total: 0, pages: 1 });
-    } catch (err: any) {
-      setError(err.message || "Error fetching fish inventory");
-      showError(err.message || "Error fetching fish inventory");
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPage, searchQuery, filters, showError]);
+  const selectedProduct = useMemo(() => {
+    return fishProducts.find((p) => p._id === filterFishProduct);
+  }, [fishProducts, filterFishProduct]);
+
+  const sizeCategories = useMemo(() => {
+    return selectedProduct?.sizeCategories || [];
+  }, [selectedProduct]);
 
   useEffect(() => {
+    // Create a unique key from all filter parameters
+    const paramsKey = JSON.stringify({
+      page: currentPage,
+      search: searchQuery,
+      fishProduct: filterFishProduct,
+      sizeCategoryId: filterSizeCategoryId,
+      status: filterStatus,
+      refresh,
+    });
+
+    // Only fetch if parameters actually changed
+    if (paramsKey === prevParamsRef.current) {
+      return;
+    }
+    prevParamsRef.current = paramsKey;
+
+    if (fetchingRef.current) return; // Prevent concurrent calls
+    fetchingRef.current = true;
+    setLoading(true);
+    setError("");
+
+    const fetchInventory = async () => {
+      try {
+        const params: any = { page: currentPage, limit: 50 };
+        if (searchQuery) {
+          params.search = searchQuery;
+        }
+        if (filterFishProduct) {
+          params.fishProduct = filterFishProduct;
+        }
+        if (filterSizeCategoryId) {
+          params.sizeCategoryId = filterSizeCategoryId;
+        }
+        if (filterStatus) {
+          params.status = filterStatus;
+        }
+        const result: any = await fishInventoryApi.getAll(params);
+        setInventoryItems(result.inventoryItems || []);
+        setPagination(result.pagination || { page: 1, limit: 50, total: 0, pages: 1 });
+      } catch (err: any) {
+        const errorMessage = err.message || "Error fetching fish inventory";
+        setError(errorMessage);
+        showError(errorMessage);
+      } finally {
+        setLoading(false);
+        fetchingRef.current = false;
+      }
+    };
+
     fetchInventory();
-  }, [fetchInventory, refresh]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, searchQuery, filterFishProduct, filterSizeCategoryId, filterStatus, refresh]);
 
   async function confirmDelete() {
     if (!deleteConfirm) return;
@@ -99,9 +129,6 @@ export default function FishInventoryPage() {
       showError(err.message || "Failed to delete inventory item");
     }
   }
-
-  const selectedProduct = fishProducts.find((p) => p._id === filters.fishProduct);
-  const sizeCategories = selectedProduct?.sizeCategories || [];
 
   return (
     <div className="space-y-6">
@@ -156,9 +183,10 @@ export default function FishInventoryPage() {
                   Fish Product
                 </label>
                 <select
-                  value={filters.fishProduct}
+                  value={filterFishProduct}
                   onChange={(e) => {
-                    setFilters({ ...filters, fishProduct: e.target.value, sizeCategoryId: "" });
+                    setFilterFishProduct(e.target.value);
+                    setFilterSizeCategoryId("");
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
@@ -176,9 +204,9 @@ export default function FishInventoryPage() {
                   Size Category
                 </label>
                 <select
-                  value={filters.sizeCategoryId}
-                  onChange={(e) => setFilters({ ...filters, sizeCategoryId: e.target.value })}
-                  disabled={!filters.fishProduct}
+                  value={filterSizeCategoryId}
+                  onChange={(e) => setFilterSizeCategoryId(e.target.value)}
+                  disabled={!filterFishProduct}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-100"
                 >
                   <option value="">All Categories</option>
@@ -195,8 +223,8 @@ export default function FishInventoryPage() {
                   Status
                 </label>
                 <select
-                  value={filters.status}
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="">All Statuses</option>

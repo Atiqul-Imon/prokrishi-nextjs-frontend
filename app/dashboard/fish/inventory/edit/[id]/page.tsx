@@ -57,7 +57,8 @@ export default function EditFishInventoryPage() {
     if (id) {
       fetchInventoryItem();
     }
-  }, [id, showError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
