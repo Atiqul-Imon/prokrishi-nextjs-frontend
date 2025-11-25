@@ -127,9 +127,7 @@ export default function ProductRow({
       {/* Stock */}
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-gray-800">
-            {stock} {product.unit || "pcs"}
-          </span>
+          <span className="text-sm font-semibold text-gray-800">{stock}</span>
           {isLowStock && (
             <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full border border-amber-300">
               Low
