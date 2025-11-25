@@ -13,7 +13,7 @@ import {
   ArrowDown,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import { useCart } from "@/app/context/CartContext";
 import { searchProducts } from "@/app/utils/api";
@@ -26,13 +26,16 @@ function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { user, isAdmin, logout } = useAuth();
   const { cartCount, openSidebar } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
   const searchRef = useRef(null);
   const dropdownRef = useRef(null);
-  const mobileSearchRef = useRef(null);
+  const mobileSearchRef = useRef<HTMLDivElement | null>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
 
   // Ensure component is mounted before using portal
   useEffect(() => {
@@ -103,6 +106,59 @@ function Navbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showDropdown]); // Only re-run when showDropdown changes
+
+  // Track scroll position to slightly condense the header on mobile for better reachability
+  useEffect(() => {
+    const handleScroll = () => {
+      const offset = window.scrollY || window.pageYOffset;
+      setScrolled(offset > 12);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Lock body scroll when mobile overlays are open
+  useEffect(() => {
+    if (!drawerOpen && !mobileSearchOpen) {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const previousTouchAction = document.body.style.touchAction;
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouchAction;
+    };
+  }, [drawerOpen, mobileSearchOpen]);
+
+  // Close overlays with Escape for better accessibility / mobile keyboards
+  useEffect(() => {
+    if (!drawerOpen && !mobileSearchOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (mobileSearchOpen) setMobileSearchOpen(false);
+        if (drawerOpen) setDrawerOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [drawerOpen, mobileSearchOpen]);
+
+  // Autofocus on the mobile search input when overlay appears
+  useEffect(() => {
+    if (mobileSearchOpen && mobileSearchInputRef.current) {
+      mobileSearchInputRef.current.focus({ preventScroll: true });
+    }
+  }, [mobileSearchOpen]);
 
   const performSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -193,25 +249,39 @@ function Navbar() {
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
       if (typeof window !== "undefined") {
-        window.location.href = "/";
+        if (pathname === "/") {
+          window.location.reload();
+        } else {
+          router.push("/");
+        }
       } else {
         router.push("/");
       }
     },
-    [router],
+    [pathname, router],
   );
 
   return (
     <>
-      <header className="sticky top-0 z-[100] bg-white border-b border-green-200 shadow-md transition-all duration-300" style={{ position: 'sticky', top: 0 }}>
+      <header
+        className={`sticky top-0 z-[100] bg-white border-b border-green-200 transition-all duration-300 ${
+          scrolled ? "shadow-xl backdrop-blur-lg" : "shadow-md"
+        }`}
+        style={{ position: "sticky", top: 0 }}
+      >
         {/* Container with consistent viewport width */}
         <div className="container mx-auto px-2 sm:px-3 md:px-4 lg:px-6 w-full 3xl:max-w-7xl 3xl:mx-auto">
-          <div className="flex items-center justify-between py-0.5 sm:py-1 gap-2 sm:gap-3">
+          <div
+            className={`flex items-center justify-between gap-2 sm:gap-3 transition-all ${
+              scrolled ? "py-0.5 sm:py-1" : "py-1.5 sm:py-2"
+            }`}
+          >
         {/* Left: Logo and Mobile Menu Icon */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 min-w-0">
           {/* Mobile Menu Icon */}
           <button
-            className="md:hidden text-gray-700 hover:text-green-600 p-1.5 sm:p-2 rounded-lg hover:bg-green-100/80 transition-all duration-300 touch-manipulation"
+            type="button"
+            className="md:hidden flex h-11 w-11 items-center justify-center text-gray-700 hover:text-green-600 rounded-2xl border border-green-100 bg-white/80 hover:bg-green-50 transition-all duration-300 touch-manipulation active:scale-95"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open Menu"
           >
@@ -221,7 +291,8 @@ function Navbar() {
           {/* Mobile Search Icon - Hidden for Admin */}
           {!isAdmin && (
             <button
-              className="md:hidden text-gray-700 hover:text-green-600 p-1.5 sm:p-2 rounded-lg hover:bg-green-100/80 transition-all duration-300 touch-manipulation"
+              type="button"
+              className="md:hidden flex h-11 w-11 items-center justify-center text-gray-700 hover:text-green-600 rounded-2xl border border-green-100 bg-white/80 hover:bg-green-50 transition-all duration-300 touch-manipulation active:scale-95"
               onClick={() => setMobileSearchOpen(true)}
               aria-label="Open Search"
             >
@@ -445,10 +516,15 @@ function Navbar() {
             isolation: 'isolate',
             backgroundColor: 'rgba(0, 0, 0, 0.3)'
           }}
+          role="presentation"
+          aria-hidden="true"
           onClick={() => setDrawerOpen(false)}
         >
           <div
-            className="mobile-drawer bg-white w-[85vw] max-w-sm h-full p-4 sm:p-6 shadow-2xl overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation menu"
+            className="mobile-drawer bg-white w-[85vw] max-w-sm h-full p-4 sm:p-6 shadow-2xl overflow-y-auto rounded-r-3xl"
             style={{ 
               position: 'relative', 
               zIndex: 9999, 
@@ -462,7 +538,8 @@ function Navbar() {
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Menu</h2>
               <button
-                className="text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-green-100/80 transition-colors touch-manipulation"
+                type="button"
+                className="text-gray-600 hover:text-green-600 p-2 rounded-2xl border border-green-100/80 hover:bg-green-50 transition-colors touch-manipulation active:scale-95"
                 onClick={() => setDrawerOpen(false)}
                 aria-label="Close Menu"
               >
@@ -527,6 +604,7 @@ function Navbar() {
                     <span className="truncate">{user.name}</span>
                   </Link>
                   <button
+                    type="button"
                     onClick={() => {
                       logout();
                       setDrawerOpen(false);
@@ -562,10 +640,15 @@ function Navbar() {
             transform: 'translateZ(0)',
             isolation: 'isolate',
           }}
+          role="presentation"
+          aria-hidden="true"
           onClick={() => setMobileSearchOpen(false)}
         >
           <div
-            className="bg-white w-full p-4 sm:p-6 shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Search products"
+            className="bg-white w-full p-4 sm:p-6 shadow-2xl rounded-b-3xl"
             style={{
               position: 'relative',
               zIndex: 10003,
@@ -578,7 +661,8 @@ function Navbar() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Search Products</h2>
               <button
-                className="text-gray-600 hover:text-green-600 p-2 rounded-lg hover:bg-green-100/80 transition-colors touch-manipulation"
+                type="button"
+                className="text-gray-600 hover:text-green-600 p-2 rounded-2xl border border-green-100/80 hover:bg-green-50 transition-colors touch-manipulation active:scale-95"
                 onClick={() => setMobileSearchOpen(false)}
                 aria-label="Close Search"
               >
@@ -591,16 +675,17 @@ function Navbar() {
               <form onSubmit={handleSearch} className="relative">
                 <input
                   type="text"
+                  ref={mobileSearchInputRef}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search for products..."
-                  className="w-full pl-4 pr-12 py-3 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 bg-white text-base"
+                  className="w-full pl-4 pr-12 py-3 border-2 border-green-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 bg-white text-base"
                   autoFocus
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-green-600 to-green-700 text-white p-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-sm hover:shadow-md touch-manipulation"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-green-600 to-green-700 text-white p-2 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-sm hover:shadow-md touch-manipulation active:scale-95"
                 >
                   <Search size={18} />
                 </button>

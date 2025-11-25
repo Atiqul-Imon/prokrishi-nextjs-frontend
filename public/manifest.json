@@ -14,25 +14,31 @@
       "purpose": "any"
     },
     {
-      "src": "/logo/prokrishihublogo.png",
-      "sizes": "16x16",
+      "src": "/icons/prokrishi-icon-64x64.png",
+      "sizes": "64x64",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo/prokrishihublogo.png",
-      "sizes": "32x32",
+      "src": "/icons/prokrishi-icon-128x128.png",
+      "sizes": "128x128",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo/prokrishihublogo.png",
+      "src": "/icons/prokrishi-icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo/prokrishihublogo.png",
+      "src": "/icons/prokrishi-icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/prokrishi-icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
