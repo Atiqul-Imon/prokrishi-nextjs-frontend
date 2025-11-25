@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
-import { placeOrder, addAddress } from "@/app/utils/api";
+import { placeOrder, addAddress, getShippingQuote } from "@/app/utils/api";
 import InlineAddressForm from "./InlineAddressForm";
 import { Address } from "@/types/models";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
@@ -45,6 +45,9 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { messages, success, error, removeMessage } = useInlineMessage();
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+  const [shippingFee, setShippingFee] = useState(0);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingError, setShippingError] = useState<string | null>(null);
 
   const addresses = user?.addresses || [];
 
@@ -55,6 +58,65 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
       setSelectedAddress(defaultAddress);
     }
   }, [addresses, selectedAddress, checkoutStep]);
+
+  // Calculate shipping fee when cart or address changes
+  useEffect(() => {
+    if (cart.length === 0) {
+      setShippingFee(0);
+      setShippingError(null);
+      return;
+    }
+
+    // Use selected address or first saved address for estimate
+    const addressForShipping = selectedAddress || (addresses.length > 0 ? addresses[0] : null);
+
+    if (!addressForShipping) {
+      setShippingFee(0);
+      setShippingError(null);
+      return;
+    }
+
+    const quotePayload = {
+      orderItems: cart.map((item) => ({
+        product: item.id || item._id,
+        quantity: item.quantity,
+        variantId: item.variantId,
+      })),
+      shippingAddress: {
+        address: addressForShipping.address,
+        division: addressForShipping.division,
+        district: addressForShipping.district,
+        upazila: addressForShipping.upazila,
+        postalCode: addressForShipping.postalCode,
+      },
+    };
+
+    let isCancelled = false;
+    setShippingLoading(true);
+    setShippingError(null);
+
+    getShippingQuote(quotePayload)
+      .then((result) => {
+        if (!isCancelled) {
+          setShippingFee(result.shippingFee);
+        }
+      })
+      .catch((err) => {
+        if (!isCancelled) {
+          setShippingFee(0);
+          setShippingError(err.message || "Failed to calculate shipping.");
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setShippingLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [cart, selectedAddress, addresses]);
 
   // Reset checkout step when cart is empty
   useEffect(() => {
@@ -128,11 +190,13 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         name: item.name,
         quantity: item.quantity,
         price: item.price,
+        variantId: item.variantId,
       })),
       shippingAddress: shippingAddressData,
       paymentMethod: "Cash on Delivery",
       totalPrice: cartTotal,
-      totalAmount: cartTotal,
+      totalAmount: cartTotal + shippingFee,
+      shippingFee: shippingFee,
     };
 
     // For guest orders, extract name and phone from address
@@ -310,11 +374,22 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     </div>
                     <div className="flex justify-between text-gray-600 mb-2">
                       <span>Shipping</span>
-                      <span className="font-bold text-green-600">FREE</span>
+                      <span className="font-bold text-green-600">
+                        {shippingLoading
+                          ? "Calculating..."
+                          : shippingFee === 0 && !selectedAddress && addresses.length === 0
+                          ? "At checkout"
+                          : shippingFee === 0
+                          ? "FREE"
+                          : `৳${shippingFee.toFixed(2)}`}
+                      </span>
                     </div>
+                    {shippingError && (
+                      <p className="text-xs text-red-500 mb-2">{shippingError}</p>
+                    )}
                     <div className="flex justify-between text-xl font-bold text-gray-900 mt-3 pt-3 border-t-2 border-gray-200">
                       <span>Total</span>
-                      <span>৳{cartTotal.toFixed(2)}</span>
+                      <span>৳{(cartTotal + shippingFee).toFixed(2)}</span>
                     </div>
                   </div>
 
@@ -424,11 +499,39 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 )}
               </div>
 
+              {/* Order Summary in Address Step */}
+              {selectedAddress && (
+                <div className="border-t-2 border-gray-200 pt-4 mb-4">
+                  <h3 className="font-bold text-gray-900 mb-3">Order Summary</h3>
+                  <div className="flex justify-between text-gray-600 mb-2">
+                    <span>Subtotal</span>
+                    <span className="font-semibold">৳{cartTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600 mb-2">
+                    <span>Shipping</span>
+                    <span className="font-bold text-green-600">
+                      {shippingLoading
+                        ? "Calculating..."
+                        : shippingFee === 0
+                        ? "FREE"
+                        : `৳${shippingFee.toFixed(2)}`}
+                    </span>
+                  </div>
+                  {shippingError && (
+                    <p className="text-xs text-red-500 mb-2">{shippingError}</p>
+                  )}
+                  <div className="flex justify-between text-xl font-bold text-gray-900 mt-3 pt-3 border-t-2 border-gray-200">
+                    <span>Total</span>
+                    <span>৳{(cartTotal + shippingFee).toFixed(2)}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Place Order Button - Sticky at bottom */}
               <div className="sticky bottom-0 bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4">
                 <button
                   onClick={handlePlaceOrder}
-                  disabled={!selectedAddress || isSubmitting}
+                  disabled={!selectedAddress || isSubmitting || shippingLoading}
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
