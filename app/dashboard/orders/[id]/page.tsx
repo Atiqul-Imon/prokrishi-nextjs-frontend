@@ -160,6 +160,13 @@ const OrderDetailPage = () => {
     );
   }
 
+  const customerName =
+    order.user?.name || order.shippingAddress?.name || order.guestInfo?.name || "Guest";
+  const customerEmail = order.user?.email || order.guestInfo?.email || "Not provided";
+  const customerPhone =
+    order.user?.phone || order.shippingAddress?.phone || order.guestInfo?.phone || "Not provided";
+  const shippingAddress = order.shippingAddress;
+
   return (
     <div className="space-y-6">
       {/* Inline Messages */}
@@ -392,42 +399,70 @@ const OrderDetailPage = () => {
               <div className="flex items-center gap-3">
                 <User className="w-5 h-5 text-gray-400" />
                 <div>
-                  <p className="font-medium text-gray-900">{order.user?.name || "Guest"}</p>
+                  <p className="font-medium text-gray-900">{customerName}</p>
                   <p className="text-sm text-gray-500">Customer</p>
                 </div>
               </div>
-              {order.user?.email && (
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="font-medium text-gray-900">{order.user.email}</p>
-                    <p className="text-sm text-gray-500">Email</p>
-                  </div>
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900">{customerEmail}</p>
+                  <p className="text-sm text-gray-500">Email</p>
                 </div>
-              )}
-              {order.user?.phone && (
-                <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="font-medium text-gray-900">{order.user.phone}</p>
-                    <p className="text-sm text-gray-500">Phone</p>
-                  </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="font-medium text-gray-900">{customerPhone}</p>
+                  <p className="text-sm text-gray-500">Phone</p>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
           {/* Shipping Address */}
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Shipping Address</h2>
-            <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-gray-400 mt-1" />
-              <div>
-                <p className="font-medium text-gray-900">{order.shippingAddress.address}</p>
-                <p className="text-sm text-gray-500">{order.shippingAddress.upazila}, {order.shippingAddress.district}</p>
-                <p className="text-sm text-gray-500">Postal Code: {order.shippingAddress.postalCode}</p>
+            {shippingAddress ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <User className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {shippingAddress.name || customerName}
+                    </p>
+                    <p className="text-sm text-gray-500">Recipient</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {shippingAddress.phone || customerPhone}
+                    </p>
+                    <p className="text-sm text-gray-500">Contact</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-gray-400 mt-1" />
+                  <div>
+                    <p className="font-medium text-gray-900">{shippingAddress.address}</p>
+                    <p className="text-sm text-gray-500">
+                      {[shippingAddress.upazila, shippingAddress.district, shippingAddress.division]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </p>
+                    {shippingAddress.postalCode && (
+                      <p className="text-sm text-gray-500">
+                        Postal Code: {shippingAddress.postalCode}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <p className="text-sm text-gray-500">No shipping address provided.</p>
+            )}
           </div>
 
           {/* Order Summary */}
