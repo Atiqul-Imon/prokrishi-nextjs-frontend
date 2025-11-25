@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   X,
@@ -48,6 +48,9 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
   const [shippingFee, setShippingFee] = useState(0);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
+  const [selectedZone, setSelectedZone] = useState<'inside_dhaka' | 'outside_dhaka' | null>(null);
+  const [totalWeightKg, setTotalWeightKg] = useState(0);
+  const isCalculatingRef = useRef(false);
 
   const addresses = user?.addresses || [];
 
@@ -59,69 +62,111 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
     }
   }, [addresses, selectedAddress, checkoutStep]);
 
-  // Calculate shipping fee when cart or address changes
-  useEffect(() => {
+  // Calculate weight from cart items (optimized with useMemo)
+  const calculatedWeightKg = useMemo(() => {
     if (cart.length === 0) {
-      setShippingFee(0);
-      setShippingError(null);
-      return;
+      return 0;
     }
 
-    // Use selected address or first saved address for estimate
-    const addressForShipping = selectedAddress || (addresses.length > 0 ? addresses[0] : null);
+    let weight = 0;
+    cart.forEach((item) => {
+      const variant = item.variantSnapshot || item.variants?.find((v) => v._id === item.variantId);
+      const unit = variant?.unit || item.unit;
+      const measurement = variant?.measurement || item.measurement;
+      const unitWeightKg = variant?.unitWeightKg || item.unitWeightKg;
+      const quantity = item.quantity;
 
-    if (!addressForShipping) {
-      setShippingFee(0);
-      setShippingError(null);
+      if (unitWeightKg && unitWeightKg > 0) {
+        weight += unitWeightKg * quantity;
+      } else if (unit === 'kg' && measurement) {
+        weight += measurement * quantity;
+      } else if (unit === 'g' && measurement) {
+        weight += (measurement * quantity) / 1000;
+      } else if (unit === 'l' && measurement) {
+        weight += measurement * quantity; // 1L ≈ 1kg
+      } else if (unit === 'ml' && measurement) {
+        weight += (measurement * quantity) / 1000; // 1ml ≈ 1g
+      }
+    });
+
+    return weight;
+  }, [cart]);
+
+  // Update totalWeightKg when calculated weight changes
+  useEffect(() => {
+    setTotalWeightKg(calculatedWeightKg);
+  }, [calculatedWeightKg]);
+
+  // Calculate shipping fee only when zone is selected
+  useEffect(() => {
+    if (!selectedZone || cart.length === 0 || isCalculatingRef.current) {
+      if (!selectedZone) {
+        setShippingFee(0);
+        setShippingError(null);
+      }
       return;
     }
-
-    const quotePayload = {
-      orderItems: cart.map((item) => ({
-        product: item.id || item._id,
-        quantity: item.quantity,
-        variantId: item.variantId,
-      })),
-      shippingAddress: {
-        address: addressForShipping.address,
-        division: addressForShipping.division,
-        district: addressForShipping.district,
-        upazila: addressForShipping.upazila,
-        postalCode: addressForShipping.postalCode,
-      },
-    };
 
     let isCancelled = false;
+    isCalculatingRef.current = true;
     setShippingLoading(true);
     setShippingError(null);
 
-    getShippingQuote(quotePayload)
-      .then((result) => {
+    const calculateShipping = async () => {
+      try {
+        // Use a minimal address - zone is determined by user selection, not address
+        const quotePayload = {
+          orderItems: cart.map((item) => ({
+            product: item.id || item._id,
+            quantity: item.quantity,
+            variantId: item.variantId,
+          })),
+          shippingAddress: {
+            address: 'Address will be provided at checkout',
+            division: '',
+            district: '',
+            upazila: '',
+            postalCode: '',
+          },
+          shippingZone: selectedZone, // Zone is determined by user selection only
+        };
+
+        const result = await getShippingQuote(quotePayload);
+        
         if (!isCancelled) {
           setShippingFee(result.shippingFee);
+          if (result.totalWeightKg) {
+            setTotalWeightKg(result.totalWeightKg);
+          }
         }
-      })
-      .catch((err) => {
+      } catch (err: unknown) {
         if (!isCancelled) {
+          const errorMessage = err instanceof Error ? err.message : "Failed to calculate shipping.";
           setShippingFee(0);
-          setShippingError(err.message || "Failed to calculate shipping.");
+          setShippingError(errorMessage);
         }
-      })
-      .finally(() => {
+      } finally {
         if (!isCancelled) {
           setShippingLoading(false);
+          isCalculatingRef.current = false;
         }
-      });
+      }
+    };
+
+    calculateShipping();
 
     return () => {
       isCancelled = true;
+      isCalculatingRef.current = false;
     };
-  }, [cart, selectedAddress, addresses]);
+  }, [selectedZone, cart]);
 
   // Reset checkout step when cart is empty
   useEffect(() => {
     if (cart.length === 0 && checkoutStep !== "cart") {
       setCheckoutStep("cart");
+      setSelectedZone(null);
+      setShippingFee(0);
     }
   }, [cart.length, checkoutStep]);
 
@@ -164,6 +209,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
   }, []);
 
   const handlePlaceOrder = async () => {
+    // Validation
     if (cart.length === 0) {
       error("Your cart is empty.", 5000);
       return;
@@ -174,17 +220,31 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
       return;
     }
 
+    if (!selectedZone) {
+      error("Please select a delivery zone.", 5000);
+      return;
+    }
+
+    if (shippingLoading) {
+      error("Please wait for shipping calculation to complete.", 5000);
+      return;
+    }
+
+    if (isSubmitting) {
+      return; // Prevent double submission
+    }
+
     setIsSubmitting(true);
     setLoadingMessage("Placing your order...");
 
-    let shippingAddressData = {
+    const shippingAddressData = {
       address: selectedAddress.address || "",
       district: selectedAddress.district || "",
       upazila: selectedAddress.upazila || "",
       postalCode: selectedAddress.postalCode || "",
     };
 
-    const orderData: any = {
+    const orderData = {
       orderItems: cart.map((item) => ({
         product: item.id || item._id,
         name: item.name,
@@ -197,16 +257,16 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
       totalPrice: cartTotal,
       totalAmount: cartTotal + shippingFee,
       shippingFee: shippingFee,
+      shippingZone: selectedZone,
+      shippingWeightKg: totalWeightKg,
+      ...(user ? {} : {
+        guestInfo: {
+          name: selectedAddress.name || "",
+          email: "",
+          phone: selectedAddress.phone || "",
+        },
+      }),
     };
-
-    // For guest orders, extract name and phone from address
-    if (!user && selectedAddress) {
-      orderData.guestInfo = {
-        name: selectedAddress.name || "",
-        email: "",
-        phone: selectedAddress.phone || "",
-      };
-    }
 
     try {
       const newOrder = await placeOrder(orderData);
@@ -216,12 +276,17 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
       const orderId = newOrder._id || newOrder.order?._id || newOrder.data?._id;
       onClose();
       router.push(`/order/success?orderId=${orderId}`);
-    } catch (err) {
+    } catch (err: unknown) {
       setLoadingMessage(null);
       console.error("Failed to create order:", err);
       const errorMessage =
-        (err as any).response?.data?.message ||
-        "There was an issue placing your order.";
+        (err && typeof err === 'object' && 'response' in err && 
+         err.response && typeof err.response === 'object' && 'data' in err.response &&
+         err.response.data && typeof err.response.data === 'object' && 'message' in err.response.data)
+          ? String(err.response.data.message)
+          : err instanceof Error 
+          ? err.message 
+          : "There was an issue placing your order.";
       error(errorMessage, 5000);
     } finally {
       setIsSubmitting(false);
@@ -278,7 +343,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto pb-20 md:pb-4">
           {checkoutStep === "cart" && (
             <div className="p-4">
               {cart.length === 0 ? (
@@ -366,6 +431,38 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     })}
                   </div>
 
+                  {/* Shipping Zone Selection */}
+                  <div className="border-t-2 border-gray-200 pt-4 mb-4">
+                    <h3 className="font-semibold text-gray-900 mb-3">Delivery Zone</h3>
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <button
+                        onClick={() => setSelectedZone('inside_dhaka')}
+                        className={`p-3 border-2 rounded-lg font-semibold transition-all ${
+                          selectedZone === 'inside_dhaka'
+                            ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
+                            : 'border-gray-200 hover:border-green-300 text-gray-700'
+                        }`}
+                      >
+                        Inside Dhaka
+                      </button>
+                      <button
+                        onClick={() => setSelectedZone('outside_dhaka')}
+                        className={`p-3 border-2 rounded-lg font-semibold transition-all ${
+                          selectedZone === 'outside_dhaka'
+                            ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
+                            : 'border-gray-200 hover:border-green-300 text-gray-700'
+                        }`}
+                      >
+                        Outside Dhaka
+                      </button>
+                    </div>
+                    {totalWeightKg > 0 && (
+                      <p className="text-xs text-gray-500 mb-2">
+                        Total Weight: {totalWeightKg.toFixed(2)} kg
+                      </p>
+                    )}
+                  </div>
+
                   {/* Order Summary */}
                   <div className="border-t-2 border-gray-200 pt-4 mb-4">
                     <div className="flex justify-between text-gray-600 mb-2">
@@ -377,8 +474,8 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                       <span className="font-bold text-green-600">
                         {shippingLoading
                           ? "Calculating..."
-                          : shippingFee === 0 && !selectedAddress && addresses.length === 0
-                          ? "At checkout"
+                          : !selectedZone
+                          ? "Select zone"
                           : shippingFee === 0
                           ? "FREE"
                           : `৳${shippingFee.toFixed(2)}`}
@@ -393,8 +490,8 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     </div>
                   </div>
 
-                  {/* Proceed to Checkout Button - Sticky */}
-                  <div className="sticky bottom-0 bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4">
+                  {/* Proceed to Checkout Button - Fixed at bottom with mobile nav padding */}
+                  <div className="fixed bottom-16 md:sticky md:bottom-0 left-0 right-0 md:left-auto md:right-auto bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4 md:pb-4 z-50">
                     <button
                       onClick={() => setCheckoutStep("address")}
                       className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg"
@@ -499,6 +596,38 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 )}
               </div>
 
+              {/* Shipping Zone Selection in Address Step */}
+              <div className="border-t-2 border-gray-200 pt-4 mb-4">
+                <h3 className="font-semibold text-gray-900 mb-3">Delivery Zone</h3>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <button
+                    onClick={() => setSelectedZone('inside_dhaka')}
+                    className={`p-3 border-2 rounded-lg font-semibold transition-all ${
+                      selectedZone === 'inside_dhaka'
+                        ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
+                        : 'border-gray-200 hover:border-green-300 text-gray-700'
+                    }`}
+                  >
+                    Inside Dhaka
+                  </button>
+                  <button
+                    onClick={() => setSelectedZone('outside_dhaka')}
+                    className={`p-3 border-2 rounded-lg font-semibold transition-all ${
+                      selectedZone === 'outside_dhaka'
+                        ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
+                        : 'border-gray-200 hover:border-green-300 text-gray-700'
+                    }`}
+                  >
+                    Outside Dhaka
+                  </button>
+                </div>
+                {totalWeightKg > 0 && (
+                  <p className="text-xs text-gray-500 mb-2">
+                    Total Weight: {totalWeightKg.toFixed(2)} kg
+                  </p>
+                )}
+              </div>
+
               {/* Order Summary in Address Step */}
               {selectedAddress && (
                 <div className="border-t-2 border-gray-200 pt-4 mb-4">
@@ -512,6 +641,8 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     <span className="font-bold text-green-600">
                       {shippingLoading
                         ? "Calculating..."
+                        : !selectedZone
+                        ? "Select zone"
                         : shippingFee === 0
                         ? "FREE"
                         : `৳${shippingFee.toFixed(2)}`}
@@ -527,11 +658,11 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 </div>
               )}
 
-              {/* Place Order Button - Sticky at bottom */}
-              <div className="sticky bottom-0 bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4">
+              {/* Place Order Button - Fixed at bottom with mobile nav padding */}
+              <div className="fixed bottom-16 md:sticky md:bottom-0 left-0 right-0 md:left-auto md:right-auto bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4 md:pb-4 z-50">
                 <button
                   onClick={handlePlaceOrder}
-                  disabled={!selectedAddress || isSubmitting || shippingLoading}
+                  disabled={!selectedAddress || !selectedZone || isSubmitting || shippingLoading}
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
@@ -546,6 +677,11 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 {!selectedAddress && (
                   <p className="text-xs text-gray-500 text-center mt-2">
                     Please fill in name, phone, and address to continue
+                  </p>
+                )}
+                {!selectedZone && (
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    Please select delivery zone
                   </p>
                 )}
               </div>

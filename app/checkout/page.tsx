@@ -53,6 +53,7 @@ export default function CheckoutPage() {
   } | null>(null);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
+  const [selectedZone, setSelectedZone] = useState<'inside_dhaka' | 'outside_dhaka' | null>(null);
 
   const addresses = user?.addresses || [];
 
@@ -93,8 +94,9 @@ export default function CheckoutPage() {
     }
   }, [selectedAddress]);
 
+  // Calculate shipping only when zone is manually selected
   useEffect(() => {
-    if (!selectedAddress || cart.length === 0) {
+    if (!selectedZone || cart.length === 0) {
       setShippingQuote(null);
       setShippingError(null);
       return;
@@ -107,12 +109,13 @@ export default function CheckoutPage() {
         variantId: item.variantId,
       })),
       shippingAddress: {
-        address: selectedAddress.address,
-        division: selectedAddress.division,
-        district: selectedAddress.district,
-        upazila: selectedAddress.upazila,
-        postalCode: selectedAddress.postalCode,
+        address: selectedAddress?.address || 'Address will be provided',
+        division: selectedAddress?.division || '',
+        district: selectedAddress?.district || '',
+        upazila: selectedAddress?.upazila || '',
+        postalCode: selectedAddress?.postalCode || '',
       },
+      shippingZone: selectedZone, // Zone is determined by user selection only
     };
 
     let isCancelled = false;
@@ -129,10 +132,11 @@ export default function CheckoutPage() {
           });
         }
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         if (!isCancelled) {
           setShippingQuote(null);
-          setShippingError(err.message || "Failed to calculate shipping.");
+          const errorMessage = err instanceof Error ? err.message : "Failed to calculate shipping.";
+          setShippingError(errorMessage);
         }
       })
       .finally(() => {
@@ -144,7 +148,7 @@ export default function CheckoutPage() {
     return () => {
       isCancelled = true;
     };
-  }, [cart, selectedAddress]);
+  }, [cart, selectedZone, selectedAddress]);
 
   const handleAddressSave = async (addressData: Address) => {
     setLoadingMessage("Adding new address...");
@@ -201,9 +205,18 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!shippingQuote) {
-      error("Unable to calculate shipping. Please verify your address.", 5000);
+    if (!selectedZone) {
+      error("Please select a delivery zone.", 5000);
       return;
+    }
+
+    if (!shippingQuote) {
+      error("Unable to calculate shipping. Please select delivery zone.", 5000);
+      return;
+    }
+
+    if (isSubmitting) {
+      return; // Prevent double submission
     }
 
     setIsSubmitting(true);
@@ -231,7 +244,7 @@ export default function CheckoutPage() {
     const shippingFee = shippingQuote.shippingFee || 0;
     const grandTotal = cartTotal + shippingFee;
 
-    const orderData: any = {
+    const orderData = {
       orderItems: cart.map((item) => ({
         product: item.id || item._id,
         name: item.name,
@@ -245,18 +258,16 @@ export default function CheckoutPage() {
       totalPrice: cartTotal,
       totalAmount: grandTotal,
       shippingFee,
-      shippingZone: shippingQuote.zone,
+      shippingZone: selectedZone, // Use manually selected zone
       shippingWeightKg: shippingQuote.totalWeightKg,
+      ...(user ? {} : {
+        guestInfo: {
+          name: guestInfo.name,
+          email: guestInfo.email || "",
+          phone: guestInfo.phone,
+        },
+      }),
     };
-
-    // Add guest info if it's a guest order
-    if (!user) {
-      orderData.guestInfo = {
-        name: guestInfo.name,
-        email: guestInfo.email || "",
-        phone: guestInfo.phone,
-      };
-    }
 
     try {
       const newOrder = await placeOrder(orderData);
@@ -283,12 +294,17 @@ export default function CheckoutPage() {
         const orderId = newOrder._id || newOrder.order?._id || newOrder.data?._id;
         router.push(`/order/success?orderId=${orderId}`);
       }
-    } catch (error) {
+    } catch (err: unknown) {
       setLoadingMessage(null);
-      console.error("Failed to create order:", error);
+      console.error("Failed to create order:", err);
       const errorMessage =
-        (error as any).response?.data?.message ||
-        "There was an issue placing your order.";
+        (err && typeof err === 'object' && 'response' in err && 
+         err.response && typeof err.response === 'object' && 'data' in err.response &&
+         err.response.data && typeof err.response.data === 'object' && 'message' in err.response.data)
+          ? String(err.response.data.message)
+          : err instanceof Error 
+          ? err.message 
+          : "There was an issue placing your order.";
       error(errorMessage, 5000);
     } finally {
       setIsSubmitting(false);
@@ -412,6 +428,40 @@ export default function CheckoutPage() {
                 </div>
               </div>
             )}
+
+            {/* Delivery Zone Selection */}
+            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4">
+                Delivery Zone
+              </h2>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <button
+                  onClick={() => setSelectedZone('inside_dhaka')}
+                  className={`p-4 border-2 rounded-xl font-semibold transition-all ${
+                    selectedZone === 'inside_dhaka'
+                      ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
+                      : 'border-gray-200 hover:border-green-300 text-gray-700'
+                  }`}
+                >
+                  Inside Dhaka
+                </button>
+                <button
+                  onClick={() => setSelectedZone('outside_dhaka')}
+                  className={`p-4 border-2 rounded-xl font-semibold transition-all ${
+                    selectedZone === 'outside_dhaka'
+                      ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
+                      : 'border-gray-200 hover:border-green-300 text-gray-700'
+                  }`}
+                >
+                  Outside Dhaka
+                </button>
+              </div>
+              {!selectedZone && (
+                <p className="text-sm text-gray-500">
+                  Please select your delivery zone to calculate shipping
+                </p>
+              )}
+            </div>
 
             {/* Shipping Address */}
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
@@ -587,16 +637,16 @@ export default function CheckoutPage() {
                   <span className="font-medium">
                     {shippingLoading
                       ? "Calculating..."
+                      : !selectedZone
+                      ? "Select zone"
                       : shippingQuote
                       ? `৳${shippingFee.toFixed(2)}`
-                      : selectedAddress
-                      ? "—"
-                      : "Add address"}
+                      : "—"}
                   </span>
                 </div>
                 {shippingQuote && (
                   <p className="text-xs text-gray-500">
-                    {shippingQuote.zone === "inside_dhaka" ? "Inside Dhaka" : "Outside Dhaka"} ·{" "}
+                    {selectedZone === "inside_dhaka" ? "Inside Dhaka" : "Outside Dhaka"} ·{" "}
                     {shippingQuote.totalWeightKg.toFixed(2)} kg
                   </p>
                 )}
@@ -617,9 +667,10 @@ export default function CheckoutPage() {
                     (!user && (!guestInfo.name || !guestInfo.phone)) ||
                     (user && !selectedAddress) ||
                     (!user && !selectedAddress) ||
+                    !selectedZone ||
                     !selectedPaymentMethod ||
-                  shippingLoading ||
-                  !shippingQuote ||
+                    shippingLoading ||
+                    !shippingQuote ||
                     isSubmitting
                   }
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-green-500/50 transform hover:scale-105"

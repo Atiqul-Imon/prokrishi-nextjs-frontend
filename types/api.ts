@@ -133,6 +133,7 @@ export interface ShippingQuoteRequest {
     upazila?: string;
     postalCode?: string;
   };
+  shippingZone?: 'inside_dhaka' | 'outside_dhaka';
 }
 
 export interface ShippingQuoteResponse {
