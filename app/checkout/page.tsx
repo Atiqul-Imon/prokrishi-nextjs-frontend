@@ -17,7 +17,7 @@ import {
 import AddressForm from "../account/AddressForm";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
-import { placeOrder, addAddress, createPaymentSession } from "../utils/api";
+import { placeOrder, addAddress, createPaymentSession, getShippingQuote } from "../utils/api";
 import CheckoutProgress from "@/components/CheckoutProgress";
 import { Address } from "@/types/models";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
@@ -46,6 +46,13 @@ export default function CheckoutPage() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cod");
   const { messages, success, error, info, removeMessage } = useInlineMessage();
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+  const [shippingQuote, setShippingQuote] = useState<{
+    shippingFee: number;
+    totalWeightKg: number;
+    zone: string;
+  } | null>(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingError, setShippingError] = useState<string | null>(null);
 
   const addresses = user?.addresses || [];
 
@@ -85,6 +92,59 @@ export default function CheckoutPage() {
       setCheckoutStep("shipping");
     }
   }, [selectedAddress]);
+
+  useEffect(() => {
+    if (!selectedAddress || cart.length === 0) {
+      setShippingQuote(null);
+      setShippingError(null);
+      return;
+    }
+
+    const quotePayload = {
+      orderItems: cart.map((item) => ({
+        product: item.id || item._id,
+        quantity: item.quantity,
+        variantId: item.variantId,
+      })),
+      shippingAddress: {
+        address: selectedAddress.address,
+        division: selectedAddress.division,
+        district: selectedAddress.district,
+        upazila: selectedAddress.upazila,
+        postalCode: selectedAddress.postalCode,
+      },
+    };
+
+    let isCancelled = false;
+    setShippingLoading(true);
+    setShippingError(null);
+
+    getShippingQuote(quotePayload)
+      .then((result) => {
+        if (!isCancelled) {
+          setShippingQuote({
+            shippingFee: result.shippingFee,
+            totalWeightKg: result.totalWeightKg,
+            zone: result.zone,
+          });
+        }
+      })
+      .catch((err) => {
+        if (!isCancelled) {
+          setShippingQuote(null);
+          setShippingError(err.message || "Failed to calculate shipping.");
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setShippingLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [cart, selectedAddress]);
 
   const handleAddressSave = async (addressData: Address) => {
     setLoadingMessage("Adding new address...");
@@ -136,6 +196,16 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (shippingLoading) {
+      error("Calculating shipping, please wait.", 5000);
+      return;
+    }
+
+    if (!shippingQuote) {
+      error("Unable to calculate shipping. Please verify your address.", 5000);
+      return;
+    }
+
     setIsSubmitting(true);
     setLoadingMessage("Placing your order...");
 
@@ -158,18 +228,25 @@ export default function CheckoutPage() {
       };
     }
 
+    const shippingFee = shippingQuote.shippingFee || 0;
+    const grandTotal = cartTotal + shippingFee;
+
     const orderData: any = {
       orderItems: cart.map((item) => ({
         product: item.id || item._id,
         name: item.name,
         quantity: item.quantity,
         price: item.price,
+        variantId: item.variantId,
       })),
       shippingAddress: shippingAddressData,
       paymentMethod:
         selectedPaymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
       totalPrice: cartTotal,
-      totalAmount: cartTotal,
+      totalAmount: grandTotal,
+      shippingFee,
+      shippingZone: shippingQuote.zone,
+      shippingWeightKg: shippingQuote.totalWeightKg,
     };
 
     // Add guest info if it's a guest order
@@ -219,6 +296,8 @@ export default function CheckoutPage() {
   };
 
   const loading = authLoading || cartLoading;
+  const shippingFee = shippingQuote?.shippingFee ?? 0;
+  const grandTotal = cartTotal + shippingFee;
 
   // Guest checkout form state
   const [guestInfo, setGuestInfo] = useState({
@@ -505,11 +584,28 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
-                  <span className="font-bold text-green-600">FREE</span>
+                  <span className="font-medium">
+                    {shippingLoading
+                      ? "Calculating..."
+                      : shippingQuote
+                      ? `৳${shippingFee.toFixed(2)}`
+                      : selectedAddress
+                      ? "—"
+                      : "Add address"}
+                  </span>
                 </div>
+                {shippingQuote && (
+                  <p className="text-xs text-gray-500">
+                    {shippingQuote.zone === "inside_dhaka" ? "Inside Dhaka" : "Outside Dhaka"} ·{" "}
+                    {shippingQuote.totalWeightKg.toFixed(2)} kg
+                  </p>
+                )}
+                {shippingError && (
+                  <p className="text-xs text-red-500">{shippingError}</p>
+                )}
                 <div className="flex justify-between text-xl font-bold text-gray-900 mt-3 border-t border-gray-200 pt-3">
                   <span>Total</span>
-                  <span>৳{cartTotal.toFixed(2)}</span>
+                  <span>৳{grandTotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -522,6 +618,8 @@ export default function CheckoutPage() {
                     (user && !selectedAddress) ||
                     (!user && !selectedAddress) ||
                     !selectedPaymentMethod ||
+                  shippingLoading ||
+                  !shippingQuote ||
                     isSubmitting
                   }
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-green-500/50 transform hover:scale-105"

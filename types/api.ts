@@ -118,3 +118,31 @@ export interface PaymentInitResponse {
   message?: string;
 }
 
+export interface ShippingQuoteItem {
+  product: string;
+  quantity: number;
+  variantId?: string;
+}
+
+export interface ShippingQuoteRequest {
+  orderItems: ShippingQuoteItem[];
+  shippingAddress: {
+    address: string;
+    division?: string;
+    district?: string;
+    upazila?: string;
+    postalCode?: string;
+  };
+}
+
+export interface ShippingQuoteResponse {
+  success: boolean;
+  shippingFee: number;
+  totalWeightKg: number;
+  zone: string;
+  breakdown?: {
+    type: string;
+    tier: string;
+  };
+}
+

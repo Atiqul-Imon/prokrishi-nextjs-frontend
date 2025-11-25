@@ -17,6 +17,8 @@ import {
   DashboardStatsResponse,
   PaymentInitResponse,
   PaginationParams,
+  ShippingQuoteRequest,
+  ShippingQuoteResponse,
 } from "@/types/api";
 import { Address, Product, Category, Order } from "@/types/models";
 
@@ -169,6 +171,13 @@ export async function placeOrder(orderData: any): Promise<OrderResponse> {
   return apiRequest<OrderResponse>("/order/create", {
     method: "POST",
     data: orderData,
+  });
+}
+
+export function getShippingQuote(data: ShippingQuoteRequest): Promise<ShippingQuoteResponse> {
+  return apiRequest<ShippingQuoteResponse>("/order/shipping-quote", {
+    method: "POST",
+    data,
   });
 }
 

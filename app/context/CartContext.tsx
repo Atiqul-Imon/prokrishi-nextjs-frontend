@@ -103,6 +103,7 @@ export function CartProvider({ children }: CartProviderProps) {
           id: id,
           quantity: qty,
           totalMeasurement: measurementInfo ? measurementInfo.measurement * qty : qty,
+          unitWeightKg: product.unitWeightKg,
         };
         
         if (product.hasVariants && variantId) {
@@ -116,6 +117,7 @@ export function CartProvider({ children }: CartProviderProps) {
             newItem.measurement = variant.measurement;
             newItem.unit = variant.unit;
             newItem.measurementIncrement = variant.measurementIncrement;
+            newItem.unitWeightKg = variant.unitWeightKg ?? product.unitWeightKg;
           }
         }
         

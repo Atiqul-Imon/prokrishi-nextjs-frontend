@@ -18,6 +18,12 @@ const productSchema = z.object({
     .positive("Measurement must be a positive number")
     .max(999999, "Measurement is too high"),
   unit: z.enum(["pcs", "kg", "g", "l", "ml"]),
+  unitWeightKg: z
+    .preprocess(
+      (value) => (value === "" || value === null ? undefined : value),
+      z.coerce.number().min(0, "Unit weight must be zero or positive")
+    )
+    .optional(),
   stock: z.coerce.number().int().min(0, "Stock cannot be negative").max(999999, "Stock is too high"),
   lowStockThreshold: z.coerce
     .number()
@@ -47,6 +53,7 @@ export default function ProductForm({ initial, onSave, loading }) {
       price: 0,
       measurement: 1,
       unit: "pcs",
+      unitWeightKg: undefined,
       stock: 0,
       lowStockThreshold: 5,
       status: "active",
@@ -71,6 +78,7 @@ export default function ProductForm({ initial, onSave, loading }) {
       const formData = {
         ...initial,
         category: initial.category?._id || initial.category || "", // Handle populated category safely
+          unitWeightKg: initial.unitWeightKg ?? undefined,
       };
       console.log("Form data to set:", formData);
       reset(formData);
@@ -119,6 +127,7 @@ export default function ProductForm({ initial, onSave, loading }) {
     if (data.shortDescription !== undefined) formData.shortDescription = data.shortDescription || '';
     if (data.status) formData.status = data.status;
     if (data.isFeatured !== undefined) formData.isFeatured = data.isFeatured;
+    if (data.unitWeightKg !== undefined) formData.unitWeightKg = data.unitWeightKg;
     
     // Handle image file - only include if a new file is selected
     if (data.image && data.image[0] && data.image[0] instanceof File) {
@@ -135,6 +144,7 @@ export default function ProductForm({ initial, onSave, loading }) {
         measurement: v.measurement,
         unit: v.unit,
         measurementIncrement: v.measurementIncrement || 0.01,
+        unitWeightKg: v.unitWeightKg,
         status: v.status || 'active',
         isDefault: v.isDefault || false,
         image: v.image || undefined,
@@ -169,6 +179,7 @@ export default function ProductForm({ initial, onSave, loading }) {
       measurement: 1,
       unit: "pcs",
       measurementIncrement: 0.01,
+       unitWeightKg: undefined,
       status: "active",
       isDefault: variants.length === 0, // First variant is default
     };
@@ -432,7 +443,7 @@ export default function ProductForm({ initial, onSave, loading }) {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Label *
@@ -546,6 +557,27 @@ export default function ProductForm({ initial, onSave, loading }) {
                           <option value="ml">Milliliters (ml)</option>
                         </select>
                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Unit Weight (kg)
+                        </label>
+                        <input
+                          type="number"
+                          value={variant.unitWeightKg ?? ""}
+                          onChange={(e) =>
+                            updateVariant(
+                              index,
+                              "unitWeightKg",
+                              e.target.value ? parseFloat(e.target.value) : undefined
+                            )
+                          }
+                          step="0.001"
+                          min="0"
+                          disabled={loading}
+                          className={`w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${loading ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}`}
+                          placeholder="Optional"
+                        />
+                      </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -596,7 +628,7 @@ export default function ProductForm({ initial, onSave, loading }) {
               Pricing & Inventory
             </h3>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <Input
                 name="price"
                 type="number"
@@ -611,6 +643,14 @@ export default function ProductForm({ initial, onSave, loading }) {
                 label="Stock Quantity"
                 placeholder="100"
                 error={errors.stock}
+              />
+              <Input
+                name="unitWeightKg"
+                type="number"
+                label="Unit Weight (kg)"
+                placeholder="Optional"
+                step="0.001"
+                error={errors.unitWeightKg}
               />
             </div>
 

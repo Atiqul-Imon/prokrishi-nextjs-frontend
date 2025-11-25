@@ -22,6 +22,7 @@ export interface ProductVariant {
   measurement: number;
   unit: 'pcs' | 'kg' | 'g' | 'l' | 'ml';
   measurementIncrement?: number;
+  unitWeightKg?: number;
   status?: 'active' | 'inactive' | 'out_of_stock';
   isDefault?: boolean;
   image?: string;
@@ -40,6 +41,7 @@ export interface Product {
   sku: string;
   measurement: number; // Legacy field, kept for backward compatibility
   unit: string; // Legacy field, kept for backward compatibility
+  unitWeightKg?: number;
   minOrderQuantity?: number;
   measurementIncrement?: number; // Legacy field, kept for backward compatibility
   displayMeasurement?: string; // Virtual field from backend
@@ -79,6 +81,9 @@ export interface Order {
   orderStatus: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   status?: string; // Alternative status field
   totalPrice: number;
+  shippingFee?: number;
+  shippingZone?: string;
+  shippingWeightKg?: number;
   total?: number; // Alternative total field
   transactionId?: string;
   createdAt: string;
@@ -200,6 +205,9 @@ export interface FishOrder {
   paymentMethod: string;
   totalPrice: number;
   totalAmount: number;
+  shippingFee?: number;
+  shippingZone?: string;
+  shippingBreakdown?: Record<string, any>;
   status: 'pending' | 'confirmed' | 'processing' | 'prepared' | 'shipped' | 'delivered' | 'cancelled';
   paymentStatus: 'pending' | 'completed' | 'failed' | 'cancelled';
   orderNumber?: string;
