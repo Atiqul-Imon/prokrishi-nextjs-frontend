@@ -113,6 +113,7 @@ export interface CartItem extends Product {
   quantity: number;
   variantId?: string;
   variantSnapshot?: ProductVariant;
+  totalMeasurement?: number;
 }
 
 export interface DashboardStats {

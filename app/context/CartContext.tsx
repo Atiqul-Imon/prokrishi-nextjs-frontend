@@ -1,8 +1,31 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode, useCallback } from "react";
 import { CartContextType } from "@/types/context";
-import { CartItem, Product } from "@/types/models";
+import { CartItem, Product, ProductVariant } from "@/types/models";
+
+function normalizeMeasurement(value?: number): number {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return 1;
+  }
+  return value > 0 ? value : 1;
+}
+
+function getMeasurementInfo(product: Product | CartItem, variantId?: string) {
+  if (product.hasVariants && variantId) {
+    const variant = product.variants?.find((v) => v._id === variantId) || (product as CartItem).variantSnapshot;
+    if (variant) {
+      return {
+        measurement: normalizeMeasurement(variant.measurement),
+        unit: variant.unit || product.unit,
+      };
+    }
+  }
+  return {
+    measurement: normalizeMeasurement(product.measurement),
+    unit: product.unit,
+  };
+}
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -46,6 +69,7 @@ export function CartProvider({ children }: CartProviderProps) {
     try {
       setCart((prev) => {
         const id = product.id || product._id;
+        const measurementInfo = getMeasurementInfo(product, variantId);
         
         // Find matching item (same product and same variant)
         const idx = prev.findIndex((item) => {
@@ -67,6 +91,9 @@ export function CartProvider({ children }: CartProviderProps) {
         if (idx > -1) {
           const updated = [...prev];
           updated[idx].quantity += qty;
+          if (measurementInfo) {
+            updated[idx].totalMeasurement = (updated[idx].totalMeasurement || 0) + measurementInfo.measurement * qty;
+          }
           return updated;
         }
         
@@ -75,6 +102,7 @@ export function CartProvider({ children }: CartProviderProps) {
           ...product,
           id: id,
           quantity: qty,
+          totalMeasurement: measurementInfo ? measurementInfo.measurement * qty : qty,
         };
         
         if (product.hasVariants && variantId) {
@@ -113,7 +141,12 @@ export function CartProvider({ children }: CartProviderProps) {
           
           // Match by product ID and variant ID
           if (itemId === id && itemVariantId === variantId) {
-            return { ...item, quantity };
+            const measurementInfo = getMeasurementInfo(item, variantId);
+            return { 
+              ...item, 
+              quantity,
+              totalMeasurement: measurementInfo ? measurementInfo.measurement * quantity : quantity,
+            };
           }
           return item;
         })
@@ -149,9 +182,9 @@ export function CartProvider({ children }: CartProviderProps) {
   }
 
   // Memoize expensive calculations to prevent recalculation on every render
+  // Price is already for the measurement amount (e.g., 800 BDT for 500g), so we only multiply by quantity
   const cartTotal = useMemo(
     () => cart.reduce((sum, item) => {
-      // Use variant price if available, otherwise use product price
       const price = item.variantSnapshot?.price || item.price;
       return sum + price * item.quantity;
     }, 0),
@@ -162,6 +195,17 @@ export function CartProvider({ children }: CartProviderProps) {
     () => cart.reduce((sum, item) => sum + item.quantity, 0),
     [cart]
   );
+
+  const getItemDisplayQuantity = useCallback((item: CartItem) => {
+    const info = getMeasurementInfo(item, item.variantId);
+    const totalMeasurement = item.totalMeasurement ?? info.measurement * item.quantity;
+    const unitLabel = info.unit || "unit";
+    return {
+      value: totalMeasurement,
+      unit: unitLabel,
+      displayText: `${totalMeasurement} ${unitLabel}`,
+    };
+  }, []);
 
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo(
@@ -174,11 +218,12 @@ export function CartProvider({ children }: CartProviderProps) {
       clearCart,
       cartTotal,
       cartCount,
+      getItemDisplayQuantity,
       isSidebarOpen,
       openSidebar: () => setIsSidebarOpen(true),
       closeSidebar: () => setIsSidebarOpen(false),
     }),
-    [cart, loading, cartTotal, cartCount, isSidebarOpen]
+    [cart, loading, cartTotal, cartCount, isSidebarOpen, getItemDisplayQuantity]
   );
 
   return (

@@ -24,6 +24,7 @@ export interface CartContextType {
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
+  getItemDisplayQuantity?: (item: CartItem) => { value: number; unit?: string; displayText: string };
   isSidebarOpen: boolean;
   openSidebar: () => void;
   closeSidebar: () => void;

@@ -34,6 +34,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
     updateQuantity,
     removeFromCart,
     clearCart,
+    getItemDisplayQuantity,
   } = useCart();
   const { user, refreshUser } = useAuth();
   const router = useRouter();
@@ -236,30 +237,42 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 <>
                   {/* Cart Items */}
                   <div className="space-y-3 mb-6">
-                    {cart.map((item) => (
-                      <div
-                        key={item.id || item._id}
-                        className="flex gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-green-300 transition-colors"
-                      >
-                        <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                          <Image
-                            src={item.image || "/img/placeholder.png"}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2">
-                            {item.name}
-                          </h4>
-                          <p className="text-green-600 font-bold text-sm mb-2">
-                            ৳{item.price.toFixed(2)}
-                          </p>
+                    {cart.map((item) => {
+                      const displayQty = getItemDisplayQuantity ? getItemDisplayQuantity(item) : null;
+                      const itemTotalPrice = item.price * item.quantity;
+                      const itemId = item.id || item._id;
+                      const cartKey = `${itemId}-${item.variantId || "default"}`;
+                      return (
+                        <div
+                          key={cartKey}
+                          className="flex gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-green-300 transition-colors"
+                        >
+                          <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                            <Image
+                              src={item.image || "/img/placeholder.png"}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2">
+                              {item.name}
+                            </h4>
+                            <div className="mb-2">
+                              <p className="text-green-600 font-bold text-sm">
+                                ৳{itemTotalPrice.toFixed(2)}
+                              </p>
+                              {displayQty && (
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {displayQty.displayText} × {item.quantity}
+                                </p>
+                              )}
+                            </div>
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() =>
-                                updateQuantity(item.id || item._id, item.quantity - 1)
+                                updateQuantity(itemId, item.quantity - 1, item.variantId)
                               }
                               className="w-7 h-7 flex items-center justify-center border-2 border-gray-300 rounded hover:border-green-500 hover:bg-green-50 transition-colors"
                             >
@@ -270,14 +283,14 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                             </span>
                             <button
                               onClick={() =>
-                                updateQuantity(item.id || item._id, item.quantity + 1)
+                                updateQuantity(itemId, item.quantity + 1, item.variantId)
                               }
                               className="w-7 h-7 flex items-center justify-center border-2 border-gray-300 rounded hover:border-green-500 hover:bg-green-50 transition-colors"
                             >
                               <Plus className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => removeFromCart(item.id || item._id)}
+                              onClick={() => removeFromCart(itemId, item.variantId)}
                               className="ml-auto p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -285,7 +298,8 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                           </div>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Order Summary */}
