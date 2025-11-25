@@ -13,7 +13,15 @@ export interface MeasurementDisplay {
 /**
  * Format measurement for display without unit conversion
  */
+function getUnitDisplay(unit: string): string {
+  if (unit === 'g') {
+    return 'Gram';
+  }
+  return unit;
+}
+
 export function formatMeasurement(measurement: number, unit: string): MeasurementDisplay {
+  const unitLabel = getUnitDisplay(unit);
   const isFractional = measurement < 1;
   
   // Display measurement as-is without conversion
@@ -21,14 +29,14 @@ export function formatMeasurement(measurement: number, unit: string): Measuremen
     return {
       value: measurement,
       unit,
-      displayText: `${measurement} ${unit}`,
+      displayText: `${measurement} ${unitLabel}`,
       isFractional: false
     };
   } else {
     return {
       value: measurement,
       unit,
-      displayText: `${measurement} ${unit}`,
+      displayText: `${measurement} ${unitLabel}`,
       isFractional: true
     };
   }
@@ -46,9 +54,10 @@ export function getPricePerUnit(price: number, measurement: number, unit: string
  */
 export function formatPricePerUnit(price: number, measurement: number, unit: string): string {
   const pricePerUnit = getPricePerUnit(price, measurement, unit);
+  const unitLabel = getUnitDisplay(unit);
   
   // Display price per unit without conversion
-  return `৳${pricePerUnit.toFixed(2)}/${unit}`;
+  return `৳${pricePerUnit.toFixed(2)}/${unitLabel}`;
 }
 
 /**
@@ -63,14 +72,14 @@ export function validateMeasurement(
   if (value < minOrderQuantity) {
     return {
       isValid: false,
-      error: `Minimum order quantity is ${minOrderQuantity} ${unit}`
+      error: `Minimum order quantity is ${minOrderQuantity} ${getUnitDisplay(unit)}`
     };
   }
   
   if (value % measurementIncrement !== 0) {
     return {
       isValid: false,
-      error: `Quantity must be in increments of ${measurementIncrement} ${unit}`
+      error: `Quantity must be in increments of ${measurementIncrement} ${getUnitDisplay(unit)}`
     };
   }
   
@@ -133,9 +142,9 @@ export function getCommonFractionalMeasurements(unit: string): { value: number; 
     ];
   } else if (unit === 'g') {
     return [
-      { value: 100, label: '100g' },
-      { value: 250, label: '250g' },
-      { value: 500, label: '500g' },
+      { value: 100, label: '100 Gram' },
+      { value: 250, label: '250 Gram' },
+      { value: 500, label: '500 Gram' },
       { value: 1000, label: '1 kg' }
     ];
   } else if (unit === 'ml') {

@@ -1,15 +1,31 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3500';
+const DEFAULT_DEV_API = 'http://localhost:3500';
+
+const resolveApiBaseUrl = (): string => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (envUrl) {
+    return envUrl.replace(/\/$/, '');
+  }
+
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin.replace(/\/$/, '');
+  }
+
+  return DEFAULT_DEV_API;
+};
+
+const buildFishApiBase = () => `${resolveApiBaseUrl()}/api/fish`;
 
 const fishApi = axios.create({
-  baseURL: `${API_BASE_URL}/api/fish`,
   withCredentials: true,
+  timeout: 20000,
 });
 
 // Add request interceptor to include auth token
 fishApi.interceptors.request.use(
   (config) => {
+    config.baseURL = buildFishApiBase();
     const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
