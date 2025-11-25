@@ -189,6 +189,18 @@ function Navbar() {
     }
   }, [searchQuery, router]);
 
+  const handleLogoClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      } else {
+        router.push("/");
+      }
+    },
+    [router],
+  );
+
   return (
     <>
       <header className="sticky top-0 z-[100] bg-white border-b border-green-200 shadow-md transition-all duration-300" style={{ position: 'sticky', top: 0 }}>
@@ -220,6 +232,7 @@ function Navbar() {
           {/* Logo */}
           <Link
             href="/"
+            onClick={handleLogoClick}
             className="flex items-center whitespace-nowrap group flex-shrink-0"
           >
             <div className="relative">
