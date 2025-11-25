@@ -2,6 +2,7 @@
 // Centralized API utility for Prokrishi frontend (Next.js) using axios and localStorage-based JWT
 
 import axios from "axios";
+import { getApiBaseUrl } from "./env";
 import {
   LoginRequest,
   LoginResponse,
@@ -19,8 +20,7 @@ import {
 } from "@/types/api";
 import { Address, Product, Category, Order } from "@/types/models";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3500/api";
+const BASE_URL = getApiBaseUrl();
 
 // Create an axios instance
 const api = axios.create({

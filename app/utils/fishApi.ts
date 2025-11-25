@@ -1,21 +1,10 @@
 import axios from 'axios';
+import { getApiBaseUrl } from './env';
 
-const DEFAULT_DEV_API = 'http://localhost:3500';
-
-const resolveApiBaseUrl = (): string => {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (envUrl) {
-    return envUrl.replace(/\/$/, '');
-  }
-
-  if (typeof window !== 'undefined' && window.location?.origin) {
-    return window.location.origin.replace(/\/$/, '');
-  }
-
-  return DEFAULT_DEV_API;
+const buildFishApiBase = () => {
+  const base = getApiBaseUrl().replace(/\/$/, '');
+  return `${base}/fish`;
 };
-
-const buildFishApiBase = () => `${resolveApiBaseUrl()}/api/fish`;
 
 const fishApi = axios.create({
   withCredentials: true,

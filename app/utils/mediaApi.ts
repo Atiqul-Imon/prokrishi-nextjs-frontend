@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { getApiBaseUrl } from './env';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3500/api';
+const API_BASE_URL = getApiBaseUrl();
 
 // Create axios instance with default config
 const mediaApi = axios.create({

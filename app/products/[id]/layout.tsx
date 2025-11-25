@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getApiBaseUrl } from "@/app/utils/env";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -6,7 +7,7 @@ type Props = {
 
 async function fetchProduct(id: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3500/api";
+    const baseUrl = getApiBaseUrl();
     const res = await fetch(`${baseUrl}/product/${id}`, {
       next: { revalidate: 300 }, // Revalidate every 5 minutes
     });
