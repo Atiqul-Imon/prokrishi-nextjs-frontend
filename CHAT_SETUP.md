@@ -21,7 +21,7 @@ Edit the file `config/chat.js` and update the following information:
 export const chatConfig = {
   // WhatsApp Configuration
   whatsapp: {
-    number: "+8801234567890", // Replace with your actual WhatsApp business number
+    number: "+8801748027775", // Replace with your actual WhatsApp business number
     defaultMessage: "Hello! I have a question about your products.",
     businessHours: "9:00 AM - 8:00 PM (BDT)",
   },
@@ -46,7 +46,7 @@ export const chatConfig = {
 
 1. **Get your WhatsApp Business number:**
    - Use your existing WhatsApp number or get a dedicated business number
-   - Format: `+8801234567890` (include country code)
+   - Format: `+8801748027775` (include country code)
 
 2. **Test the integration:**
    - Click the WhatsApp button on your website

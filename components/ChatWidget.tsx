@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { MessageCircle, X, Phone, Facebook } from "lucide-react";
+import { MessageCircle, X, Phone } from "lucide-react";
 import chatConfig from "../config/chat";
 
 const ChatWidget = () => {
@@ -10,21 +10,9 @@ const ChatWidget = () => {
 
   const handleWhatsAppClick = () => {
     const encodedMessage = encodeURIComponent(chatConfig.whatsapp.defaultMessage);
-    const whatsappUrl = `https://wa.me/${chatConfig.whatsapp.number}?text=${encodedMessage}`;
+    const sanitizedNumber = chatConfig.whatsapp.number.replace(/[^\d]/g, "");
+    const whatsappUrl = `https://wa.me/${sanitizedNumber}?text=${encodedMessage}`;
     window.open(whatsappUrl, "_blank");
-  };
-
-  const handleMessengerClick = () => {
-    // Facebook Messenger integration
-    if (window.FB) {
-      window.FB.ui({
-        method: 'send',
-        link: window.location.href,
-      });
-    } else {
-      // Fallback to Facebook page
-      window.open(`https://www.facebook.com/${chatConfig.facebook.pageId}`, "_blank");
-    }
   };
 
   const toggleChat = () => {
@@ -41,10 +29,10 @@ const ChatWidget = () => {
   return (
     <>
       {/* Main Chat Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-50 flex justify-end pointer-events-none md:sticky md:top-[calc(100vh-7rem)] md:right-6 md:pr-6">
         <button
           onClick={toggleChat}
-          className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg"
+          className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg pointer-events-auto"
           aria-label="Chat with us"
         >
           {isOpen ? (
@@ -57,7 +45,7 @@ const ChatWidget = () => {
 
       {/* Chat Widget */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden">
+        <div className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden pointer-events-auto md:sticky md:top-[calc(100vh-20rem)] md:right-6 md:ml-auto">
           {/* Header */}
           <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-4">
             <div className="flex items-center justify-between">
@@ -89,15 +77,6 @@ const ChatWidget = () => {
                 >
                   <Phone className="w-5 h-5" />
                   <span className="font-medium">Chat on WhatsApp</span>
-                </button>
-
-                {/* Messenger Option */}
-                <button
-                  onClick={handleMessengerClick}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 flex items-center justify-center space-x-3 transition-colors duration-200"
-                >
-                  <Facebook className="w-5 h-5" />
-                  <span className="font-medium">Chat on Messenger</span>
                 </button>
 
                 {/* Expand for more options */}
@@ -135,12 +114,6 @@ const ChatWidget = () => {
                         className="w-full bg-green-500 hover:bg-green-600 text-white rounded px-3 py-2 text-sm transition-colors"
                       >
                         WhatsApp Support
-                      </button>
-                      <button
-                        onClick={handleMessengerClick}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-2 text-sm transition-colors"
-                      >
-                        Messenger Support
                       </button>
                     </div>
                   </div>

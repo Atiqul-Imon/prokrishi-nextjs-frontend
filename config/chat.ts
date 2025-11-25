@@ -4,7 +4,7 @@
 export const chatConfig = {
   // WhatsApp Configuration
   whatsapp: {
-    number: "+8801234567890", // Replace with your WhatsApp business number
+    number: "+8801748027775",
     defaultMessage: "Hello! I have a question about your products.",
     businessHours: "9:00 AM - 8:00 PM (BDT)",
   },
@@ -17,7 +17,7 @@ export const chatConfig = {
   
   // General Contact Information
   contact: {
-    phone: "+880 1234-567890",
+    phone: "+8801748027775",
     email: "support@prokrishi.com",
     businessHours: "9:00 AM - 8:00 PM (BDT)",
     timezone: "Asia/Dhaka",

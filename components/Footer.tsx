@@ -46,7 +46,10 @@ function Footer() {
           <h4 className="text-lg font-semibold mb-3">Contact Us</h4>
           <ul className="space-y-2 text-sm text-gray-200">
             <li className="flex items-center">
-              <Phone size={16} className="mr-2" /> +880 123 456 789
+              <Phone size={16} className="mr-2" />
+              <a href="tel:+8801748027775" className="hover:underline">
+                +880 1748-027775
+              </a>
             </li>
             <li className="flex items-center">
               <Mail size={16} className="mr-2" /> support@prokrishi.com
