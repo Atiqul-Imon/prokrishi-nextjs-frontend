@@ -21,6 +21,7 @@ import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
 import { useProductData } from "@/hooks/useSWRWithConfig";
 import { getProductImageUrl } from "@/utils/imageOptimizer";
+import { getProductImageList } from "@/utils/productImages";
 import { formatMeasurement, formatPricePerUnit } from "@/app/utils/measurement";
 import ProductCard from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/LoadingSkeleton";
@@ -38,6 +39,7 @@ export default function ProductDetailsPage() {
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const { messages, showMessage, removeMessage, success, error: showError } = useInlineMessage();
 
   // Fetch product data
@@ -56,6 +58,15 @@ export default function ProductDetailsPage() {
       setQuantity(product.measurementIncrement || 1);
     }
   }, [product]);
+
+  const productImages = useMemo(() => getProductImageList(product, "/testp.webp"), [product]);
+  const activeImage = productImages[activeImageIndex] || "/testp.webp";
+  const hasGalleryImages = productImages.length > 1;
+
+  // Reset gallery index when product changes
+  React.useEffect(() => {
+    setActiveImageIndex(0);
+  }, [product?._id]);
 
   // Fetch related products
   React.useEffect(() => {
@@ -293,7 +304,7 @@ export default function ProductDetailsPage() {
             <div className="relative">
               <div className="relative aspect-square bg-gray-50 rounded-xl overflow-hidden group">
                 <Image
-                  src={getProductImageUrl(product.image || "/testp.webp", "detail")}
+                  src={getProductImageUrl(activeImage, "detail")}
                   alt={product.name}
                   fill
                   className="object-contain"
@@ -308,6 +319,32 @@ export default function ProductDetailsPage() {
                   <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
               </div>
+
+              {hasGalleryImages && (
+                <div className="grid grid-cols-4 gap-3 mt-4">
+                  {productImages.map((img, index) => (
+                    <button
+                      key={`${img}-${index}`}
+                      type="button"
+                      onClick={() => setActiveImageIndex(index)}
+                      className={`relative aspect-square border ${
+                        activeImageIndex === index
+                          ? "border-green-600 ring-2 ring-green-200"
+                          : "border-gray-200 hover:border-green-300"
+                      }`}
+                      aria-label={`View image ${index + 1}`}
+                    >
+                      <Image
+                        src={getProductImageUrl(img, "thumbnail")}
+                        alt={`${product.name} thumbnail ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="100px"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
               
               {/* Image Zoom Modal */}
               {imageZoomed && (
@@ -323,7 +360,7 @@ export default function ProductDetailsPage() {
                   </button>
                   <div className="relative max-w-4xl max-h-full bg-white rounded-2xl shadow-2xl border border-gray-200 p-4" onClick={(e) => e.stopPropagation()}>
                     <Image
-                      src={getProductImageUrl(product.image || "/testp.webp", "full")}
+                      src={getProductImageUrl(activeImage, "full")}
                       alt={product.name}
                       width={1200}
                       height={1200}

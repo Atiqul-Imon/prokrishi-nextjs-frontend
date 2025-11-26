@@ -17,6 +17,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import { useCart } from "@/app/context/CartContext";
 import { searchProducts } from "@/app/utils/api";
+import { getPrimaryProductImageSource } from "@/utils/productImages";
 
 function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -401,7 +402,7 @@ function Navbar() {
                       >
                         <div className="flex items-center space-x-3">
                           <img
-                            src={product.image || "/img/placeholder.png"}
+                            src={getPrimaryProductImageSource(product)}
                             alt={product.name}
                             className="w-12 h-12 object-cover rounded-lg shadow-sm"
                           />
@@ -719,7 +720,7 @@ function Navbar() {
                       >
                         <div className="flex items-center space-x-3">
                           <img
-                            src={product.image || "/img/placeholder.png"}
+                            src={getPrimaryProductImageSource(product)}
                             alt={product.name}
                             className="w-12 h-12 object-cover rounded-lg shadow-sm"
                           />

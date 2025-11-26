@@ -6,6 +6,7 @@ import Image from "next/image";
 import ProductStatusBadge from "./ProductStatusBadge";
 import { useRouter } from "next/navigation";
 import { Edit, Trash2, Star, StarOff, Package, Eye } from "lucide-react";
+import { getPrimaryProductImageSource } from "@/utils/productImages";
 
 interface ProductRowProps {
   product: any;
@@ -49,6 +50,7 @@ export default function ProductRow({
   const stock = product.stock || 0;
   const isLowStock = stock > 0 && stock <= 10;
   const isOutOfStock = stock === 0;
+  const primaryImage = getPrimaryProductImageSource(product);
 
   return (
     <tr
@@ -72,9 +74,9 @@ export default function ProductRow({
       {/* Image */}
       <td className="px-6 py-4">
         <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-gray-300 bg-gray-100 shadow-lg">
-          {product.image ? (
+          {primaryImage ? (
             <Image
-              src={product.image}
+              src={primaryImage}
               alt={product.name}
               fill
               className="object-cover"

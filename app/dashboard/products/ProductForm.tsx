@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { getResourceList } from "@/app/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,6 +38,11 @@ const productSchema = z.object({
   image: z.any().optional(),
 });
 
+type GalleryUpload = {
+  file: File;
+  preview: string;
+};
+
 export default function ProductForm({ initial, onSave, loading }) {
   const {
     register,
@@ -70,6 +75,21 @@ export default function ProductForm({ initial, onSave, loading }) {
   const [formInitialized, setFormInitialized] = useState(false);
   const [hasVariants, setHasVariants] = useState(false);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [existingGallery, setExistingGallery] = useState<string[]>([]);
+  const [galleryUploads, setGalleryUploads] = useState<GalleryUpload[]>([]);
+  const galleryUploadsRef = useRef<GalleryUpload[]>([]);
+
+  useEffect(() => {
+    galleryUploadsRef.current = galleryUploads;
+  }, [galleryUploads]);
+
+  useEffect(() => {
+    return () => {
+      galleryUploadsRef.current.forEach((item) => {
+        URL.revokeObjectURL(item.preview);
+      });
+    };
+  }, []);
 
   useEffect(() => {
     // If there's initial data, reset the form with it (only once)
@@ -91,6 +111,14 @@ export default function ProductForm({ initial, onSave, loading }) {
         setHasVariants(false);
         setVariants([]);
       }
+      
+      const galleryFromInitial =
+        (initial.images || []).filter((img: string) => img && img !== initial.image) || [];
+      setExistingGallery(galleryFromInitial);
+      setGalleryUploads((prev) => {
+        prev.forEach((item) => URL.revokeObjectURL(item.preview));
+        return [];
+      });
       
       setFormInitialized(true);
     }
@@ -160,6 +188,12 @@ export default function ProductForm({ initial, onSave, loading }) {
       if (data.lowStockThreshold !== undefined) formData.lowStockThreshold = data.lowStockThreshold;
     }
     
+    formData.existingGallery = existingGallery;
+
+    if (galleryUploads.length > 0) {
+      formData.galleryImages = galleryUploads.map((item) => item.file);
+    }
+    
     // Remove empty strings and null values
     Object.keys(formData).forEach(key => {
       if (formData[key] === '' || formData[key] === null || formData[key] === undefined) {
@@ -207,6 +241,43 @@ export default function ProductForm({ initial, onSave, loading }) {
     }
     
     setVariants(updated);
+  };
+
+  const resetGalleryUploads = () => {
+    setGalleryUploads((prev) => {
+      prev.forEach((item) => URL.revokeObjectURL(item.preview));
+      return [];
+    });
+  };
+
+  const handleGalleryFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) {
+      return;
+    }
+
+    const mapped = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setGalleryUploads((prev) => [...prev, ...mapped]);
+    event.target.value = "";
+  };
+
+  const removeExistingGalleryImage = (index: number) => {
+    setExistingGallery((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeGalleryUpload = (index: number) => {
+    setGalleryUploads((prev) => {
+      const next = [...prev];
+      const [removed] = next.splice(index, 1);
+      if (removed) {
+        URL.revokeObjectURL(removed.preview);
+      }
+      return next;
+    });
   };
 
   const Input = ({ name, label, error, multilang = false, ...props }) => (
@@ -783,6 +854,91 @@ export default function ProductForm({ initial, onSave, loading }) {
           </div>
         </div>
 
+        {/* Gallery Images Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+            Additional Gallery Images
+          </h3>
+          <p className="text-sm text-gray-500">
+            The first image is used as the cover. Additional images power hover previews and the product gallery.
+          </p>
+
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Current Gallery</p>
+            {existingGallery.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {existingGallery.map((img, index) => (
+                  <div key={`${img}-${index}`} className="border border-gray-200 p-2 space-y-2">
+                    <div className="aspect-square overflow-hidden bg-gray-50">
+                      <img
+                        src={img}
+                        alt={`Gallery image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeExistingGalleryImage(index)}
+                      disabled={loading}
+                      className="w-full text-sm text-red-600 border border-red-200 py-1 px-2 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">No gallery images yet.</p>
+            )}
+          </div>
+
+          {galleryUploads.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Pending Uploads</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {galleryUploads.map((item, index) => (
+                  <div key={item.preview} className="border border-dashed border-gray-300 p-2 space-y-2">
+                    <div className="aspect-square overflow-hidden bg-gray-50">
+                      <img
+                        src={item.preview}
+                        alt={`New gallery image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeGalleryUpload(index)}
+                      disabled={loading}
+                      className="w-full text-sm text-gray-700 border border-gray-200 py-1 px-2 hover:bg-gray-50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label
+              htmlFor="galleryImages"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Add Gallery Images
+            </label>
+            <input
+              id="galleryImages"
+              type="file"
+              accept="image/*"
+              multiple
+              disabled={loading}
+              onChange={handleGalleryFilesChange}
+              className={`w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 border border-gray-300 rounded-lg p-2 ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+            />
+            <p className="text-xs text-gray-500 mt-1">Upload up to 10 images. Large high-quality images recommended.</p>
+          </div>
+        </div>
+
         {/* Form Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-end pt-6 border-t border-gray-200">
           <button
@@ -796,12 +952,17 @@ export default function ProductForm({ initial, onSave, loading }) {
                   category: initial.category?._id || initial.category || "",
                 });
                 setFormInitialized(true);
+                const galleryFromInitial =
+                  (initial.images || []).filter((img: string) => img && img !== initial.image) || [];
+                setExistingGallery(galleryFromInitial);
               } else {
                 // Reset to default values in create mode
                 console.log("Resetting to default values");
                 reset();
                 setFormInitialized(false);
+                setExistingGallery([]);
               }
+              resetGalleryUploads();
             }}
             className="w-full sm:w-auto bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}

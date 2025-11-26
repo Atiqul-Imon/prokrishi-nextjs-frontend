@@ -15,6 +15,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { getProductImageList } from "@/utils/productImages";
 
 const InfoCard = ({ title, children, className = "" }: { title: string; children: any; className?: string }) => (
   <div className={`bg-white p-6 rounded-lg shadow-md ${className}`}>
@@ -82,6 +83,8 @@ export default function ProductDetailPage() {
   if (!product)
     return <div className="text-center py-20">Product not found.</div>;
 
+  const galleryImages = getProductImageList(product, "");
+
   return (
     <div className="container mx-auto p-4">
       {/* Inline Messages */}
@@ -117,12 +120,30 @@ export default function ProductDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
-          <InfoCard title="Product Image">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-auto rounded-md shadow-lg"
-            />
+          <InfoCard title="Product Images">
+            {galleryImages.length > 0 ? (
+              <div className="space-y-4">
+                <img
+                  src={galleryImages[0]}
+                  alt={`${product.name} primary`}
+                  className="w-full h-auto shadow-lg border border-gray-100"
+                />
+                {galleryImages.length > 1 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {galleryImages.slice(1).map((img, index) => (
+                      <img
+                        key={`${img}-${index}`}
+                        src={img}
+                        alt={`${product.name} gallery ${index + 2}`}
+                        className="w-full aspect-square object-cover border border-gray-100"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500">No images available.</div>
+            )}
           </InfoCard>
         </div>
 

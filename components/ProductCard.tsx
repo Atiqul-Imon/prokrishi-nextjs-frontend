@@ -12,15 +12,17 @@ import {
 import { useCart } from "@/app/context/CartContext";
 import { getProductImageUrl } from "@/utils/imageOptimizer";
 import { formatMeasurement } from "@/app/utils/measurement";
+import {
+  getPrimaryProductImageSource,
+  getSecondaryProductImageSource,
+} from "@/utils/productImages";
 
 function ProductCard({ product }: { product: any }) {
   const { addToCart } = useCart();
   const {
     _id,
     name,
-    image,
     price,
-    category,
     stock,
     measurement,
     unit,
@@ -33,6 +35,23 @@ function ProductCard({ product }: { product: any }) {
   }, [product, _id, addToCart]);
 
   const inStock = useMemo(() => stock > 0, [stock]);
+
+  const primaryImageSource = useMemo(
+    () => getPrimaryProductImageSource(product),
+    [product],
+  );
+  const hoverImageSource = useMemo(
+    () => getSecondaryProductImageSource(product),
+    [product],
+  );
+  const primaryImageUrl = useMemo(
+    () => getProductImageUrl(primaryImageSource, "card"),
+    [primaryImageSource],
+  );
+  const hoverImageUrl = useMemo(
+    () => (hoverImageSource ? getProductImageUrl(hoverImageSource, "card") : null),
+    [hoverImageSource],
+  );
   
   // Format measurement for display
   const measurementDisplay = useMemo(() => {
@@ -44,13 +63,24 @@ function ProductCard({ product }: { product: any }) {
       <Link href={`/products/${_id}`} className="block flex-shrink-0">
         <div className="relative overflow-hidden aspect-square w-full">
           <img
-            src={getProductImageUrl(image, 'card')}
+            src={primaryImageUrl}
             alt={name}
             loading="lazy"
             width={400}
             height={400}
-            className="w-full h-full object-cover object-center"
+            className={`w-full h-full object-cover object-center ${hoverImageUrl ? "transition-opacity duration-300 group-hover:opacity-0" : ""}`}
           />
+          {hoverImageUrl && (
+            <img
+              src={hoverImageUrl}
+              alt={`${name} alternate`}
+              loading="lazy"
+              width={400}
+              height={400}
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              aria-hidden="true"
+            />
+          )}
           {!inStock && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">

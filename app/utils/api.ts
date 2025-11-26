@@ -24,6 +24,52 @@ import { Address, Product, Category, Order } from "@/types/models";
 
 const BASE_URL = getApiBaseUrl();
 
+const isFileLike = (value: any): value is File | Blob => {
+  if (typeof File !== "undefined" && value instanceof File) {
+    return true;
+  }
+  if (typeof Blob !== "undefined" && value instanceof Blob) {
+    return true;
+  }
+  return false;
+};
+
+const appendFormDataValue = (formData: FormData, key: string, value: any) => {
+  if (isFileLike(value)) {
+    formData.append(key, value);
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    const containsFile = value.some((item) => isFileLike(item));
+    if (containsFile) {
+      value.forEach((item) => {
+        if (isFileLike(item)) {
+          formData.append(key, item);
+        } else if (
+          typeof item === "string" ||
+          typeof item === "number" ||
+          typeof item === "boolean"
+        ) {
+          formData.append(key, String(item));
+        } else {
+          formData.append(key, JSON.stringify(item));
+        }
+      });
+    } else {
+      formData.append(key, JSON.stringify(value));
+    }
+    return;
+  }
+
+  if (typeof value === "object") {
+    formData.append(key, JSON.stringify(value));
+    return;
+  }
+
+  formData.append(key, value);
+};
+
 // Create an axios instance
 const api = axios.create({
   baseURL: BASE_URL,
@@ -245,13 +291,7 @@ export async function createProduct(productData: any): Promise<ProductResponse> 
       continue;
     }
 
-    if (value instanceof File) {
-      formData.append(key, value);
-    } else if (Array.isArray(value) || (typeof value === "object" && !(value instanceof Blob))) {
-      formData.append(key, JSON.stringify(value));
-    } else {
-      formData.append(key, value);
-    }
+    appendFormDataValue(formData, key, value);
   }
 
   try {
@@ -279,7 +319,7 @@ export async function updateProduct(id: string, productData: any): Promise<Produ
     const value = productData[key];
     
     // Skip image if it's not a File object
-    if (key === "image" && !(value instanceof File)) {
+    if (key === "image" && !isFileLike(value)) {
       continue;
     }
     
@@ -287,17 +327,8 @@ export async function updateProduct(id: string, productData: any): Promise<Produ
     if (value === null || value === undefined || value === '') {
       continue;
     }
-    
-    // Handle arrays (like variants)
-    if (Array.isArray(value)) {
-      formData.append(key, JSON.stringify(value));
-    } else if (typeof value === 'object' && !(value instanceof File)) {
-      // Stringify objects (but not Files)
-      formData.append(key, JSON.stringify(value));
-    } else {
-      // Handle primitives and Files
-      formData.append(key, value);
-    }
+
+    appendFormDataValue(formData, key, value);
   }
 
   try {

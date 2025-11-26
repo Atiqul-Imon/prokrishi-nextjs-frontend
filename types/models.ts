@@ -36,6 +36,7 @@ export interface Product {
   shortDescription?: string;
   price: number; // Legacy field, kept for backward compatibility
   image: string;
+  images?: string[];
   category: string | Category;
   stock: number; // Legacy field, kept for backward compatibility
   sku: string;

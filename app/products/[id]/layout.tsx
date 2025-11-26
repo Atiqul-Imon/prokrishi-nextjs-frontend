@@ -35,7 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const title = product.metaTitle || `${product.name} | Prokrishi`;
     const description = product.metaDescription || product.shortDescription || product.description?.substring(0, 160) || "Browse our agricultural products";
-    const imageUrl = product.image || "/logo/prokrishihublogo.png";
+    const primaryImage = (product.images && product.images[0]) || product.image;
+    const imageUrl = primaryImage || "/logo/prokrishihublogo.png";
 
     return {
       title,
