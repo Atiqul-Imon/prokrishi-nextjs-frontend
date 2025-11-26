@@ -32,16 +32,14 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     <>
       <CartSidebarWrapper />
       <Navbar />
-      <main className="flex-grow flex justify-center bg-gradient-to-br from-amber-20 to-yellow-20 pb-16 md:pb-0">
+      <main className="flex-grow w-full bg-gradient-to-br from-amber-20 to-yellow-20 pb-16 md:pb-0">
         <ContentContainer>
           {children}
         </ContentContainer>
       </main>
       <Footer />
-      {/* Chat Widget - Hidden on mobile, shown on desktop */}
-      <div className="hidden md:block">
-        <ChatWidget />
-      </div>
+      {/* Chat Widget - Floating on desktop, fixed on mobile */}
+      <ChatWidget />
       {/* Mobile Bottom Navigation - Rendered last to ensure it's on top */}
       <MobileBottomNav />
     </>

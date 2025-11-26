@@ -28,11 +28,11 @@ const ChatWidget = () => {
 
   return (
     <>
-      {/* Main Chat Button */}
-      <div className="fixed bottom-6 right-6 z-50 flex justify-end pointer-events-none md:sticky md:top-[calc(100vh-7rem)] md:right-6 md:pr-6">
+      {/* Main Chat Button - Hidden on mobile, shown on desktop */}
+      <div className="hidden md:flex fixed bottom-6 right-6 z-50 justify-end pointer-events-none">
         <button
           onClick={toggleChat}
-          className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg pointer-events-auto"
+          className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg pointer-events-auto transition-transform hover:scale-110"
           aria-label="Chat with us"
         >
           {isOpen ? (
@@ -43,9 +43,9 @@ const ChatWidget = () => {
         </button>
       </div>
 
-      {/* Chat Widget */}
+      {/* Chat Widget - Hidden on mobile, shown on desktop */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden pointer-events-auto md:sticky md:top-[calc(100vh-20rem)] md:right-6 md:ml-auto">
+        <div className="hidden md:block fixed bottom-32 right-6 z-50 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden pointer-events-auto">
           {/* Header */}
           <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-4">
             <div className="flex items-center justify-between">

@@ -18,7 +18,7 @@ export const chatConfig = {
   // General Contact Information
   contact: {
     phone: "+8801748027775",
-    email: "support@prokrishi.com",
+    email: "prokrishi2025@gmail.com",
     businessHours: "9:00 AM - 8:00 PM (BDT)",
     timezone: "Asia/Dhaka",
   },

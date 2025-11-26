@@ -22,7 +22,7 @@ export default function ContentContainer({ children }: ContentContainerProps) {
   // - Mobile/Tablet/Small Laptop: Full width (100%)
   // - Large screens (1536px+): 50% viewport width, centered
   return (
-    <div className="w-full bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen px-4 sm:px-6 lg:px-8 3xl:px-0 3xl:max-w-[50vw] 3xl:mx-auto pb-16 md:pb-0">
+    <div className="w-full px-4 sm:px-6 lg:px-8 3xl:px-0 3xl:max-w-[50vw] 3xl:mx-auto">
       {children}
     </div>
   );
