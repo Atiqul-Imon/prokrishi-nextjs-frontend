@@ -239,8 +239,18 @@ export async function getCategoryById(id: string): Promise<CategoryResponse> {
 export async function createProduct(productData: any): Promise<ProductResponse> {
   const formData = new FormData();
   for (const key in productData) {
-    if (productData[key] !== null && productData[key] !== undefined) {
-      formData.append(key, productData[key]);
+    const value = productData[key];
+
+    if (value === null || value === undefined || value === "") {
+      continue;
+    }
+
+    if (value instanceof File) {
+      formData.append(key, value);
+    } else if (Array.isArray(value) || (typeof value === "object" && !(value instanceof Blob))) {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, value);
     }
   }
 
