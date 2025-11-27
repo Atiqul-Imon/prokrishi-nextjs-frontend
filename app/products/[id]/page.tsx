@@ -559,21 +559,6 @@ export default function ProductDetailsPage() {
                 </button>
               </div>
 
-              {/* Trust Badges */}
-              <div className="mt-8 space-y-3 text-sm text-gray-600 border-t pt-6">
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  <span>100% Secure Payments</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Truck className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  <span>Fast Delivery Across Bangladesh</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Package className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  <span>Easy Returns & Exchanges</span>
-                </div>
-              </div>
             </div>
           </div>
 
