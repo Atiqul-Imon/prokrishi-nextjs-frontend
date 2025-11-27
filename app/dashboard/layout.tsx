@@ -66,19 +66,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         Skip to main content
       </a>
-      <div className="h-screen w-full bg-gradient-to-br from-gray-50 via-gray-100/50 to-gray-50 text-gray-900 flex overflow-hidden font-roboto relative">
+      <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-gray-100/50 to-gray-50 text-gray-900 flex font-roboto relative">
         {/* Desktop sidebar */}
         <Sidebar />
 
         {/* Mobile sidebar */}
         <Sidebar isMobile isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        <div className="flex-1 flex flex-col h-full overflow-hidden lg:ml-72 xl:ml-80">
+        <div className="flex-1 flex flex-col min-h-screen lg:ml-72 xl:ml-80">
           <Header onToggleSidebar={() => setSidebarOpen(true)} />
           <main
             id="dashboard-main"
-            className="flex-1 overflow-x-hidden overflow-y-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 bg-transparent scroll-smooth"
-            style={{ scrollBehavior: 'smooth', minHeight: 0 }}
+            className="flex-1 overflow-x-hidden px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 bg-transparent scroll-smooth"
+            style={{ scrollBehavior: "smooth", minHeight: 0 }}
           >
             <div className="w-full max-w-full space-y-4 sm:space-y-6">
               {children}
