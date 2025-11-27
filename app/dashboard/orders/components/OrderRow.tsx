@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Eye, Trash2, MoreVertical, User, Calendar, DollarSign } from "lucide-react";
 import { OrderStatusBadge, PaymentStatusBadge } from "../components/OrderBadges";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 interface OrderRowProps {
   order: any;
@@ -88,7 +89,7 @@ export const OrderRow = ({ order, onDelete, isSelected = false, onSelect }: Orde
       {/* Total */}
       <td className="px-6 py-4">
         <div className="text-sm font-bold text-gray-900">
-          ৳{order.totalPrice?.toFixed(2) || "0.00"}
+          ৳{formatAmount(order.totalPrice)}
         </div>
         <div className="text-xs text-gray-700">
           {order.orderItems?.length || 0} {order.orderItems?.length === 1 ? "item" : "items"}

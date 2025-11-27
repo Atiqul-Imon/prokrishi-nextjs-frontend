@@ -19,6 +19,7 @@ import EmptyState from "@/components/EmptyState";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 function CartPage() {
   const {
@@ -242,10 +243,10 @@ function CartPage() {
                             </div>
                             <div className="text-left sm:text-right">
                               <p className="text-base sm:text-lg font-bold text-primary">
-                                ৳{(item.price * item.quantity).toFixed(2)}
+                                ৳{formatAmount(item.price * item.quantity)}
                               </p>
                               <p className="text-sm text-gray-500">
-                                ৳{item.price} each
+                                ৳{formatAmount(item.price)} each
                               </p>
                             </div>
                           </div>
@@ -268,12 +269,12 @@ function CartPage() {
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal ({cartCount} items)</span>
-                    <span>৳{cartTotal.toFixed(2)}</span>
+                    <span>৳{formatAmount(cartTotal)}</span>
                   </div>
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between text-lg font-bold text-gray-900">
                       <span>Total</span>
-                      <span>৳{cartTotal.toFixed(2)}</span>
+                      <span>৳{formatAmount(cartTotal)}</span>
                     </div>
                   </div>
                 </div>

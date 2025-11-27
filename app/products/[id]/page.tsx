@@ -22,7 +22,7 @@ import { InlineMessage } from "@/components/InlineMessage";
 import { useProductData } from "@/hooks/useSWRWithConfig";
 import { getProductImageUrl } from "@/utils/imageOptimizer";
 import { getProductImageList } from "@/utils/productImages";
-import { formatMeasurement, formatPricePerUnit, getMeasurementDisplayText } from "@/app/utils/measurement";
+import { formatMeasurement, getMeasurementDisplayText } from "@/app/utils/measurement";
 import ProductCard from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/LoadingSkeleton";
 import { getRelatedProducts } from "@/app/utils/api";
@@ -291,7 +291,6 @@ export default function ProductDetailsPage() {
   
   const isOutOfStock = currentStock === 0;
   const measurementDisplay = formatMeasurement(currentMeasurement, currentUnit);
-  const pricePerUnitDisplay = formatPricePerUnit(currentPrice, currentMeasurement, currentUnit);
 
   // Breadcrumbs
   const breadcrumbs = [
@@ -303,8 +302,8 @@ export default function ProductDetailsPage() {
 
   return (
     <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0">
-      <section className="w-full py-8">
-        <div className="container mx-auto w-full px-3 sm:px-4 lg:px-6">
+      <section className="w-full py-6 sm:py-8">
+        <div className="container mx-auto w-full px-2 sm:px-4 lg:px-6">
         {/* Inline Messages */}
         <div className="mb-4 space-y-2">
           {messages.map((msg) => (
@@ -335,8 +334,8 @@ export default function ProductDetailsPage() {
         </nav>
 
         {/* Main Product Section */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-12">
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 p-6 lg:p-10">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-10">
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-12 p-4 sm:p-6 lg:p-10">
             {/* Product Image */}
             <div className="relative">
               <div className="relative aspect-square bg-gray-50 rounded-xl overflow-hidden group">
@@ -467,14 +466,7 @@ export default function ProductDetailsPage() {
                     </span>
                   )}
                 </div>
-                {currentUnit !== "pcs" && (
-                  <p className="text-sm text-gray-500 mt-1">{pricePerUnitDisplay}</p>
-                )}
-                {product.hasVariants && product.variantSummary && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Price range: ৳{product.variantSummary.minPrice.toLocaleString()} - ৳{product.variantSummary.maxPrice.toLocaleString()}
-                  </p>
-                )}
+                
               </div>
 
               {/* Variant Selector */}
@@ -501,7 +493,7 @@ export default function ProductDetailsPage() {
                     ))}
                   </div>
                   {currentPricePerUnit && (
-                    <p className="mt-3 text-sm font-semibold text-green-700">
+                    <p className="mt-3 text-sm font-semibold text-green-900">
                       প্রতি {currentUnitDisplay} মূল্য {currentPricePerUnit.toLocaleString()} টাকা
                     </p>
                   )}
@@ -526,7 +518,7 @@ export default function ProductDetailsPage() {
               {/* Quantity & Add to Cart */}
               <div className="mt-8 space-y-4">
                 <div className="flex items-center gap-4">
-                  <label className="text-sm font-medium text-gray-700">Quantity:</label>
+                  <label className="text-sm font-medium text-gray-700">পরিমাণ:</label>
                   <div className="flex items-center border-2 border-gray-300 rounded-lg focus-within:border-green-500">
                     <button
                       onClick={decrementQuantity}
@@ -555,7 +547,6 @@ export default function ProductDetailsPage() {
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
-                    <span className="text-sm text-gray-500">{currentUnit}</span>
                 </div>
 
                 <button
@@ -588,10 +579,10 @@ export default function ProductDetailsPage() {
 
           {/* Full-width Description */}
           {product.description && (
-            <div className="border-t border-gray-100 px-6 lg:px-10 pb-10">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Product Description</h2>
-              <div className="bg-white/90 rounded-xl p-5 sm:p-6 border border-gray-200 shadow-sm">
-                <div className="text-base sm:text-lg text-gray-700 leading-relaxed whitespace-pre-line bangla-body">
+            <div className="border-t border-gray-100 px-2 sm:px-4 lg:px-8 pb-6">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-3">Product Description</h2>
+              <div className="bg-white rounded-lg p-3 sm:p-4">
+                <div className="text-base sm:text-lg text-gray-800 leading-7 sm:leading-8 whitespace-pre-line bangla-body">
                   {product.description}
                 </div>
               </div>
@@ -602,7 +593,7 @@ export default function ProductDetailsPage() {
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">You May Also Like</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">আরও যা যা কিনতে পারেন</h2>
             {loadingRelated ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[...Array(4)].map((_, i) => (

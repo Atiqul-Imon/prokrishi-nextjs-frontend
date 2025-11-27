@@ -18,6 +18,7 @@ import { OrderPipeline } from "./components/OrderPipeline";
 import { ActivityFeed } from "./components/ActivityFeed";
 import { AlertList } from "./components/AlertList";
 import { Card, CardHeader, CardContent } from "./components/Card";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 export default function DashboardHome() {
   const [stats, setStats] = useState<any>(null);
@@ -77,7 +78,7 @@ export default function DashboardHome() {
       id: order._id,
       type: "order" as const,
       title: `New order from ${order.user?.name || "Guest"}`,
-      description: `Order #${order._id.substring(0, 8)} • ৳${order.totalPrice?.toFixed(2) || "0.00"}`,
+      description: `Order #${order._id.substring(0, 8)} • ৳${formatAmount(order.totalPrice)}`,
       timestamp: order.createdAt,
       href: `/dashboard/orders/${order._id}`,
     }));

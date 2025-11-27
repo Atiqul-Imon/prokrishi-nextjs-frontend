@@ -9,6 +9,7 @@ import { Card, CardHeader, CardContent } from "../../components/Card";
 import { RefreshCw, Search, X, Eye, Filter } from "lucide-react";
 import { FishOrder } from "@/types/models";
 import { useAuth } from "@/app/context/AuthContext";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 export default function FishOrdersPage() {
   const { user, loading: authLoading } = useAuth();
@@ -268,7 +269,7 @@ export default function FishOrdersPage() {
                           </td>
                           <td className="py-3 px-4">
                             <span className="font-semibold text-gray-900">
-                              ৳{order.totalPrice.toFixed(2)}
+                              ৳{formatAmount(order.totalPrice)}
                             </span>
                           </td>
                           <td className="py-3 px-4">

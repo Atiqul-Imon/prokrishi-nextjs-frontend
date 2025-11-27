@@ -1,3 +1,5 @@
+import { formatAmount } from "./numberFormat";
+
 /**
  * Utility functions for handling fractional measurements
  * Supports half kg, 100g, half liter, etc.
@@ -57,7 +59,7 @@ export function formatPricePerUnit(price: number, measurement: number, unit: str
   const unitLabel = getUnitDisplay(unit);
   
   // Display price per unit without conversion
-  return `৳${pricePerUnit.toFixed(2)}/${unitLabel}`;
+  return `৳${formatAmount(pricePerUnit)}/${unitLabel}`;
 }
 
 /**

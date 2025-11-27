@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Card, CardHeader, CardContent } from "../../components/Card";
 import { Plus, RefreshCw, Search, X, Edit, Trash2, Eye, Star } from "lucide-react";
 import { FishProduct } from "@/types/models";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 export default function FishProductsPage() {
   const [products, setProducts] = useState<FishProduct[]>([]);
@@ -220,7 +221,7 @@ export default function FishProductsPage() {
                         <td className="py-3 px-4">
                           {product.priceRange ? (
                             <div className="text-sm">
-                              ৳{product.priceRange.min.toFixed(2)} - ৳{product.priceRange.max.toFixed(2)}/kg
+                              ৳{formatAmount(product.priceRange.min)} - ৳{formatAmount(product.priceRange.max)}/kg
                             </div>
                           ) : (
                             <span className="text-gray-400 text-sm">N/A</span>

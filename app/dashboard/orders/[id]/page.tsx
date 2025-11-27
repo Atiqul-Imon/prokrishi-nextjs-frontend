@@ -26,6 +26,7 @@ import {
 } from "@/app/utils/api";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
@@ -217,10 +218,10 @@ const OrderDetailPage = () => {
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{item.name}</h3>
                     <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                    <p className="text-sm text-gray-500">Price: ৳{item.price.toFixed(2)}</p>
+                    <p className="text-sm text-gray-500">Price: ৳{formatAmount(item.price)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">৳{(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-semibold text-gray-900">৳{formatAmount(item.price * item.quantity)}</p>
                   </div>
                 </div>
               ))}
@@ -228,7 +229,7 @@ const OrderDetailPage = () => {
             <div className="border-t border-gray-200 pt-4 mt-4">
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total Amount:</span>
-                <span className="text-green-600">৳{order.totalPrice.toFixed(2)}</span>
+                <span className="text-green-600">৳{formatAmount(order.totalPrice)}</span>
               </div>
             </div>
           </div>
@@ -488,7 +489,7 @@ const OrderDetailPage = () => {
               <div className="border-t border-gray-200 pt-3">
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total Amount:</span>
-                  <span className="text-green-600">৳{order.totalPrice.toFixed(2)}</span>
+                  <span className="text-green-600">৳{formatAmount(order.totalPrice)}</span>
                 </div>
               </div>
             </div>

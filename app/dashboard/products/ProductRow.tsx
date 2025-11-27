@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ProductStatusBadge from "./ProductStatusBadge";
+import { formatAmount } from "@/app/utils/numberFormat";
 import { useRouter } from "next/navigation";
 import { Edit, Trash2, Star, StarOff, Package, Eye } from "lucide-react";
 import { getPrimaryProductImageSource } from "@/utils/productImages";
@@ -117,11 +118,11 @@ export default function ProductRow({
       {/* Price */}
       <td className="px-6 py-4">
         <div className="font-bold text-gray-900">
-          ৳{product.price?.toFixed(2) || "0.00"}
+          ৳{formatAmount(product.price)}
         </div>
         {product.hasVariants && product.variantSummary && (
           <div className="text-xs text-gray-700">
-            ৳{product.variantSummary.minPrice} - ৳{product.variantSummary.maxPrice}
+            ৳{formatAmount(product.variantSummary.minPrice)} - ৳{formatAmount(product.variantSummary.maxPrice)}
           </div>
         )}
       </td>

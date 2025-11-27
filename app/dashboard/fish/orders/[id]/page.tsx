@@ -7,6 +7,7 @@ import { fishOrderApi } from "@/app/utils/fishApi";
 import { Card, CardHeader, CardContent } from "../../../components/Card";
 import { ArrowLeft, Package, User, MapPin, CreditCard, Calendar } from "lucide-react";
 import { FishOrder } from "@/types/models";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 export default function ViewFishOrderPage() {
   const params = useParams();
@@ -209,10 +210,10 @@ export default function ViewFishOrderPage() {
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-gray-900">
-                        ৳{item.totalPrice.toFixed(2)}
+                        ৳{formatAmount(item.totalPrice)}
                       </div>
                       <div className="text-sm text-gray-500">
-                        ৳{item.pricePerKg.toFixed(2)}/kg
+                        ৳{formatAmount(item.pricePerKg)}/kg
                       </div>
                     </div>
                   </div>
@@ -234,13 +235,13 @@ export default function ViewFishOrderPage() {
                     <div>
                       <span className="text-gray-500">Price per kg:</span>{" "}
                       <span className="font-medium text-gray-900">
-                        ৳{item.pricePerKg.toFixed(2)}
+                        ৳{formatAmount(item.pricePerKg)}
                       </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Total:</span>{" "}
                       <span className="font-medium text-gray-900">
-                        ৳{item.totalPrice.toFixed(2)}
+                        ৳{formatAmount(item.totalPrice)}
                       </span>
                     </div>
                   </div>
@@ -270,7 +271,7 @@ export default function ViewFishOrderPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Total Price:</span>
-                  <span className="font-semibold text-gray-900">৳{order.totalPrice.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">৳{formatAmount(order.totalPrice)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Payment Method:</span>

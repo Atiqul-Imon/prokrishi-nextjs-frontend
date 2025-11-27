@@ -7,6 +7,7 @@ import { fishProductApi } from "@/app/utils/fishApi";
 import { Card, CardHeader, CardContent } from "../../../components/Card";
 import { Edit, ArrowLeft, Star } from "lucide-react";
 import { FishProduct } from "@/types/models";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 export default function ViewFishProductPage() {
   const params = useParams();
@@ -124,7 +125,7 @@ export default function ViewFishProductPage() {
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Price Range</h3>
                   <p className="text-lg font-semibold text-gray-900">
-                    ৳{product.priceRange.min.toFixed(2)} - ৳{product.priceRange.max.toFixed(2)}/kg
+                    ৳{formatAmount(product.priceRange.min)} - ৳{formatAmount(product.priceRange.max)}/kg
                   </p>
                 </div>
               )}
@@ -166,7 +167,7 @@ export default function ViewFishProductPage() {
                       <div>
                         <span className="text-gray-500">Price per kg:</span>{" "}
                         <span className="font-semibold text-gray-900">
-                          ৳{cat.pricePerKg.toFixed(2)}
+                          ৳{formatAmount(cat.pricePerKg)}
                         </span>
                       </div>
                       {(cat.minWeight || cat.maxWeight) && (

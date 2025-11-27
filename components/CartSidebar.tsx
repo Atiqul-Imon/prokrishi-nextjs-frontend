@@ -20,6 +20,7 @@ import { Address } from "@/types/models";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
 import Image from "next/image";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -390,7 +391,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                             </h4>
                             <div className="mb-2">
                               <p className="text-green-600 font-bold text-sm">
-                                ৳{itemTotalPrice.toFixed(2)}
+                                ৳{formatAmount(itemTotalPrice)}
                               </p>
                               {displayQty && (
                                 <p className="text-xs text-gray-500 mt-0.5">
@@ -467,7 +468,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   <div className="border-t-2 border-gray-200 pt-4 mb-4">
                     <div className="flex justify-between text-gray-600 mb-2">
                       <span>Subtotal</span>
-                      <span className="font-semibold">৳{cartTotal.toFixed(2)}</span>
+                      <span className="font-semibold">৳{formatAmount(cartTotal)}</span>
                     </div>
                     <div className="flex justify-between text-gray-600 mb-2">
                       <span>Shipping</span>
@@ -478,7 +479,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                           ? "Select zone"
                           : shippingFee === 0
                           ? "FREE"
-                          : `৳${shippingFee.toFixed(2)}`}
+                          : `৳${formatAmount(shippingFee)}`}
                       </span>
                     </div>
                     {shippingError && (
@@ -486,7 +487,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     )}
                     <div className="flex justify-between text-xl font-bold text-gray-900 mt-3 pt-3 border-t-2 border-gray-200">
                       <span>Total</span>
-                      <span>৳{(cartTotal + shippingFee).toFixed(2)}</span>
+                      <span>৳{formatAmount(cartTotal + shippingFee)}</span>
                     </div>
                   </div>
 
@@ -634,7 +635,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   <h3 className="font-bold text-gray-900 mb-3">Order Summary</h3>
                   <div className="flex justify-between text-gray-600 mb-2">
                     <span>Subtotal</span>
-                    <span className="font-semibold">৳{cartTotal.toFixed(2)}</span>
+                    <span className="font-semibold">৳{formatAmount(cartTotal)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600 mb-2">
                     <span>Shipping</span>
@@ -645,7 +646,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                         ? "Select zone"
                         : shippingFee === 0
                         ? "FREE"
-                        : `৳${shippingFee.toFixed(2)}`}
+                        : `৳${formatAmount(shippingFee)}`}
                     </span>
                   </div>
                   {shippingError && (
@@ -653,7 +654,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   )}
                   <div className="flex justify-between text-xl font-bold text-gray-900 mt-3 pt-3 border-t-2 border-gray-200">
                     <span>Total</span>
-                    <span>৳{(cartTotal + shippingFee).toFixed(2)}</span>
+                    <span>৳{formatAmount(cartTotal + shippingFee)}</span>
                   </div>
                 </div>
               )}

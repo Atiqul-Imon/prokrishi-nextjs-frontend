@@ -22,6 +22,7 @@ import CheckoutProgress from "@/components/CheckoutProgress";
 import { Address } from "@/types/models";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
 import { InlineMessage } from "@/components/InlineMessage";
+import { formatAmount } from "@/app/utils/numberFormat";
 
 export default function CheckoutPage() {
   const {
@@ -622,7 +623,7 @@ export default function CheckoutPage() {
                       </span>
                     </span>
                     <span className="font-semibold">
-                      ৳{(item.price * item.quantity).toFixed(2)}
+                      ৳{formatAmount(item.price * item.quantity)}
                     </span>
                   </div>
                 ))}
@@ -630,7 +631,7 @@ export default function CheckoutPage() {
               <div className="mt-6 border-t-2 border-dashed pt-4 space-y-3">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span className="font-medium">৳{cartTotal.toFixed(2)}</span>
+                  <span className="font-medium">৳{formatAmount(cartTotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
@@ -640,7 +641,7 @@ export default function CheckoutPage() {
                       : !selectedZone
                       ? "Select zone"
                       : shippingQuote
-                      ? `৳${shippingFee.toFixed(2)}`
+                      ? `৳${formatAmount(shippingFee)}`
                       : "—"}
                   </span>
                 </div>
@@ -655,7 +656,7 @@ export default function CheckoutPage() {
                 )}
                 <div className="flex justify-between text-xl font-bold text-gray-900 mt-3 border-t border-gray-200 pt-3">
                   <span>Total</span>
-                  <span>৳{grandTotal.toFixed(2)}</span>
+                  <span>৳{formatAmount(grandTotal)}</span>
                 </div>
               </div>
 
