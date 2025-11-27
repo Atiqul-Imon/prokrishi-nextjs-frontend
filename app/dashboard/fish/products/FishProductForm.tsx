@@ -265,8 +265,8 @@ export default function FishProductForm({
         </label>
         <textarea
           {...register("description")}
-          rows={4}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+          rows={8}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent min-h-[180px]"
         />
       </div>
 

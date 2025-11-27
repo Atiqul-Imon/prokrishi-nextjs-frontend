@@ -30,13 +30,13 @@ export default function AddFishProductPage() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card padding="none" className="w-full max-w-6xl mx-auto">
         <CardHeader
           title="Add Fish Product"
           description="Create a new fish product with size categories"
         />
-        <CardContent>
-          <div className="space-y-2">
+        <CardContent className="p-4 sm:p-6 lg:p-8">
+          <div className="space-y-4">
             {messages.map((msg) => (
               <InlineMessage
                 key={msg.id}
@@ -45,8 +45,8 @@ export default function AddFishProductPage() {
                 onClose={() => removeMessage(msg.id)}
               />
             ))}
+            <FishProductForm onSave={handleSave} loading={loading} />
           </div>
-          <FishProductForm onSave={handleSave} loading={loading} />
         </CardContent>
       </Card>
     </div>
