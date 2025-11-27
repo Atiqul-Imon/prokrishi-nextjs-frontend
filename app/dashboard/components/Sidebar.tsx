@@ -249,8 +249,13 @@ export default function Sidebar({ isMobile = false, isOpen = false, onClose }: S
   }
 
   return (
-    <aside className="hidden lg:flex w-72 xl:w-80 bg-gradient-to-b from-gray-800 via-gray-800/95 to-gray-900 flex-col fixed inset-y-0 left-0 shadow-2xl z-40" style={{ top: 0, bottom: 0, height: '100vh' }}>
-      {sidebarContent}
+    <aside
+      className="hidden lg:flex fixed inset-y-0 left-0 w-72 xl:w-80 z-40"
+      aria-label="Dashboard sidebar"
+    >
+      <div className="w-full h-full overflow-y-auto bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-950 flex flex-col shadow-2xl">
+        {sidebarContent}
+      </div>
     </aside>
   );
 }

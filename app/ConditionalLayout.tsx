@@ -19,12 +19,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   // For dashboard routes, render only the children (dashboard has its own layout)
   if (isDashboard) {
-    return (
-      <>
-        <CartSidebarWrapper />
-        {children}
-      </>
-    );
+    return <>{children}</>;
   }
 
   // For regular routes, render with Navbar, Footer, etc.

@@ -354,51 +354,6 @@ body {
 .shadow-sm { border: 1px solid #e5e7eb !important; }
 .shadow-md { border: 1px solid #d1d5db !important; }
 
-/* Optimize scroll performance - disable expensive operations */
-* {
-  will-change: auto !important;
-  contain: layout !important;
-}
-
-/* Override contain for specific elements that need it */
-/* Dashboard layout - ensure no white background shows around sidebar */
-body:has([class*="dashboard"]) {
-  background: transparent;
-}
-
-body, html, main, header, footer, nav {
-  contain: none !important;
-}
-
-/* CRITICAL: Override contain for mobile drawer to fix z-index stacking */
-.mobile-drawer-overlay,
-.mobile-drawer {
-  contain: none !important;
-  will-change: transform !important;
-  isolation: isolate !important;
-}
-
-/* Override global contain rule for mobile drawer */
-.mobile-drawer-overlay *,
-.mobile-drawer * {
-  contain: none !important;
-}
-
-/* Force hardware acceleration only where needed */
-.sticky {
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
-}
-
-/* Ensure sticky positioning works for header */
-header.sticky,
-header[class*="sticky"] {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 100 !important;
-}
-
-/* Ensure body and html don't interfere with sticky positioning */
 html {
   overflow-x: hidden;
   overflow-y: auto;
@@ -407,19 +362,6 @@ html {
 body {
   overflow-x: hidden;
   overflow-y: auto;
-  position: relative;
-}
-
-/* Ensure main and containers don't create new stacking contexts */
-main {
-  position: relative;
-  overflow: visible;
-}
-
-/* Dashboard main should be scrollable */
-#dashboard-main {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
   position: relative;
 }
 
@@ -465,6 +407,18 @@ body {
   padding: 0;
   width: 100%;
   overflow-x: hidden;
+}
+
+html.dashboard-html {
+  height: auto;
+  min-height: 100%;
+}
+
+body.dashboard-body {
+  display: block;
+  min-height: auto;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #fefce8, #fef9c3);
 }
 
 /* Ensure main content grows to push footer down */
