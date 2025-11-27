@@ -22,11 +22,23 @@ import { InlineMessage } from "@/components/InlineMessage";
 import { useProductData } from "@/hooks/useSWRWithConfig";
 import { getProductImageUrl } from "@/utils/imageOptimizer";
 import { getProductImageList } from "@/utils/productImages";
-import { formatMeasurement, formatPricePerUnit } from "@/app/utils/measurement";
+import { formatMeasurement, formatPricePerUnit, getMeasurementDisplayText } from "@/app/utils/measurement";
 import ProductCard from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/LoadingSkeleton";
 import { getRelatedProducts } from "@/app/utils/api";
 import { ProductVariant } from "@/types/models";
+
+type ApiError = Error & { status?: number };
+
+const normalizeMeasurement = (measurement: number, unit: string) => {
+  if (unit === "g") {
+    return { value: measurement / 1000, displayUnit: "kg" };
+  }
+  if (unit === "ml") {
+    return { value: measurement / 1000, displayUnit: "l" };
+  }
+  return { value: measurement, displayUnit: unit };
+};
 
 export default function ProductDetailsPage() {
   const params = useParams();
@@ -198,6 +210,28 @@ export default function ProductDetailsPage() {
   }
 
   // Error state
+  if (error && (error as ApiError).status === 404) {
+    return (
+      <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0 flex items-center justify-center">
+        <div className="text-center max-w-md px-4">
+          <div className="text-gray-400 mb-4">
+            <Package className="w-16 h-16 mx-auto" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">পণ্যটি স্টকে নেই নয়</h2>
+          <p className="text-gray-600 mb-6">
+            অনুগ্রহ করে অন্য একটি পণ্য বেছে নিন। এটি সম্ভবত স্টক থেকে সরানো হয়েছে।
+          </p>
+          <button
+            onClick={() => router.push("/products")}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+          >
+            সব পণ্য দেখুন
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0 flex items-center justify-center">
@@ -251,6 +285,9 @@ export default function ProductDetailsPage() {
   const currentMeasurement = selectedVariant ? selectedVariant.measurement : product.measurement;
   const currentUnit = selectedVariant ? selectedVariant.unit : product.unit;
   const currentStock = selectedVariant ? selectedVariant.stock : product.stock;
+  const normalizedMeasurement = normalizeMeasurement(currentMeasurement, currentUnit);
+  const currentPricePerUnit = normalizedMeasurement.value > 0 ? Math.round(currentPrice / normalizedMeasurement.value) : null;
+  const currentUnitDisplay = normalizedMeasurement.displayUnit;
   
   const isOutOfStock = currentStock === 0;
   const measurementDisplay = formatMeasurement(currentMeasurement, currentUnit);
@@ -459,10 +496,15 @@ export default function ProductDetailsPage() {
                         } ${variant.status === 'out_of_stock' || variant.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                         disabled={variant.status === 'out_of_stock' || variant.stock === 0}
                       >
-                        {variant.label} ({formatMeasurement(variant.measurement, variant.unit).displayText})
+                        {variant.label}
                       </button>
                     ))}
                   </div>
+                  {currentPricePerUnit && (
+                    <p className="mt-3 text-sm font-semibold text-green-700">
+                      প্রতি {currentUnitDisplay} মূল্য {currentPricePerUnit.toLocaleString()} টাকা
+                    </p>
+                  )}
                 </div>
               )}
 

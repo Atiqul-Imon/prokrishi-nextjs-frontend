@@ -143,7 +143,11 @@ export async function apiRequest<T = any>(
       msg = "Product not found - it may have been deleted";
     }
     
-    throw new Error(msg);
+    const apiError = new Error(msg) as Error & { status?: number };
+    if (err.response?.status) {
+      apiError.status = err.response.status;
+    }
+    throw apiError;
   }
 }
 

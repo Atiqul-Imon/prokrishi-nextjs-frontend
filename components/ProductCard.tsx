@@ -55,7 +55,10 @@ function ProductCard({ product }: { product: any }) {
   
   // Format measurement for display
   const measurementDisplay = useMemo(() => {
-    return formatMeasurement(measurement, unit);
+    if (typeof measurement === "number" && unit) {
+      return formatMeasurement(measurement, unit);
+    }
+    return null;
   }, [measurement, unit]);
 
   return (
@@ -105,7 +108,7 @@ function ProductCard({ product }: { product: any }) {
         <div className="mb-3 flex-shrink-0 text-center">
           <p className="text-lg sm:text-xl font-bold text-primary">
             ৳{price}
-            {unit !== "pcs" && (
+            {measurementDisplay && unit !== "pcs" && (
               <span className="text-base font-normal text-gray-600">
                 {" "}/ {measurementDisplay.displayText}
               </span>
