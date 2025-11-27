@@ -157,7 +157,7 @@ body {
 /* Full Viewport Responsive Design */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -193,15 +193,14 @@ body {
 
 @media (min-width: 1280px) {
   .container {
-    max-width: 1320px;
     padding-left: 3rem;
     padding-right: 3rem;
   }
 }
 
-@media (min-width: 1536px) {
+@media (min-width: 1800px) {
   .container {
-    max-width: 1536px;
+    max-width: 75vw;
   }
 }
 
