@@ -18,6 +18,7 @@ import AddressForm from "../account/AddressForm";
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
 import { placeOrder, addAddress, createPaymentSession, getShippingQuote } from "../utils/api";
+import { fishOrderApi } from "../utils/fishApi";
 import CheckoutProgress from "@/components/CheckoutProgress";
 import { Address } from "@/types/models";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
@@ -242,58 +243,162 @@ export default function CheckoutPage() {
       };
     }
 
+    // Separate fish products from regular products
+    const fishProducts = cart.filter((item) => {
+      // Check if product is a fish product
+      return (item as any).isFishProduct === true || 
+             (item as any).sizeCategories !== undefined ||
+             (item.variantSnapshot && (item.variantSnapshot as any).unit === 'kg' && item.unit === 'kg');
+    });
+    
+    const regularProducts = cart.filter((item) => {
+      return !((item as any).isFishProduct === true || 
+               (item as any).sizeCategories !== undefined ||
+               (item.variantSnapshot && (item.variantSnapshot as any).unit === 'kg' && item.unit === 'kg'));
+    });
+
     const shippingFee = shippingQuote.shippingFee || 0;
     const grandTotal = cartTotal + shippingFee;
 
-    const orderData = {
-      orderItems: cart.map((item) => ({
-        product: item.id || item._id,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        variantId: item.variantId,
-      })),
-      shippingAddress: shippingAddressData,
-      paymentMethod:
-        selectedPaymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
-      totalPrice: cartTotal,
-      totalAmount: grandTotal,
-      shippingFee,
-      shippingZone: selectedZone, // Use manually selected zone
-      shippingWeightKg: shippingQuote.totalWeightKg,
-      ...(user ? {} : {
-        guestInfo: {
-          name: guestInfo.name,
-          email: guestInfo.email || "",
-          phone: guestInfo.phone,
-        },
-      }),
-    };
-
     try {
-      const newOrder = await placeOrder(orderData);
-      setLoadingMessage(null);
+      let regularOrderId: string | null = null;
+      let fishOrderId: string | null = null;
+      let regularOrderTotal = 0;
+      let fishOrderTotal = 0;
 
-      if (selectedPaymentMethod === "sslcommerz") {
-        // Create payment session for online payment
-        const orderId = newOrder._id || newOrder.order?._id || newOrder.data?._id;
-        const paymentResult = await createPaymentSession({
-          orderId: orderId!,
-          paymentMethod: "SSL Commerz",
+      // Create regular order if there are regular products
+      if (regularProducts.length > 0) {
+        setLoadingMessage("Creating order for regular products...");
+        
+        const regularOrderTotalPrice = regularProducts.reduce((sum, item) => {
+          const price = item.variantSnapshot?.price || item.price;
+          return sum + price * item.quantity;
+        }, 0);
+
+        const regularOrderData = {
+          orderItems: regularProducts.map((item) => ({
+            product: item.id || item._id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.variantSnapshot?.price || item.price,
+            variantId: item.variantId,
+          })),
+          shippingAddress: shippingAddressData,
+          paymentMethod:
+            selectedPaymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
+          totalPrice: regularOrderTotalPrice,
+          totalAmount: regularOrderTotalPrice + (fishProducts.length === 0 ? shippingFee : 0), // Only add shipping if no fish products
+          shippingFee: fishProducts.length === 0 ? shippingFee : 0,
+          shippingZone: selectedZone,
+          shippingWeightKg: shippingQuote.totalWeightKg,
+          ...(user ? {} : {
+            guestInfo: {
+              name: guestInfo.name,
+              email: guestInfo.email || "",
+              phone: guestInfo.phone,
+            },
+          }),
+        };
+
+        const newRegularOrder = await placeOrder(regularOrderData);
+        regularOrderId = newRegularOrder._id || newRegularOrder.order?._id || newRegularOrder.data?._id || null;
+        regularOrderTotal = regularOrderTotalPrice;
+      }
+
+      // Create fish order if there are fish products
+      if (fishProducts.length > 0) {
+        setLoadingMessage("Creating order for fish products...");
+
+        const fishOrderItems = fishProducts.map((item) => {
+          // For fish products, variantId is actually sizeCategoryId
+          const sizeCategoryId = item.variantId || (item.variantSnapshot as any)?._id;
+          const requestedWeight = item.quantity; // Quantity is in kg for fish products
+          const pricePerKg = item.variantSnapshot?.price || item.price;
+
+          if (!sizeCategoryId) {
+            throw new Error(`Size category not found for ${item.name}`);
+          }
+
+          return {
+            fishProduct: item.id || item._id,
+            sizeCategoryId: sizeCategoryId,
+            requestedWeight: requestedWeight,
+            notes: item.name,
+          };
         });
 
-        if (paymentResult.success) {
-          // Redirect to SSL Commerz payment page
-          window.location.href = paymentResult.paymentUrl;
+        const fishOrderTotalPrice = fishProducts.reduce((sum, item) => {
+          const pricePerKg = item.variantSnapshot?.price || item.price;
+          return sum + pricePerKg * item.quantity;
+        }, 0);
+
+        const fishOrderData = {
+          orderItems: fishOrderItems,
+          shippingAddress: {
+            name: user ? (selectedAddress?.name || user.name) : guestInfo.name,
+            phone: user ? (selectedAddress?.phone || user.phone) : guestInfo.phone,
+            address: shippingAddressData.address,
+            division: shippingAddressData.division,
+            district: shippingAddressData.district,
+            upazila: shippingAddressData.upazila,
+            postalCode: shippingAddressData.postalCode,
+          },
+          paymentMethod:
+            selectedPaymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
+          totalPrice: fishOrderTotalPrice,
+          ...(user ? {} : {
+            guestInfo: {
+              name: guestInfo.name,
+              email: guestInfo.email || "",
+              phone: guestInfo.phone,
+            },
+          }),
+        };
+
+        const newFishOrder: any = await fishOrderApi.create(fishOrderData);
+        fishOrderId = newFishOrder?.fishOrder?._id || newFishOrder?._id || null;
+        fishOrderTotal = fishOrderTotalPrice;
+      }
+
+      setLoadingMessage(null);
+
+      // Handle payment for the primary order (regular if exists, otherwise fish)
+      const primaryOrderId = regularOrderId || fishOrderId;
+      
+      if (!primaryOrderId) {
+        throw new Error("Failed to create order");
+      }
+
+      if (selectedPaymentMethod === "sslcommerz") {
+        // For now, only handle payment for regular orders
+        // Fish orders payment handling may need separate implementation
+        if (regularOrderId) {
+          const paymentResult = await createPaymentSession({
+            orderId: regularOrderId,
+            paymentMethod: "SSL Commerz",
+          });
+
+          if (paymentResult.success) {
+            // Redirect to SSL Commerz payment page
+            window.location.href = paymentResult.paymentUrl;
+          } else {
+            error("Failed to create payment session. Please try again.", 5000);
+          }
         } else {
-          error("Failed to create payment session. Please try again.", 5000);
+          // Fish order with online payment - may need separate handling
+          error("Online payment for fish orders is not yet supported. Please use Cash on Delivery.", 5000);
         }
       } else {
         // Cash on Delivery - proceed to success page
-        success("Order placed successfully!", 3000);
+        const orderMessage = regularProducts.length > 0 && fishProducts.length > 0
+          ? "Orders placed successfully! (Regular and Fish orders created)"
+          : "Order placed successfully!";
+        
+        success(orderMessage, 3000);
         clearCart();
-        const orderId = newOrder._id || newOrder.order?._id || newOrder.data?._id;
-        router.push(`/order/success?orderId=${orderId}`);
+        
+        // Redirect to success page with primary order ID
+        router.push(`/order/success?orderId=${primaryOrderId}`);
       }
     } catch (err: unknown) {
       setLoadingMessage(null);
