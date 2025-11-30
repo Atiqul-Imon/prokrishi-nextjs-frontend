@@ -9,7 +9,9 @@ import {
   AlertCircle,
   Eye,
   MapPin,
+  FileText,
 } from "lucide-react";
+import Link from "next/link";
 
 const statusConfig = {
   processing: {
@@ -145,6 +147,13 @@ export default function Orders() {
                     <span>{order.address}</span>
                   </div>
                   <div className="flex gap-2">
+                    <Link
+                      href={`/invoice/${order.id || order._id}?type=${order.isFishOrder ? 'fish' : 'regular'}`}
+                      className="flex items-center gap-1 px-3 py-1.5 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors text-sm"
+                    >
+                      <FileText size={14} />
+                      View Invoice
+                    </Link>
                     <button
                       onClick={() =>
                         setSelectedOrder(

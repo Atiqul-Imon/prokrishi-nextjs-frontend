@@ -231,6 +231,57 @@ export function getShippingQuote(data: ShippingQuoteRequest): Promise<ShippingQu
   });
 }
 
+// ========== INVOICE FUNCTIONS ==========
+
+/**
+ * Get invoice PDF (returns blob URL)
+ * @param orderId - Order ID
+ * @param type - 'regular' or 'fish'
+ */
+export async function getInvoicePDF(orderId: string, type: 'regular' | 'fish' = 'regular'): Promise<string> {
+  const response = await api.get(`/invoice/${orderId}?type=${type}`, {
+    responseType: 'blob',
+  });
+  const blob = new Blob([response.data as BlobPart], { type: 'application/pdf' });
+  return URL.createObjectURL(blob);
+}
+
+/**
+ * Download invoice PDF
+ * @param orderId - Order ID
+ * @param type - 'regular' or 'fish'
+ */
+export async function downloadInvoice(orderId: string, type: 'regular' | 'fish' = 'regular'): Promise<void> {
+  try {
+    const response = await api.get(`/invoice/${orderId}/download?type=${type}`, {
+      responseType: 'blob',
+    });
+    const blob = new Blob([response.data as BlobPart], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `invoice-${orderId}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Failed to download invoice');
+  }
+}
+
+/**
+ * Get invoice HTML (for preview)
+ * @param orderId - Order ID
+ * @param type - 'regular' or 'fish'
+ */
+export async function getInvoiceHTML(orderId: string, type: 'regular' | 'fish' = 'regular'): Promise<string> {
+  const response = await apiRequest<string>(`/invoice/${orderId}/html?type=${type}`, {
+    method: "GET",
+  });
+  return response;
+}
+
 // Generic GET list
 export function getResourceList<T = any>(resource: string, query = ""): Promise<T> {
   const path = `/${resource}${query ? `?${query}` : ""}`;
