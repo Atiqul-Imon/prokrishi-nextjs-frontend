@@ -142,8 +142,20 @@ export interface ShippingQuoteResponse {
   totalWeightKg: number;
   zone: string;
   breakdown?: {
-    type: string;
-    tier: string;
+    regularShippingFee?: number;
+    fishShippingFee?: number;
+    regularBreakdown?: {
+      type: string;
+      tier: string;
+    };
+    fishBreakdown?: {
+      type: string;
+      tier: string;
+    } | null;
+    totalFee?: number;
+    // Legacy support
+    type?: string;
+    tier?: string;
   };
 }
 

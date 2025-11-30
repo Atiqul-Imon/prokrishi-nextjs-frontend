@@ -15,6 +15,7 @@ import {
 import { useCart } from "@/app/context/CartContext";
 import { useAuth } from "@/app/context/AuthContext";
 import { placeOrder, addAddress, getShippingQuote } from "@/app/utils/api";
+import { fishOrderApi } from "@/app/utils/fishApi";
 import InlineAddressForm from "./InlineAddressForm";
 import { Address } from "@/types/models";
 import { useInlineMessage } from "@/hooks/useInlineMessage";
@@ -245,38 +246,196 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
       postalCode: selectedAddress.postalCode || "",
     };
 
-    const orderData = {
-      orderItems: cart.map((item) => ({
-        product: item.id || item._id,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        variantId: item.variantId,
-      })),
-      shippingAddress: shippingAddressData,
-      paymentMethod: "Cash on Delivery",
-      totalPrice: cartTotal,
-      totalAmount: cartTotal + shippingFee,
-      shippingFee: shippingFee,
-      shippingZone: selectedZone,
-      shippingWeightKg: totalWeightKg,
-      ...(user ? {} : {
-        guestInfo: {
-          name: selectedAddress.name || "",
-          email: "",
-          phone: selectedAddress.phone || "",
-        },
-      }),
-    };
+    // Separate fish products from regular products (same logic as checkout page)
+    const fishProducts = cart.filter((item) => {
+      const itemAny = item as any;
+      
+      // Primary check: Explicit isFishProduct flag
+      if (itemAny.isFishProduct === true) return true;
+      
+      // Secondary check: sizeCategories property
+      if (itemAny.sizeCategories !== undefined && Array.isArray(itemAny.sizeCategories) && itemAny.sizeCategories.length > 0) {
+        return true;
+      }
+      
+      // Tertiary check: Category name + unit combination
+      const category = itemAny.category;
+      const unit = item.unit || itemAny.unit;
+      const categoryName = category && typeof category === 'object' ? (category as any).name : null;
+      
+      if (categoryName === 'মাছ' && unit === 'kg') {
+        if (item.variantSnapshot && (item.variantSnapshot as any).unit === 'kg') {
+          return true;
+        }
+        if (!item.variantSnapshot || !item.hasVariants) {
+          return true;
+        }
+      }
+      
+      return false;
+    });
+    
+    const regularProducts = cart.filter((item) => {
+      return !fishProducts.includes(item);
+    });
 
     try {
-      const newOrder = await placeOrder(orderData);
+      let regularOrderId: string | null = null;
+      let fishOrderId: string | null = null;
+
+      // Calculate shipping fees separately for regular and fish products
+      // For CartSidebar, we use the total shipping fee and split it
+      // (The backend calculates combined shipping, fish orders will recalculate on backend)
+      const regularShippingFee = fishProducts.length === 0 ? shippingFee : 
+        (shippingFee * regularProducts.length / (regularProducts.length + fishProducts.length)); // Simple split
+
+      // Create regular order if there are regular products
+      if (regularProducts.length > 0) {
+        try {
+          setLoadingMessage("Creating order for regular products...");
+          
+          const regularOrderTotalPrice = regularProducts.reduce((sum, item) => {
+            const price = item.variantSnapshot?.price || item.price;
+            return sum + price * item.quantity;
+          }, 0);
+
+          const regularOrderData = {
+            orderItems: regularProducts.map((item) => ({
+              product: item.id || item._id,
+              name: item.name,
+              quantity: item.quantity,
+              price: item.variantSnapshot?.price || item.price,
+              variantId: item.variantId,
+            })),
+            shippingAddress: shippingAddressData,
+            paymentMethod: "Cash on Delivery",
+            totalPrice: regularOrderTotalPrice,
+            totalAmount: regularOrderTotalPrice + regularShippingFee,
+            shippingFee: regularShippingFee,
+            shippingZone: selectedZone,
+            shippingWeightKg: totalWeightKg,
+            ...(user ? {} : {
+              guestInfo: {
+                name: selectedAddress.name || "",
+                email: "",
+                phone: selectedAddress.phone || "",
+              },
+            }),
+          };
+
+          const newRegularOrder = await placeOrder(regularOrderData);
+          regularOrderId = newRegularOrder._id || newRegularOrder.order?._id || newRegularOrder.data?._id || null;
+        } catch (regularOrderError) {
+          if (fishProducts.length > 0) {
+            throw new Error(`Failed to create regular product order. Please try again or contact support. Error: ${regularOrderError instanceof Error ? regularOrderError.message : 'Unknown error'}`);
+          }
+          throw regularOrderError;
+        }
+      }
+
+      // Create fish order if there are fish products
+      if (fishProducts.length > 0) {
+        try {
+          setLoadingMessage("Creating order for fish products...");
+
+          const fishOrderItems = fishProducts.map((item) => {
+            const itemAny = item as any;
+            
+            // Try multiple ways to get sizeCategoryId
+            let sizeCategoryId = item.variantId || (item.variantSnapshot as any)?._id;
+            
+            // If not found, try to get from sizeCategories array
+            if (!sizeCategoryId && itemAny.sizeCategories && Array.isArray(itemAny.sizeCategories)) {
+              // Try to find default or first size category
+              const defaultSizeCat = itemAny.sizeCategories.find((sc: any) => sc.isDefault) || itemAny.sizeCategories[0];
+              if (defaultSizeCat) {
+                sizeCategoryId = defaultSizeCat._id;
+              }
+            }
+            
+            const requestedWeight = item.quantity; // Quantity is in kg for fish products
+            const pricePerKg = item.variantSnapshot?.price || item.price;
+
+            if (!sizeCategoryId) {
+              // Provide more detailed error message
+              console.error('Fish product cart item details:', {
+                name: item.name,
+                id: item.id || item._id,
+                variantId: item.variantId,
+                variantSnapshot: item.variantSnapshot,
+                sizeCategories: itemAny.sizeCategories,
+                isFishProduct: itemAny.isFishProduct,
+              });
+              throw new Error(`Size category not found for ${item.name}. Please remove this item from cart and add it again.`);
+            }
+
+            return {
+              fishProduct: item.id || item._id,
+              sizeCategoryId: sizeCategoryId,
+              requestedWeight: requestedWeight,
+              notes: item.name,
+            };
+          });
+
+          const fishOrderTotalPrice = fishProducts.reduce((sum, item) => {
+            const pricePerKg = item.variantSnapshot?.price || item.price;
+            return sum + pricePerKg * item.quantity;
+          }, 0);
+
+          const fishOrderData = {
+            orderItems: fishOrderItems,
+            shippingAddress: {
+              name: user ? (selectedAddress?.name || user.name) : (selectedAddress?.name || ""),
+              phone: user ? (selectedAddress?.phone || user.phone) : (selectedAddress?.phone || ""),
+              address: shippingAddressData.address,
+              division: (selectedAddress as any)?.division || "",
+              district: shippingAddressData.district,
+              upazila: shippingAddressData.upazila,
+              postalCode: shippingAddressData.postalCode,
+            },
+            paymentMethod: "Cash on Delivery",
+            totalPrice: fishOrderTotalPrice,
+            ...(user ? {} : {
+              guestInfo: {
+                name: selectedAddress.name || "",
+                email: "",
+                phone: selectedAddress.phone || "",
+              },
+            }),
+          };
+
+          const newFishOrder: any = await fishOrderApi.create(fishOrderData);
+          fishOrderId = newFishOrder?.fishOrder?._id || newFishOrder?._id || null;
+        } catch (fishOrderError) {
+          if (regularOrderId) {
+            error(
+              `Regular product order was created successfully, but fish product order failed. Please contact support with order ID: ${regularOrderId}. Error: ${fishOrderError instanceof Error ? fishOrderError.message : 'Unknown error'}`,
+              8000
+            );
+            setLoadingMessage(null);
+            return;
+          }
+          throw fishOrderError;
+        }
+      }
+
       setLoadingMessage(null);
-      success("Order placed successfully!", 3000);
+
+      // Use primary order ID (regular if exists, otherwise fish)
+      const primaryOrderId = regularOrderId || fishOrderId;
+      
+      if (!primaryOrderId) {
+        throw new Error("Failed to create order");
+      }
+
+      const orderMessage = regularProducts.length > 0 && fishProducts.length > 0
+        ? "Orders placed successfully! (Regular and Fish orders created)"
+        : "Order placed successfully!";
+      
+      success(orderMessage, 3000);
       clearCart();
-      const orderId = newOrder._id || newOrder.order?._id || newOrder.data?._id;
       onClose();
-      router.push(`/order/success?orderId=${orderId}`);
+      router.push(`/order/success?orderId=${primaryOrderId}`);
     } catch (err: unknown) {
       setLoadingMessage(null);
       console.error("Failed to create order:", err);

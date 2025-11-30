@@ -32,6 +32,7 @@ export default function CheckoutPage() {
     cartCount,
     loading: cartLoading,
     clearCart,
+    removeFromCart,
   } = useCart();
   const {
     user,
@@ -244,17 +245,49 @@ export default function CheckoutPage() {
     }
 
     // Separate fish products from regular products
+    // Fish products are identified by explicit flags (prioritized):
+    // 1. isFishProduct flag (most reliable - set by backend)
+    // 2. sizeCategories property (fish-specific structure)
+    // 3. Category name is "মাছ" (Fish) - only if unit is kg (to avoid false positives)
+    // 
+    // Regular products will NOT have these flags, so they'll be correctly identified
     const fishProducts = cart.filter((item) => {
-      // Check if product is a fish product
-      return (item as any).isFishProduct === true || 
-             (item as any).sizeCategories !== undefined ||
-             (item.variantSnapshot && (item.variantSnapshot as any).unit === 'kg' && item.unit === 'kg');
+      const itemAny = item as any;
+      
+      // Primary check: Explicit isFishProduct flag (most reliable)
+      if (itemAny.isFishProduct === true) {
+        return true;
+      }
+      
+      // Secondary check: sizeCategories property (fish-specific)
+      if (itemAny.sizeCategories !== undefined && Array.isArray(itemAny.sizeCategories) && itemAny.sizeCategories.length > 0) {
+        return true;
+      }
+      
+      // Tertiary check: Category name + unit combination (more conservative)
+      // Only classify as fish if BOTH category is "মাছ" AND unit is kg
+      // This prevents regular products with kg unit from being misclassified
+      const category = itemAny.category;
+      const unit = item.unit || itemAny.unit;
+      const categoryName = category && typeof category === 'object' ? (category as any).name : null;
+      
+      if (categoryName === 'মাছ' && unit === 'kg') {
+        // Additional safety: check if variant also uses kg (fish products use kg for variants)
+        if (item.variantSnapshot && (item.variantSnapshot as any).unit === 'kg') {
+          return true;
+        }
+        // If no variant but category is fish and unit is kg, it's likely a fish product
+        if (!item.variantSnapshot || !item.hasVariants) {
+          return true;
+        }
+      }
+      
+      // Default: not a fish product (regular product)
+      return false;
     });
     
     const regularProducts = cart.filter((item) => {
-      return !((item as any).isFishProduct === true || 
-               (item as any).sizeCategories !== undefined ||
-               (item.variantSnapshot && (item.variantSnapshot as any).unit === 'kg' && item.unit === 'kg'));
+      return !fishProducts.includes(item);
     });
 
     const shippingFee = shippingQuote.shippingFee || 0;
@@ -266,98 +299,164 @@ export default function CheckoutPage() {
       let regularOrderTotal = 0;
       let fishOrderTotal = 0;
 
+      // Calculate shipping fees separately for regular and fish products
+      // The shipping quote breakdown contains separate fees for each product type
+      const shippingBreakdown = (shippingQuote as any).breakdown;
+      const regularShippingFee = shippingBreakdown?.regularShippingFee !== undefined 
+        ? shippingBreakdown.regularShippingFee 
+        : (fishProducts.length === 0 ? shippingFee : 0);
+      
       // Create regular order if there are regular products
       if (regularProducts.length > 0) {
-        setLoadingMessage("Creating order for regular products...");
-        
-        const regularOrderTotalPrice = regularProducts.reduce((sum, item) => {
-          const price = item.variantSnapshot?.price || item.price;
-          return sum + price * item.quantity;
-        }, 0);
+        try {
+          setLoadingMessage("Creating order for regular products...");
+          
+          const regularOrderTotalPrice = regularProducts.reduce((sum, item) => {
+            const price = item.variantSnapshot?.price || item.price;
+            return sum + price * item.quantity;
+          }, 0);
 
-        const regularOrderData = {
-          orderItems: regularProducts.map((item) => ({
-            product: item.id || item._id,
-            name: item.name,
-            quantity: item.quantity,
-            price: item.variantSnapshot?.price || item.price,
-            variantId: item.variantId,
-          })),
-          shippingAddress: shippingAddressData,
-          paymentMethod:
-            selectedPaymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
-          totalPrice: regularOrderTotalPrice,
-          totalAmount: regularOrderTotalPrice + (fishProducts.length === 0 ? shippingFee : 0), // Only add shipping if no fish products
-          shippingFee: fishProducts.length === 0 ? shippingFee : 0,
-          shippingZone: selectedZone,
-          shippingWeightKg: shippingQuote.totalWeightKg,
-          ...(user ? {} : {
-            guestInfo: {
-              name: guestInfo.name,
-              email: guestInfo.email || "",
-              phone: guestInfo.phone,
-            },
-          }),
-        };
+          const regularOrderData = {
+            orderItems: regularProducts.map((item) => ({
+              product: item.id || item._id,
+              name: item.name,
+              quantity: item.quantity,
+              price: item.variantSnapshot?.price || item.price,
+              variantId: item.variantId,
+            })),
+            shippingAddress: shippingAddressData,
+            paymentMethod:
+              selectedPaymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
+            totalPrice: regularOrderTotalPrice,
+            totalAmount: regularOrderTotalPrice + regularShippingFee,
+            shippingFee: regularShippingFee,
+            shippingZone: selectedZone,
+            shippingWeightKg: shippingQuote.totalWeightKg,
+            ...(user ? {} : {
+              guestInfo: {
+                name: guestInfo.name,
+                email: guestInfo.email || "",
+                phone: guestInfo.phone,
+              },
+            }),
+          };
 
-        const newRegularOrder = await placeOrder(regularOrderData);
-        regularOrderId = newRegularOrder._id || newRegularOrder.order?._id || newRegularOrder.data?._id || null;
-        regularOrderTotal = regularOrderTotalPrice;
+          const newRegularOrder = await placeOrder(regularOrderData);
+          regularOrderId = newRegularOrder._id || newRegularOrder.order?._id || newRegularOrder.data?._id || null;
+          regularOrderTotal = regularOrderTotalPrice;
+        } catch (regularOrderError) {
+          // If regular order fails and we have fish products, still try to create fish order
+          // but inform user about partial failure
+          if (fishProducts.length > 0) {
+            throw new Error(`Failed to create regular product order. Please try again or contact support. Error: ${regularOrderError instanceof Error ? regularOrderError.message : 'Unknown error'}`);
+          }
+          throw regularOrderError;
+        }
       }
 
       // Create fish order if there are fish products
       if (fishProducts.length > 0) {
-        setLoadingMessage("Creating order for fish products...");
+        try {
+          setLoadingMessage("Creating order for fish products...");
 
-        const fishOrderItems = fishProducts.map((item) => {
-          // For fish products, variantId is actually sizeCategoryId
-          const sizeCategoryId = item.variantId || (item.variantSnapshot as any)?._id;
-          const requestedWeight = item.quantity; // Quantity is in kg for fish products
-          const pricePerKg = item.variantSnapshot?.price || item.price;
+          const fishOrderItems = fishProducts.map((item) => {
+            const itemAny = item as any;
+            
+            // Try multiple ways to get sizeCategoryId
+            let sizeCategoryId = item.variantId || (item.variantSnapshot as any)?._id;
+            
+            // If not found, try to get from sizeCategories array
+            if (!sizeCategoryId && itemAny.sizeCategories && Array.isArray(itemAny.sizeCategories)) {
+              // Try to find default or first size category
+              const defaultSizeCat = itemAny.sizeCategories.find((sc: any) => sc.isDefault) || itemAny.sizeCategories[0];
+              if (defaultSizeCat) {
+                sizeCategoryId = defaultSizeCat._id;
+              }
+            }
+            
+            const requestedWeight = item.quantity; // Quantity is in kg for fish products
+            const pricePerKg = item.variantSnapshot?.price || item.price;
 
-          if (!sizeCategoryId) {
-            throw new Error(`Size category not found for ${item.name}`);
-          }
+            if (!sizeCategoryId) {
+              // Provide more detailed error message
+              console.error('Fish product cart item details:', {
+                name: item.name,
+                id: item.id || item._id,
+                variantId: item.variantId,
+                variantSnapshot: item.variantSnapshot,
+                sizeCategories: itemAny.sizeCategories,
+                isFishProduct: itemAny.isFishProduct,
+              });
+              throw new Error(`Size category not found for ${item.name}. Please remove this item from cart and add it again.`);
+            }
 
-          return {
-            fishProduct: item.id || item._id,
-            sizeCategoryId: sizeCategoryId,
-            requestedWeight: requestedWeight,
-            notes: item.name,
-          };
-        });
+            return {
+              fishProduct: item.id || item._id,
+              sizeCategoryId: sizeCategoryId,
+              requestedWeight: requestedWeight,
+              notes: item.name,
+            };
+          });
 
-        const fishOrderTotalPrice = fishProducts.reduce((sum, item) => {
-          const pricePerKg = item.variantSnapshot?.price || item.price;
-          return sum + pricePerKg * item.quantity;
-        }, 0);
+          const fishOrderTotalPrice = fishProducts.reduce((sum, item) => {
+            const pricePerKg = item.variantSnapshot?.price || item.price;
+            return sum + pricePerKg * item.quantity;
+          }, 0);
 
-        const fishOrderData = {
-          orderItems: fishOrderItems,
-          shippingAddress: {
-            name: user ? (selectedAddress?.name || user.name) : guestInfo.name,
-            phone: user ? (selectedAddress?.phone || user.phone) : guestInfo.phone,
-            address: shippingAddressData.address,
-            division: shippingAddressData.division,
-            district: shippingAddressData.district,
-            upazila: shippingAddressData.upazila,
-            postalCode: shippingAddressData.postalCode,
-          },
-          paymentMethod:
-            selectedPaymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
-          totalPrice: fishOrderTotalPrice,
-          ...(user ? {} : {
-            guestInfo: {
-              name: guestInfo.name,
-              email: guestInfo.email || "",
-              phone: guestInfo.phone,
+          const fishOrderData = {
+            orderItems: fishOrderItems,
+            shippingAddress: {
+              name: user ? (selectedAddress?.name || user.name) : guestInfo.name,
+              phone: user ? (selectedAddress?.phone || user.phone) : guestInfo.phone,
+              address: shippingAddressData.address,
+              division: shippingAddressData.division,
+              district: shippingAddressData.district,
+              upazila: shippingAddressData.upazila,
+              postalCode: shippingAddressData.postalCode,
             },
-          }),
-        };
+            paymentMethod:
+              selectedPaymentMethod === "cod" ? "Cash on Delivery" : "Online Payment",
+            totalPrice: fishOrderTotalPrice,
+            ...(user ? {} : {
+              guestInfo: {
+                name: guestInfo.name,
+                email: guestInfo.email || "",
+                phone: guestInfo.phone,
+              },
+            }),
+          };
 
-        const newFishOrder: any = await fishOrderApi.create(fishOrderData);
-        fishOrderId = newFishOrder?.fishOrder?._id || newFishOrder?._id || null;
-        fishOrderTotal = fishOrderTotalPrice;
+          const newFishOrder: any = await fishOrderApi.create(fishOrderData);
+          fishOrderId = newFishOrder?.fishOrder?._id || newFishOrder?._id || null;
+          fishOrderTotal = fishOrderTotalPrice;
+        } catch (fishOrderError) {
+          // If fish order fails and we have regular products, inform user about partial success
+          if (regularOrderId) {
+            error(
+              `Regular product order was created successfully, but fish product order failed. Please contact support with order ID: ${regularOrderId}. Error: ${fishOrderError instanceof Error ? fishOrderError.message : 'Unknown error'}`,
+              8000
+            );
+            // Don't clear cart for fish products, allow retry
+            const remainingCart = cart.filter((item) => {
+              const itemAny = item as any;
+              return itemAny.isFishProduct === true || 
+                     (itemAny.sizeCategories !== undefined && Array.isArray(itemAny.sizeCategories) && itemAny.sizeCategories.length > 0);
+            });
+            // Clear only regular products from cart
+            cart.forEach((item) => {
+              const itemAny = item as any;
+              const isFish = itemAny.isFishProduct === true || 
+                            (itemAny.sizeCategories !== undefined && Array.isArray(itemAny.sizeCategories) && itemAny.sizeCategories.length > 0);
+              if (!isFish) {
+                removeFromCart(item.id || item._id);
+              }
+            });
+            setLoadingMessage(null);
+            setIsSubmitting(false);
+            return;
+          }
+          throw fishOrderError;
+        }
       }
 
       setLoadingMessage(null);

@@ -15,7 +15,16 @@ async function fetchProduct(id: string) {
     const data = await res.json();
     return data.product;
   } catch (error) {
-    console.error("Error fetching product for metadata:", error);
+    // Silently fail for metadata - don't log connection errors in production
+    // The page component will handle displaying errors to users
+    // Connection errors (ECONNREFUSED) are expected when backend is not running
+    if (process.env.NODE_ENV === 'development') {
+      // Only log in development, and only if it's not a connection error
+      const err = error as any;
+      if (err?.code !== 'ECONNREFUSED' && err?.cause?.code !== 'ECONNREFUSED') {
+        console.error("Error fetching product for metadata:", error);
+      }
+    }
     return null;
   }
 }

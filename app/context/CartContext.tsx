@@ -71,6 +71,10 @@ export function CartProvider({ children }: CartProviderProps) {
         const id = product.id || product._id;
         const measurementInfo = getMeasurementInfo(product, variantId);
         
+        // Check if this is a fish product
+        const isFishProduct = (product as any).isFishProduct === true || 
+                              ((product as any).sizeCategories !== undefined && Array.isArray((product as any).sizeCategories) && (product as any).sizeCategories.length > 0);
+        
         // Find matching item (same product and same variant)
         const idx = prev.findIndex((item) => {
           const itemId = item.id || item._id;
@@ -78,6 +82,11 @@ export function CartProvider({ children }: CartProviderProps) {
           
           // Must match product ID
           if (itemId !== id) return false;
+          
+          // For fish products, must match size category ID (stored as variantId)
+          if (isFishProduct) {
+            return itemVariantId === variantId;
+          }
           
           // If product has variants, must match variant ID
           if (product.hasVariants) {
@@ -98,15 +107,44 @@ export function CartProvider({ children }: CartProviderProps) {
         }
         
         // Create new cart item with variant info if applicable
+        // Preserve all product properties including isFishProduct flag
         const newItem: CartItem = {
           ...product,
           id: id,
           quantity: qty,
           totalMeasurement: measurementInfo ? measurementInfo.measurement * qty : qty,
           unitWeightKg: product.unitWeightKg,
+          // Explicitly preserve isFishProduct and sizeCategories if they exist
+          ...((product as any).isFishProduct !== undefined && { isFishProduct: (product as any).isFishProduct }),
+          ...((product as any).sizeCategories !== undefined && { sizeCategories: (product as any).sizeCategories }),
         };
         
-        if (product.hasVariants && variantId) {
+        // Handle fish products with sizeCategories (isFishProduct already defined above)
+        if (isFishProduct && variantId) {
+          // For fish products, variantId is actually a sizeCategoryId
+          const sizeCategory = (product as any).sizeCategories?.find((sc: any) => sc._id === variantId);
+          if (sizeCategory) {
+            newItem.variantId = variantId;
+            // Store size category as variantSnapshot for compatibility
+            newItem.variantSnapshot = {
+              _id: sizeCategory._id,
+              label: sizeCategory.label,
+              price: sizeCategory.pricePerKg,
+              stock: sizeCategory.stock || 0,
+              measurement: 1,
+              unit: 'kg',
+              status: sizeCategory.status,
+              isDefault: sizeCategory.isDefault,
+            } as any;
+            // Override price and stock with size category values
+            newItem.price = sizeCategory.pricePerKg;
+            newItem.stock = sizeCategory.stock || 0;
+            newItem.measurement = 1;
+            newItem.unit = 'kg';
+            newItem.measurementIncrement = 0.5; // Default increment for fish
+          }
+        } else if (product.hasVariants && variantId) {
+          // Handle regular products with variants
           const variant = product.variants?.find((v) => v._id === variantId);
           if (variant) {
             newItem.variantId = variantId;

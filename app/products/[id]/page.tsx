@@ -233,6 +233,12 @@ export default function ProductDetailsPage() {
   }
 
   if (error) {
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : typeof error === 'string' 
+      ? error 
+      : 'Failed to load product. Please try again.';
+    
     return (
       <div className="bg-gradient-to-br from-amber-20 to-yellow-20 min-h-screen pb-20 md:pb-0 flex items-center justify-center">
         <div className="text-center max-w-md px-4">
@@ -240,7 +246,7 @@ export default function ProductDetailsPage() {
             <X className="w-16 h-16 mx-auto" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Product</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-gray-600 mb-6">{errorMessage}</p>
           <div className="flex gap-4 justify-center">
             <button
               onClick={() => mutate()}
