@@ -273,8 +273,8 @@ function Navbar() {
         {/* Container with consistent viewport width */}
         <div className="container mx-auto px-2 sm:px-3 md:px-4 lg:px-6 w-full 3xl:max-w-7xl 3xl:mx-auto">
           <div
-            className={`flex items-center justify-between gap-2 sm:gap-3 transition-all ${
-              scrolled ? "py-0.5 sm:py-1" : "py-1.5 sm:py-2"
+            className={`flex items-center justify-between gap-1.5 sm:gap-2 md:gap-3 transition-all ${
+              scrolled ? "py-0.5 sm:py-1" : "py-0.5 sm:py-1"
             }`}
           >
         {/* Left: Logo and Mobile Menu Icon */}
@@ -282,22 +282,22 @@ function Navbar() {
           {/* Mobile Menu Icon */}
           <button
             type="button"
-            className="md:hidden flex h-11 w-11 items-center justify-center text-gray-700 hover:text-green-600 rounded-2xl border border-green-100 bg-white/80 hover:bg-green-50 transition-all duration-300 touch-manipulation active:scale-95"
+            className="md:hidden flex h-8 w-8 items-center justify-center text-gray-700 hover:text-green-600 rounded-lg border border-green-100 bg-white/80 hover:bg-green-50 transition-all duration-300 touch-manipulation active:scale-95"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open Menu"
           >
-            <Menu size={18} className="sm:w-4 sm:h-4" />
+            <Menu size={15} className="sm:w-4 sm:h-4" />
           </button>
 
           {/* Mobile Search Icon - Hidden for Admin */}
           {!isAdmin && (
             <button
               type="button"
-              className="md:hidden flex h-11 w-11 items-center justify-center text-gray-700 hover:text-green-600 rounded-2xl border border-green-100 bg-white/80 hover:bg-green-50 transition-all duration-300 touch-manipulation active:scale-95"
+              className="md:hidden flex h-8 w-8 items-center justify-center text-gray-700 hover:text-green-600 rounded-lg border border-green-100 bg-white/80 hover:bg-green-50 transition-all duration-300 touch-manipulation active:scale-95"
               onClick={() => setMobileSearchOpen(true)}
               aria-label="Open Search"
             >
-              <Search size={18} className="sm:w-4 sm:h-4" />
+              <Search size={15} className="sm:w-4 sm:h-4" />
             </button>
           )}
 
@@ -311,7 +311,7 @@ function Navbar() {
               <img 
                 src="/logo/prokrishihublogo.png" 
                 alt="Prokrishi Logo" 
-                className="h-5 sm:h-6 md:h-7 w-auto object-cover object-center transition-transform duration-300 group-hover:scale-105 max-w-[100px] sm:max-w-[120px] md:max-w-none"
+                className="h-3.5 sm:h-4.5 md:h-7 w-auto object-cover object-center transition-transform duration-300 group-hover:scale-105 max-w-[80px] sm:max-w-[100px] md:max-w-none"
               />
               <div className="absolute inset-0 bg-green-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
@@ -462,17 +462,17 @@ function Navbar() {
 
           {/* Icons */}
           {user ? (
-            <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
+            <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
               <Link
                 href="/account"
-                className="flex items-center gap-1 text-gray-700 hover:text-green-600 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg hover:bg-green-100/80 transition-all duration-300 font-medium font-poppins touch-manipulation"
+                className="flex items-center gap-0.5 text-gray-700 hover:text-green-600 px-1 sm:px-1.5 py-0.5 sm:py-1 rounded-lg hover:bg-green-100/80 transition-all duration-300 font-medium font-poppins touch-manipulation"
               >
-                <User size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                <User size={13} className="sm:w-4 sm:h-4 flex-shrink-0" />
                 <span className="hidden lg:inline text-xs truncate max-w-[80px] md:max-w-none">{user.name}</span>
               </Link>
               <button
                 onClick={logout}
-                className="text-gray-600 hover:text-red-600 text-xs px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg hover:bg-red-100/80 transition-all duration-300 font-medium font-poppins touch-manipulation whitespace-nowrap"
+                className="text-gray-600 hover:text-red-600 text-xs px-1 sm:px-1.5 py-0.5 sm:py-1 rounded-lg hover:bg-red-100/80 transition-all duration-300 font-medium font-poppins touch-manipulation whitespace-nowrap"
               >
                 <span className="hidden sm:inline">Logout</span>
                 <span className="sm:hidden">Out</span>
@@ -481,19 +481,19 @@ function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center gap-1 text-gray-700 hover:text-green-600 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg hover:bg-green-100/80 transition-all duration-300 font-medium font-poppins touch-manipulation"
+              className="flex items-center gap-0.5 text-gray-700 hover:text-green-600 px-1 sm:px-1.5 py-0.5 sm:py-1 rounded-lg hover:bg-green-100/80 transition-all duration-300 font-medium font-poppins touch-manipulation"
             >
-              <User size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+              <User size={13} className="sm:w-4 sm:h-4 flex-shrink-0" />
               <span className="hidden lg:inline text-xs">Login</span>
             </Link>
           )}
 
           <button
             onClick={openSidebar}
-            className="relative text-gray-700 hover:text-green-600 p-1.5 sm:p-2 rounded-lg hover:bg-green-100/80 transition-all duration-300 touch-manipulation flex-shrink-0"
+            className="relative text-gray-700 hover:text-green-600 p-1 sm:p-1.5 rounded-lg hover:bg-green-100/80 transition-all duration-300 touch-manipulation flex-shrink-0"
             aria-label={`Shopping cart with ${cartCount} items`}
           >
-            <ShoppingCart size={16} className="sm:w-4 sm:h-4" />
+            <ShoppingCart size={15} className="sm:w-4 sm:h-4" />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-gradient-to-r from-green-600 to-green-700 text-white text-[10px] sm:text-xs rounded-full px-1.5 sm:px-2 py-0.5 sm:py-1 flex items-center justify-center min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] font-medium shadow-lg animate-pulse">
                 {cartCount > 99 ? "99+" : cartCount}

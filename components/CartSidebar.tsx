@@ -105,14 +105,21 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
       if (!selectedZone) {
         setShippingFee(0);
         setShippingError(null);
+        setShippingLoading(false);
       }
       return;
     }
 
     let isCancelled = false;
     isCalculatingRef.current = true;
-    setShippingLoading(true);
+    // Don't show loading immediately - keep previous value visible
     setShippingError(null);
+    // Use a small delay before showing loading to prevent flicker
+    const loadingTimeout = setTimeout(() => {
+      if (!isCancelled) {
+        setShippingLoading(true);
+      }
+    }, 150); // Small delay to prevent flicker on fast responses
 
     const calculateShipping = async () => {
       try {
@@ -136,6 +143,9 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         const result = await getShippingQuote(quotePayload);
         
         if (!isCancelled) {
+          // Smooth transition - update fee without showing loading if response is fast
+          clearTimeout(loadingTimeout);
+          setShippingLoading(false);
           setShippingFee(result.shippingFee);
           if (result.totalWeightKg) {
             setTotalWeightKg(result.totalWeightKg);
@@ -143,13 +153,14 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
+          clearTimeout(loadingTimeout);
           const errorMessage = err instanceof Error ? err.message : "Failed to calculate shipping.";
           setShippingFee(0);
           setShippingError(errorMessage);
+          setShippingLoading(false);
         }
       } finally {
         if (!isCancelled) {
-          setShippingLoading(false);
           isCalculatingRef.current = false;
         }
       }
@@ -159,6 +170,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
 
     return () => {
       isCancelled = true;
+      clearTimeout(loadingTimeout);
       isCalculatingRef.current = false;
     };
   }, [selectedZone, cart]);
@@ -503,9 +515,9 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto pb-20 md:pb-4">
+        <div className="flex-1 overflow-y-auto md:pb-4" style={{ paddingBottom: 'calc(64px + 5rem)' }}>
           {checkoutStep === "cart" && (
-            <div className="p-4">
+            <div className="p-3 sm:p-4">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <ShoppingCart className="w-16 h-16 text-gray-300 mb-4" />
@@ -524,8 +536,18 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 </div>
               ) : (
                 <>
-                  {/* Cart Items */}
-                  <div className="space-y-3 mb-6">
+                  {/* Quick Order Summary - Always Visible */}
+                  <div className="sticky top-0 bg-white border-b border-gray-200 -mx-4 px-4 py-2.5 z-30 mb-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">{cartCount} {cartCount === 1 ? 'item' : 'items'}</span>
+                      <span className="font-bold text-gray-900 transition-all duration-300 ease-in-out">
+                        ৳{formatAmount(cartTotal + shippingFee)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Cart Items - Compact Design */}
+                  <div className="space-y-2 mb-3">
                     {cart.map((item) => {
                       const displayQty = getItemDisplayQuantity ? getItemDisplayQuantity(item) : null;
                       const itemTotalPrice = item.price * item.quantity;
@@ -534,9 +556,9 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                       return (
                         <div
                           key={cartKey}
-                          className="flex gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-green-300 transition-colors"
+                          className="flex gap-2.5 p-2.5 border border-gray-200 rounded-lg hover:border-gray-300 transition-all bg-white"
                         >
-                          <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                          <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
                             <Image
                               src={item.image || "/img/placeholder.png"}
                               alt={item.name}
@@ -544,117 +566,139 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                               className="object-cover"
                             />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2">
-                              {item.name}
-                            </h4>
-                            <div className="mb-2">
-                              <p className="text-green-600 font-bold text-sm">
-                                ৳{formatAmount(itemTotalPrice)}
-                              </p>
-                              {displayQty && (
-                                <p className="text-xs text-gray-500 mt-0.5">
-                                  {displayQty.displayText} × {item.quantity}
+                          <div className="flex-1 min-w-0 flex flex-col justify-between">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-gray-900 text-xs sm:text-sm mb-1 line-clamp-1 leading-tight">
+                                {item.name}
+                              </h4>
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="text-green-600 font-bold text-xs sm:text-sm">
+                                  ৳{formatAmount(itemTotalPrice)}
                                 </p>
-                              )}
+                                {displayQty && (
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {displayQty.displayText}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() =>
-                                updateQuantity(itemId, item.quantity - 1, item.variantId)
-                              }
-                              className="w-7 h-7 flex items-center justify-center border-2 border-gray-300 rounded hover:border-green-500 hover:bg-green-50 transition-colors"
-                            >
-                              <Minus className="w-4 h-4" />
-                            </button>
-                            <span className="w-8 text-center font-semibold text-gray-900">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() =>
-                                updateQuantity(itemId, item.quantity + 1, item.variantId)
-                              }
-                              className="w-7 h-7 flex items-center justify-center border-2 border-gray-300 rounded hover:border-green-500 hover:bg-green-50 transition-colors"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => removeFromCart(itemId, item.variantId)}
-                              className="ml-auto p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                              <button
+                                onClick={() =>
+                                  updateQuantity(itemId, item.quantity - 1, item.variantId)
+                                }
+                                className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded-md hover:border-green-500 hover:bg-green-50 active:bg-green-100 transition-all touch-manipulation active:scale-95"
+                              >
+                                <Minus className="w-3.5 h-3.5" />
+                              </button>
+                              <span className="w-8 text-center font-semibold text-gray-900 text-xs">
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  updateQuantity(itemId, item.quantity + 1, item.variantId)
+                                }
+                                className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded-md hover:border-green-500 hover:bg-green-50 active:bg-green-100 transition-all touch-manipulation active:scale-95"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => removeFromCart(itemId, item.variantId)}
+                                className="ml-auto p-1.5 text-red-600 hover:bg-red-50 active:bg-red-100 rounded-md transition-all touch-manipulation active:scale-95"
+                                aria-label="Remove item"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
                       );
                     })}
                   </div>
 
-                  {/* Shipping Zone Selection */}
-                  <div className="border-t-2 border-gray-200 pt-4 mb-4">
-                    <h3 className="font-semibold text-gray-900 mb-3">Delivery Zone</h3>
-                    <div className="grid grid-cols-2 gap-3 mb-4">
+                  {/* Shipping Zone Selection - Compact */}
+                  <div className="border-t border-gray-200 pt-3 mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900 text-sm">Delivery Zone</h3>
+                      {totalWeightKg > 0 && (
+                        <p className="text-xs text-gray-500">
+                          {totalWeightKg.toFixed(2)} kg
+                        </p>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
                       <button
-                        onClick={() => setSelectedZone('inside_dhaka')}
-                        className={`p-3 border-2 rounded-lg font-semibold transition-all ${
+                        onClick={() => {
+                          if (selectedZone !== 'inside_dhaka') {
+                            setSelectedZone('inside_dhaka');
+                          }
+                        }}
+                        className={`p-2.5 border rounded-lg font-medium text-sm transition-all duration-200 ${
                           selectedZone === 'inside_dhaka'
-                            ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
-                            : 'border-gray-200 hover:border-green-300 text-gray-700'
+                            ? 'border-green-500 bg-green-50 text-green-700 shadow-sm'
+                            : 'border-gray-200 hover:border-green-300 hover:bg-gray-50 text-gray-700 active:scale-[0.98]'
                         }`}
                       >
                         Inside Dhaka
                       </button>
                       <button
-                        onClick={() => setSelectedZone('outside_dhaka')}
-                        className={`p-3 border-2 rounded-lg font-semibold transition-all ${
+                        onClick={() => {
+                          if (selectedZone !== 'outside_dhaka') {
+                            setSelectedZone('outside_dhaka');
+                          }
+                        }}
+                        className={`p-2.5 border rounded-lg font-medium text-sm transition-all duration-200 ${
                           selectedZone === 'outside_dhaka'
-                            ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
-                            : 'border-gray-200 hover:border-green-300 text-gray-700'
+                            ? 'border-green-500 bg-green-50 text-green-700 shadow-sm'
+                            : 'border-gray-200 hover:border-green-300 hover:bg-gray-50 text-gray-700 active:scale-[0.98]'
                         }`}
                       >
                         Outside Dhaka
                       </button>
                     </div>
-                    {totalWeightKg > 0 && (
-                      <p className="text-xs text-gray-500 mb-2">
-                        Total Weight: {totalWeightKg.toFixed(2)} kg
-                      </p>
-                    )}
                   </div>
 
-                  {/* Order Summary */}
-                  <div className="border-t-2 border-gray-200 pt-4 mb-4">
-                    <div className="flex justify-between text-gray-600 mb-2">
+                  {/* Order Summary - Compact */}
+                  <div className="border-t border-gray-200 pt-3 mb-3 space-y-1.5">
+                    <div className="flex justify-between text-sm text-gray-600">
                       <span>Subtotal</span>
                       <span className="font-semibold">৳{formatAmount(cartTotal)}</span>
                     </div>
-                    <div className="flex justify-between text-gray-600 mb-2">
+                    <div className="flex justify-between text-sm text-gray-600">
                       <span>Shipping</span>
-                      <span className="font-bold text-green-600">
-                        {shippingLoading
-                          ? "Calculating..."
-                          : !selectedZone
-                          ? "Select zone"
-                          : shippingFee === 0
-                          ? "FREE"
-                          : `৳${formatAmount(shippingFee)}`}
+                      <span className="font-semibold min-w-[80px] text-right">
+                        {!selectedZone ? (
+                          <span className="text-gray-400 transition-opacity duration-300">Select zone</span>
+                        ) : shippingLoading ? (
+                          <span className="inline-flex items-center gap-1.5 text-gray-500 transition-opacity duration-300">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            <span>Calculating...</span>
+                          </span>
+                        ) : shippingFee === 0 ? (
+                          <span className="text-green-600 transition-all duration-300 ease-in-out">FREE</span>
+                        ) : (
+                          <span className="text-green-600 transition-all duration-300 ease-in-out animate-in fade-in">
+                            ৳{formatAmount(shippingFee)}
+                          </span>
+                        )}
                       </span>
                     </div>
                     {shippingError && (
-                      <p className="text-xs text-red-500 mb-2">{shippingError}</p>
+                      <p className="text-xs text-red-500">{shippingError}</p>
                     )}
-                    <div className="flex justify-between text-xl font-bold text-gray-900 mt-3 pt-3 border-t-2 border-gray-200">
+                    <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-200">
                       <span>Total</span>
-                      <span>৳{formatAmount(cartTotal + shippingFee)}</span>
+                      <span className="transition-all duration-300 ease-in-out min-w-[100px] text-right">
+                        ৳{formatAmount(cartTotal + shippingFee)}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Proceed to Checkout Button - Fixed at bottom with mobile nav padding */}
-                  <div className="fixed bottom-16 md:sticky md:bottom-0 left-0 right-0 md:left-auto md:right-auto bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4 md:pb-4 z-50">
+                  {/* Proceed to Checkout Button - At bottom of content */}
+                  <div className="bg-white pt-3 border-t border-gray-200 -mx-4 px-4 pb-4 md:pb-4">
                     <button
                       onClick={() => setCheckoutStep("address")}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg"
+                      className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 px-4 rounded-lg font-bold text-sm sm:text-base transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] touch-manipulation"
                     >
                       Proceed to Checkout
                     </button>
@@ -665,7 +709,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
           )}
 
           {checkoutStep === "address" && (
-            <div className="p-4 space-y-4 pb-6">
+            <div className="p-3 sm:p-4 space-y-3 md:pb-6" style={{ paddingBottom: 'calc(64px + 5rem)' }}>
               <div className="flex items-center justify-between mb-2 sticky top-0 bg-white z-10 pb-2">
                 <button
                   onClick={() => {
@@ -680,8 +724,8 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
 
               {/* Shipping Address */}
               <div>
-                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-green-600" />
+                <h3 className="font-semibold text-gray-900 mb-2.5 flex items-center gap-2 text-sm sm:text-base">
+                  <MapPin className="w-4 h-4 text-green-600" />
                   Shipping Address
                 </h3>
                 {openAddressForm ? (
@@ -695,7 +739,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   <div>
                     {user ? (
                       <>
-                        <div className="space-y-2 mb-3 max-h-64 overflow-y-auto">
+                        <div className="space-y-2 mb-2.5 max-h-56 overflow-y-auto">
                           {addresses.length > 0 ? (
                             addresses.map((addr) => (
                               <div
@@ -756,95 +800,113 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 )}
               </div>
 
-              {/* Shipping Zone Selection in Address Step */}
-              <div className="border-t-2 border-gray-200 pt-4 mb-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Delivery Zone</h3>
-                <div className="grid grid-cols-2 gap-3 mb-4">
+              {/* Shipping Zone Selection in Address Step - Compact */}
+              <div className="border-t border-gray-200 pt-3 mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-gray-900 text-sm">Delivery Zone</h3>
+                  {totalWeightKg > 0 && (
+                    <p className="text-xs text-gray-500">
+                      {totalWeightKg.toFixed(2)} kg
+                    </p>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => setSelectedZone('inside_dhaka')}
-                    className={`p-3 border-2 rounded-lg font-semibold transition-all ${
+                    onClick={() => {
+                      if (selectedZone !== 'inside_dhaka') {
+                        setSelectedZone('inside_dhaka');
+                      }
+                    }}
+                    className={`p-2.5 border rounded-lg font-medium text-sm transition-all duration-200 ${
                       selectedZone === 'inside_dhaka'
-                        ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
-                        : 'border-gray-200 hover:border-green-300 text-gray-700'
+                        ? 'border-green-500 bg-green-50 text-green-700 shadow-sm'
+                        : 'border-gray-200 hover:border-green-300 hover:bg-gray-50 text-gray-700 active:scale-[0.98]'
                     }`}
                   >
                     Inside Dhaka
                   </button>
                   <button
-                    onClick={() => setSelectedZone('outside_dhaka')}
-                    className={`p-3 border-2 rounded-lg font-semibold transition-all ${
+                    onClick={() => {
+                      if (selectedZone !== 'outside_dhaka') {
+                        setSelectedZone('outside_dhaka');
+                      }
+                    }}
+                    className={`p-2.5 border rounded-lg font-medium text-sm transition-all duration-200 ${
                       selectedZone === 'outside_dhaka'
-                        ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
-                        : 'border-gray-200 hover:border-green-300 text-gray-700'
+                        ? 'border-green-500 bg-green-50 text-green-700 shadow-sm'
+                        : 'border-gray-200 hover:border-green-300 hover:bg-gray-50 text-gray-700 active:scale-[0.98]'
                     }`}
                   >
                     Outside Dhaka
                   </button>
                 </div>
-                {totalWeightKg > 0 && (
-                  <p className="text-xs text-gray-500 mb-2">
-                    Total Weight: {totalWeightKg.toFixed(2)} kg
-                  </p>
-                )}
               </div>
 
               {/* Order Summary in Address Step */}
               {selectedAddress && (
-                <div className="border-t-2 border-gray-200 pt-4 mb-4">
-                  <h3 className="font-bold text-gray-900 mb-3">Order Summary</h3>
-                  <div className="flex justify-between text-gray-600 mb-2">
+                <div className="border-t border-gray-200 pt-3 mb-3 space-y-1.5">
+                  <div className="flex justify-between text-sm text-gray-600">
                     <span>Subtotal</span>
                     <span className="font-semibold">৳{formatAmount(cartTotal)}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600 mb-2">
+                  <div className="flex justify-between text-sm text-gray-600">
                     <span>Shipping</span>
-                    <span className="font-bold text-green-600">
-                      {shippingLoading
-                        ? "Calculating..."
-                        : !selectedZone
-                        ? "Select zone"
-                        : shippingFee === 0
-                        ? "FREE"
-                        : `৳${formatAmount(shippingFee)}`}
+                    <span className="font-semibold min-w-[80px] text-right">
+                      {!selectedZone ? (
+                        <span className="text-gray-400 transition-opacity duration-300">Select zone</span>
+                      ) : shippingLoading ? (
+                        <span className="inline-flex items-center gap-1.5 text-gray-500 transition-opacity duration-300">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Calculating...</span>
+                        </span>
+                      ) : shippingFee === 0 ? (
+                        <span className="text-green-600 transition-all duration-300 ease-in-out">FREE</span>
+                      ) : (
+                        <span className="text-green-600 transition-all duration-300 ease-in-out animate-in fade-in">
+                          ৳{formatAmount(shippingFee)}
+                        </span>
+                      )}
                     </span>
                   </div>
                   {shippingError && (
-                    <p className="text-xs text-red-500 mb-2">{shippingError}</p>
+                    <p className="text-xs text-red-500">{shippingError}</p>
                   )}
-                  <div className="flex justify-between text-xl font-bold text-gray-900 mt-3 pt-3 border-t-2 border-gray-200">
+                  <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-200">
                     <span>Total</span>
-                    <span>৳{formatAmount(cartTotal + shippingFee)}</span>
+                    <span className="transition-all duration-300 ease-in-out min-w-[100px] text-right">
+                      ৳{formatAmount(cartTotal + shippingFee)}
+                    </span>
                   </div>
                 </div>
               )}
 
-              {/* Place Order Button - Fixed at bottom with mobile nav padding */}
-              <div className="fixed bottom-16 md:sticky md:bottom-0 left-0 right-0 md:left-auto md:right-auto bg-white pt-4 border-t-2 border-gray-200 -mx-4 px-4 pb-4 md:pb-4 z-50">
+              {/* Place Order Button - At bottom of content */}
+              <div className="bg-white pt-3 border-t border-gray-200 -mx-4 px-4 pb-4 md:pb-4">
                 <button
                   onClick={handlePlaceOrder}
                   disabled={!selectedAddress || !selectedZone || isSubmitting || shippingLoading}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3.5 px-6 rounded-lg font-bold text-lg transition-colors shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 px-4 rounded-lg font-bold text-sm sm:text-base transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400 disabled:active:scale-100 flex items-center justify-center gap-2 touch-manipulation"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Placing Order...</span>
-                    </>
-                  ) : (
-                    "Place Order (Cash on Delivery)"
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>Placing Order...</span>
+                      </>
+                    ) : (
+                      "Place Order (Cash on Delivery)"
+                    )}
+                  </button>
+                  {!selectedAddress && (
+                    <p className="text-xs text-gray-500 text-center mt-2">
+                      Please fill in name, phone, and address to continue
+                    </p>
                   )}
-                </button>
-                {!selectedAddress && (
-                  <p className="text-xs text-gray-500 text-center mt-2">
-                    Please fill in name, phone, and address to continue
-                  </p>
-                )}
-                {!selectedZone && (
-                  <p className="text-xs text-gray-500 text-center mt-2">
-                    Please select delivery zone
-                  </p>
-                )}
-              </div>
+                  {!selectedZone && (
+                    <p className="text-xs text-gray-500 text-center mt-2">
+                      Please select delivery zone
+                    </p>
+                  )}
+                </div>
             </div>
           )}
 
