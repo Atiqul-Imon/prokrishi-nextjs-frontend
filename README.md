@@ -1,4 +1,6 @@
-# Prokrishi Frontend
+# Prokrishi Frontend (Legacy)
+
+> This codebase is now legacy and no longer used in production. The active frontend lives in `../frontend-new`. Only update this directory for reference or migration purposes.
 
 Modern e-commerce frontend built with Next.js 15, React 19, and TypeScript.
 
